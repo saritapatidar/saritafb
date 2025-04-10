@@ -1,0 +1,23 @@
+
+{% block content %}
+    <div class="profile-container">
+        {% if user.is_authenticated %}
+            <h1>{{ user.Firstname }} Profile</h1>
+        {% endif %}
+            <!-- Display user profile details -->
+            {% if profile %}
+                <div class="profile-info">
+                    <p><strong>Bio:</strong> {{ profile.bio|default:"No bio available" }}</p>
+                    
+                    {% if profile.profile_picture %}
+                        <p><strong>Profile Picture:</strong></p>
+                        <img src="{{ profile.url }}" alt="Profile Picture" style="max-width: 200px; max-height: 200px;">
+                    {% else %}
+                        <p>No profile picture set.</p>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p>You have not set up your profile yet.</p>
+            {% endif %}
+    </div>
+{% endblock %}
