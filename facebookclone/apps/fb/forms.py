@@ -27,3 +27,14 @@ class post(forms.ModelForm):
         model = create_post
         fields = ['content','image']
 
+
+class friends(forms.ModelForm):
+    class Meta:
+        model = Friend_request
+        fields =['userfrom','to_user']
+
+
+class likes(forms.ModelForm):
+    class Meta:
+        model=like
+        fields=['likes']

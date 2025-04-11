@@ -91,6 +91,28 @@ def post_page(request):
 
     return render(request,'post.html',{'post':form})
 
+def send_friendrequest(request):
+    if request.method=='POST':
+        form=friends(request.POST)
+        if form.is_valid():
+            to_user=get_object_or_404(CustomUser,pk=form.cleaned_data['to_user_id'])
+# get_object_or_404=make sure we do not send a request to a non existing user
+            if request.user==to_user:
+                return redirect('profile_page',username=to_user.username)
+            
+            friend_request,created=FriendRequest.object.get_or_create(userform=request.user,to_user=to_user)
+# get_or_create=prevent dublicate request 
+            
+            return redirect('profile_page',username=to_user.username)
+    return redirect('home')    
+
+
+def accept_request(request,requestid):
+    friend_request=get_object_or_404(FriendRequest,id=request_id)
+    if friend_request.to_user==request.user:
+        friend_request.is_accepted=True
+        friend_request.save()
+    return redirect('friend_request')
 
 
 
@@ -104,21 +126,18 @@ def post_page(request):
 
 
 
-
-
-
-def login_page(request):
-         if request.method == 'POST':
-             form = LoginForm(request.POST)
-             if form.is_valid():
-                 phone_number = form.cleaned_data['phone_number']
-                 password = form.cleaned_data['password']
-                 user =authenticate(phone_number=phone_number,password=password)
-                 if user is not None:
-                     login(request, user)
-                     return redirect('home') 
-                #  else:
-                #      form.add_error(None, "Invalid credentials")
-         else:
-             form = LoginForm()
-         return render(request, 'login.html', {'form': form})
+# def login_page(request):
+#          if request.method == 'POST':
+#              form = LoginForm(request.POST)
+#              if form.is_valid():
+#                  phone_number = form.cleaned_data['phone_number']
+#                  password = form.cleaned_data['password']
+#                  user =authenticate(phone_number=phone_number,password=password)
+#                  if user is not None:
+#                      login(request, user)
+#                      return redirect('home') 
+#                 #  else:
+#                 #      form.add_error(None, "Invalid credentials")
+#          else:
+#              form = LoginForm()
+#          return render(request, 'login.html', {'form': form})
