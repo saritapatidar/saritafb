@@ -89,7 +89,23 @@ def post_page(request):
     else:
         form = forms.post()
 
-    return render(request,'post.html',{'post':form})
+    return render(request ,'post.html',{'post':form})
+
+def send_friendrequest(request):
+    if request.method=='POST':
+        form=friends(request.POST)
+        if form.is_valid():
+            to_user=get_object_or_404(CustomUser,pk=form.cleaned_data['to_user_id'])
+# get_object_or_404=make sure we do not send a request to a non existing user
+            if request.user==to_user:
+                return redirect('profile_page',username=to_user.username)
+            
+            friend_request,created=FriendRequest.object.get_or_create(userform=request.user,to_user=to_user)
+# get_or_create=prevent dublicate request 
+            
+            return redirect('profile_page',username=to_user.username)
+    return redirect('home')    
+    
 
 
 

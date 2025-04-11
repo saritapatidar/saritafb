@@ -18,13 +18,13 @@ class UserManagercustom(BaseUserManager):
 
         return self.create_user(phone_number,password,**extra_fields)
     
-    def authenticate(self, request, phone_number=None, password=None):
-        try:
-            user = self.get(phone_number=phone_number)
-            if user.check_password(password):  
-                return user
-        except self.model.DoesNotExist:
-            return None
+    # def authenticate(self, request, phone_number=None, password=None):
+    #     try:
+    #         user = self.get(phone_number=phone_number)
+    #         if user.check_password(password):  
+    #             return user
+    #     except self.model.DoesNotExist:
+    #         return None
     
 
     
