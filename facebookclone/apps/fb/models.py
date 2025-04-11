@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser,BaseUserManager
 from django.core.validators import RegexValidator
 from django.contrib.auth import get_user_model
 from .manager import UserManagercustom
+from django.conf import settings
 # from manager import UserManager
 # import phonenumbers
 # from phonenumber_field.validators import validate_international_phone_number
@@ -78,4 +79,18 @@ class create_post(models.Model):
         return f'{self.user.username} post'
 
     
+class Friend_request(models.Model):
+    userfrom = models.ForeignKey(
+        CustomUser, related_name="userfrom", on_delete=models.CASCADE
+    )
+    to_user = models.ForeignKey(
+        CustomUser, related_name="to_user", on_delete=models.CASCADE
+    )
+
+
+class like(models.Model):
+    likes=models.ManyToManyField(CustomUser)
+
+    def number_of_likes(self):
+        return self.likes.count()
 
