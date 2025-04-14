@@ -1,11 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    Myfacebook
-</body>
-</html>
+{% for post in posts %}
+  <div class="card p-3 my-3">
+    <p>{{ post.content }}</p>
+    {% if post.image %}
+      <img src="{{ post.image.url }}" class="img-fluid" />
+    {% endif %}
+    
+    <form method="POST" action="{% url 'likes_unlike' post.id %}">
+      {% csrf_token %}
+      <button class="btn btn-outline-primary">
+        {% if request.user in post.like.likes.all %}
+          Unlike
+        {% else %}
+          Like
+        {% endif %}
+      </button>
+      <span>{{ post.like.likes.count }} likes</span>
+    </form>
+  </div>
+{% endfor %}
