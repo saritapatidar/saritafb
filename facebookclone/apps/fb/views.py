@@ -83,12 +83,12 @@ def post_page(request):
     if request.method == "POST":
         form = forms.post(request.POST,request.FILES)
         if form.is_valid():
-            post = forms.save()
+            post = form.save()
             post.user = request.user
             post.save()
             return redirect("home")
-    else:
-        form = forms.post()
+    # else:
+    #     form = forms.post()
 
     return render(request,'post.html',{'post':form})
 
