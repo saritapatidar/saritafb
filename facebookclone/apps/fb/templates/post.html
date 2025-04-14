@@ -1,31 +1,33 @@
-<<<<<<< HEAD
-
-=======
 {% load static %}
->>>>>>> 9bd96f42fc4b2e0b4be77bc941d18659c4f0c978
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Create Post</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .post-card {
+        .post-container {
             max-width: 600px;
-            margin: 0 auto;
+            margin: 50px auto;
         }
 
         .post-header {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .post-header img {
-            width: 50px;
-            height: 50px;
+            width: 55px;
+            height: 55px;
             object-fit: cover;
             border-radius: 50%;
             margin-right: 10px;
+        }
+
+        .card {
+            padding: 20px;
+            border-radius: 15px;
         }
 
         textarea {
@@ -35,45 +37,43 @@
     </style>
 </head>
 <body class="bg-light">
-    <div class="container mt-5 post-card">
-        <div class="card shadow p-4">
-            <div class="post-header">
-                {% if request.user.userprofile.profile_picture %}
-                    <img src="{{ request.user.userprofile.profile_picture.url }}" alt="Profile Pic">
-                {% else %}
-                    <img src="{% static 'default_profile.png' %}" alt="Default Pic">
-                {% endif %}
-                <strong>{{ request.user.Firstname }} {{ request.user.Surname }}</strong>
-            </div>
 
-<<<<<<< HEAD
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
-      crossorigin="anonymous"
-    ></script>
-    -->
-  </body>
-=======
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="form-group mb-3">
-                    {{ post.content.label_tag }}
-                    {{ post.content }}
-                </div>
+<div class="container post-container">
+    <div class="card shadow">
 
-                <div class="form-group mb-3">
-                    {{ post.image.label_tag }}
-                    {{ post.image }}
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100">Post</button>
-            </form>
+        <!-- User Info -->
+        <div class="post-header">
+            {% if request.user.userprofile.profile_picture %}
+                <img src="{{ request.user.userprofile.profile_picture.url }}" alt="Profile Picture">
+            {% else %}
+                <img src="{% static 'default_profile.png' %}" alt="Default Profile Picture">
+            {% endif %}
+            <strong>{{ request.user.Firstname }} {{ request.user.Surname }}</strong>
         </div>
 
-        <a href="{% url 'home' %}" class="btn btn-link mt-3 text-center d-block">← Back to Feed</a>
+        <!-- Post Form -->
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                {{ post.content.label_tag }}
+                {{ post.content|add_class:"form-control" }}
+            </div>
+
+            <div class="mb-3">
+                {{ post.image.label_tag }}
+                {{ post.image|add_class:"form-control" }}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Post</button>
+        </form>
     </div>
+
+    <!-- Back Link -->
+    <a href="{% url 'home' %}" class="btn btn-link mt-3 d-block text-center">← Back to Feed</a>
+</div>
+
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
->>>>>>> 9bd96f42fc4b2e0b4be77bc941d18659c4f0c978
 </html>
