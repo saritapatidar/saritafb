@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+
 from django.contrib.auth import get_user_model
 from .models import *
 from django.forms import ModelForm
@@ -36,5 +37,7 @@ class friends(forms.ModelForm):
 
 class likes(forms.ModelForm):
     class Meta:
+        # class Meta is basically the inner class. In Django, the use of the Meta class is simply to provide metadata to the ModelForm or the Model class
+        # it use metaclass to automatically generate database table based on that class
         model=like
-        fields=['likes']
+        fields=['post','likes']

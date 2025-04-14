@@ -21,7 +21,7 @@ from pathlib import Path
 
 
 def home_page(request):
-        return render(request,'home.html')
+        return render(request,'post.html')
 
 
 def logout_user(request):
@@ -113,6 +113,15 @@ def accept_request(request,requestid):
         friend_request.is_accepted=True
         friend_request.save()
     return redirect('friend_request')
+
+
+def likes_unlike(request,post_id):
+    post=get_object_or_404(like,id=post_id)
+    print(id)
+    like_obj,created=like.object.get_or_create(post=post)
+
+
+
 
 
 
