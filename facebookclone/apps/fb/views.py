@@ -13,6 +13,7 @@ from django.urls import reverse
 from . import forms
 from .forms import LoginForm
 from .forms import post
+from .models import create_post, like
 # . refers to the current package or current directory where the views.py file is located.
 from pathlib import Path
 # from .backends import PhoneUsernameAuthenticationBackend as EoP
@@ -114,12 +115,20 @@ def accept_request(request,requestid):
         friend_request.save()
     return redirect('friend_request')
 
+def likes_unlike(request, post_id):
+    post = get_object_or_404(create_post, id=post_id)
+    
+    # Get or create like object related to this post
+    like_obj, created = like.objects.get_or_create(post=post)
 
-def likes_unlike(request,post_id):
-    post=get_object_or_404(like,id=post_id)
-    print(id)
-    like_obj,created=like.object.get_or_create(post=post)
+    if request.user in like_obj.likes.all():
+        like_obj.likes.remove(request.user)
+        liked = False
+    else:
+        like_obj.likes.add(request.user)
+        liked = True
 
+    return redirect('home')
 
 
 
