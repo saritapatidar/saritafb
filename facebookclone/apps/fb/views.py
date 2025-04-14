@@ -79,7 +79,7 @@ def profile_page(request):
 
 
 def post_page(request):
-    form = forms.post()
+    # form = forms.post()
     if request.method == "POST":
         form = forms.post(request.POST,request.FILES)
         if form.is_valid():
@@ -87,8 +87,8 @@ def post_page(request):
             post.user = request.user
             post.save()
             return redirect("home")
-    # else:
-    #     form = forms.post()
+    else:
+        form = forms.post()
 
     return render(request,'post.html',{'post':form})
 
