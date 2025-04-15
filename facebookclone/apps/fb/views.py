@@ -115,11 +115,20 @@ def accept_request(request,requestid):
     return redirect('friend_request')
 
 
-def likes_unlike(request,post_id):
-    post=get_object_or_404(like,id=post_id)
-    print(id)
-    like_obj,created=like.object.get_or_create(post=post)
+def post_list(request):
+    posts = Post.objects.all()
+    return render(request, 'posts.html', {'posts': posts})
 
+def toggle_like(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    user = request.user
+
+    if user in post.likes.all():
+        post.likes.remove(user)
+    else:
+        post.likes.add(user)
+
+    return redirect('post_list')
 
 
 
