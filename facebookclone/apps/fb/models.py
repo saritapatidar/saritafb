@@ -94,20 +94,21 @@ class UserProfile(models.Model):
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     
 
-class create_post(models.Model):
-    user=models.ForeignKey(UserProfile,on_delete=models.CASCADE)
-    content=models.TextField()
-    image=models.ImageField(upload_to='post/',blank=True,default=" ")
+class Post(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    content = models.TextField()
+    image = models.ImageField(upload_to='post/', blank=True, null=True)
+    likes = models.ManyToManyField(CustomUser, related_name='liked_posts', blank=True)
 
-    
+
 class Friend_request(models.Model):
     userfrom = models.ForeignKey(CustomUser, related_name="userfrom", on_delete=models.CASCADE)
     to_user = models.ForeignKey(CustomUser, related_name="to_user", on_delete=models.CASCADE)
 
 
-class like(models.Model):
- post = models.ForeignKey(create_post, on_delete=models.CASCADE)
- likes=models.ManyToManyField(CustomUser)
-    def number_of_likes(self):
-        return self.likes.count()
+# class like(models.Model):
+#  post = models.ForeignKey(create_post, on_delete=models.CASCADE)
+#  likes=models.ManyToManyField(CustomUser)
+#     def number_of_likes(self):
+#         return self.likes.count()
 
