@@ -81,4 +81,11 @@ class Friend_request(models.Model):
 class like(models.Model):
  post = models.ForeignKey(create_post, on_delete=models.CASCADE)
  likes=models.ManyToManyField(CustomUser)
+<<<<<<< HEAD
  
+=======
+
+    def number_of_likes(self):
+        return self.likes.count()
+
+>>>>>>> 9bd96f42fc4b2e0b4be77bc941d18659c4f0c978
