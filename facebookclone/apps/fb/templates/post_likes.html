@@ -1,15 +1,21 @@
-{% if user.is_authenticated %}
-  <form action="{% url 'likes_functionality' object.id %}" method="POST">
-    {{form.as_p}}
-    {% csrf_token %}
+{% for post in posts %}
+  <div style="border: 1px solid #ccc; margin-bottom: 15px; padding: 10px;">
+    <p><strong>{{ post.user.email }}</strong></p>
+    <p>{{ post.content }}</p>
 
-    {% if post_is_liked %}
-    <button type="submit" name="blogpost_id" value="{{object.id}}" class="btn btn-info">Unlike</button>
-    {% else %}
-    <button type="submit" name="blogpost_id" value="{{object.id}}" class="btn btn-info">Like</button>
+    {% if post.image %}
+      <img src="{{ post.image.url }}" width="200" />
     {% endif %}
-  </form>
-{% else %}
-  <a class="btn btn-outline-info" href="{% url 'login' %}?next={{request.path}}">Log in to like this article!</a><br>
-{% endif %}
-<strong class="text-secondary">{{ number_of_likes }} Like{{ number_of_likes|pluralize }}</strong>
+
+    <p>Likes: {{ post.number_of_likes }}</p>
+
+    <form method="post" action="{% url 'toggle_like' post.id %}">
+      {% csrf_token %}
+      {% if user in post.likes.all %}
+        <button type="submit">Unlike</button>
+      {% else %}
+        <button type="submit">Like</button>
+      {% endif %}
+    </form>
+  </div>
+{% endfor %}
