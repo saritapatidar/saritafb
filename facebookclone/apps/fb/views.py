@@ -32,17 +32,15 @@ def logout_user(request):
 def signup_page(request):
     form = forms.SignupForm()
     messages = ""
-    
     if request.method == 'POST':
         form = forms.SignupForm(request.POST)
         
         if form.is_valid():
-            password = make_password(form.cleaned_data['password'])
-            user = form.save(commit=False)  
+            # password = make_password(form.cleaned_data['password'])
+            user = form.save()
             user.password = password  
             user.save()  
-            # login(request, user) 
-            # return redirect('login_page')  
+            return redirect('login')
     
     return render(request, 'signup.html', context={'form': form})
 
@@ -92,19 +90,31 @@ def post_page(request):
     return render(request,'post.html',{'post':form})
 
 def send_friendrequest(request):
-    if request.method=='POST':
-        form=friends(request.POST)
+    if request.method == 'POST':
+        form = friends(request.POST)
         if form.is_valid():
-            to_user=get_object_or_404(CustomUser,pk=form.cleaned_data['to_user_id'])
-# get_object_or_404=make sure we do not send a request to a non existing user
-            if request.user==to_user:
-                return redirect('profile_page',username=to_user.username)
+            to_user_id = form.cleaned_data['to_user_id']
+
+            if not str(to_user_id).isdigit():
+                return redirect('home') 
+
+            to_user = get_object_or_404(CustomUser, pk=to_user_id)
+            # get_object_or_404=make sure we do not send a request to a non existing user
+
+            if request.user == to_user:
+                return redirect('profile_page', username=to_user.username)
+
+            friend_request, created = Friend_request.objects.get_or_create(
+                userfrom=request.user,
+                to_user=to_user
+            )
+            # get_or_create=prevent dublicate request 
             
-            friend_request,created=FriendRequest.object.get_or_create(userform=request.user,to_user=to_user)
-# get_or_create=prevent dublicate request 
-            
-            return redirect('profile_page',username=to_user.username)
-    return redirect('home')    
+
+            return redirect('profile_page', username=to_user.username)
+    
+    return redirect('home')
+
 
 
 def accept_request(request,requestid):
@@ -113,21 +123,6 @@ def accept_request(request,requestid):
         friend_request.is_accepted=True
         friend_request.save()
     return redirect('friend_request')
-
-
-def likes_unlike(request,post_id):
-    post=get_object_or_404(like,id=post_id)
-    print(id)
-    like_obj,created=like.object.get_or_create(post=post)
-
-
-
-
-
-
-
-
-
 
 
 
@@ -150,3 +145,4 @@ def likes_unlike(request,post_id):
 #          else:
 #              form = LoginForm()
 #          return render(request, 'login.html', {'form': form})
+ 
