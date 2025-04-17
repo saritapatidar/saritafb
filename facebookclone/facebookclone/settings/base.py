@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'facebookclone.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE':'django.db.backends.postgresql',
-        'NAME':'fb',
+        'NAME':'facebook',
         'USER':"postgres",
         'PASSWORD':'1234',
         'HOST':'localhost',

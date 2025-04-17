@@ -38,7 +38,7 @@ def signup_page(request):
         if form.is_valid():
             # password = make_password(form.cleaned_data['password'])
             user = form.save()
-            user.password = password  
+            # user.password = password  
             user.save()  
             return redirect('login')
     

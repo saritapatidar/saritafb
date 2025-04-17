@@ -9,17 +9,16 @@ class users(admin.ModelAdmin):
     list_display=('firstname','lastname','Date_of_birth','gender','email','phone_number')
 
 # admin.site.register(UserProfile)
+@admin.register(UserProfile)
 
-admin.site.register(UserProfile)
 
-
-class postes(admin.ModelAdmin):
+class Postes(admin.ModelAdmin):
     list_display=('content','image')
 
-admin.register(CreatePost,postes)
+admin.site.register(CreatePost,Postes)
 
-class friend_requested(admin.ModelAdmin):
+class FriendRequested(admin.ModelAdmin):
     list_display=('userfrom','to_user')
 
-admin.register(Friend_request,friend_requested)
+admin.site.register(FriendRequest,FriendRequested)
 

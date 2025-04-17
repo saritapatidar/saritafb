@@ -18,6 +18,7 @@ class CustomUser(AbstractBaseUser):
     firstname = models.CharField(max_length=10, blank=False, null=False,default="")
     lastname = models.CharField(max_length=10, blank=False, null=False,default="")
     Date_of_birth = models.DateField(max_length=10, default="2000-08-01", blank=True, null=True)
+
     FEMALE = 'FEMALE'
     MALE = 'MALE'
     CUSTOM = 'CUSTOM'
@@ -53,7 +54,7 @@ class CustomUser(AbstractBaseUser):
     USERNAME_FIELD='phone_number'
     REQUIRED_FIELDS=[]
     objects = UserManagercustom()
-
+    last_login=NONE
 
     def clean(self):
         validate_phone_number(self.phone_number)
@@ -64,8 +65,10 @@ class CustomUser(AbstractBaseUser):
     def has_perm(self,perm):
         return self.is_superuser
 
+
+
 class UserProfile(models.Model):
-    user = models.OneToOneField(get_user_model(),on_delete=models.CASCADE,default="")
+    user = models.OneToOneField(get_user_model(),on_delete=models.CASCADE,null=True,blank=True)
     bio = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     
@@ -76,12 +79,12 @@ class CreatePost(models.Model):
     image=models.ImageField(upload_to='post/',blank=True,null=True)
 
     
-class Friend_request(models.Model):
+class FriendRequest(models.Model):
     userfrom = models.ForeignKey(CustomUser,related_name="userfrom",on_delete=models.CASCADE)
     to_user = models.ForeignKey(CustomUser,related_name="to_user",on_delete=models.CASCADE)
 
 
-class like(models.Model):
+class Like(models.Model):
  post = models.ForeignKey(CreatePost,on_delete=models.CASCADE)
  likes=models.ManyToManyField(CustomUser)
 
