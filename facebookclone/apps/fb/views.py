@@ -21,7 +21,8 @@ from pathlib import Path
 
 
 def home_page(request):
-        return render(request,'post.html')
+        posts = CreatePost.objects.all().order_by('-id') 
+        return render(request, 'home.html', {'posts': posts})
 
 
 def logout_user(request):
@@ -80,7 +81,7 @@ def post_page(request):
     if request.method == "POST":
         form = forms.post(request.POST,request.FILES)
         if form.is_valid():
-            post = forms.save()
+            post = form.save()
             post.user = request.user
             post.save()
             return redirect("home")
