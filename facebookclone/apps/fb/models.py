@@ -101,6 +101,6 @@ class FriendRequest(models.Model):
 
 # related_name=related_name is used to specify the name of the reverse telationship from the related model back to this one
 
-# class Like(models.Model):
-#  post = models.ForeignKey(CreatePost,on_delete=models.CASCADE)
-#  likes=models.ManyToManyField(CustomUser)
+class Like(models.Model):
+    post = models.ForeignKey(CreatePost, on_delete=models.CASCADE, related_name='likes')
+    liked_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
