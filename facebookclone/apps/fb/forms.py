@@ -16,7 +16,7 @@ class SignupForm(ModelForm):
     class Meta:
         model = CustomUser
         fields = ['firstname','lastname','Date_of_birth','gender','email','phone_number','password']
-        Date_of_birth = forms.DateField(widget=forms.SelectDateWidget(years=range(1900, 2025)))
+        widgets={'Date_of_birth':forms.SelectDateWidget(years=range(1900, 2025))}
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -26,7 +26,7 @@ class ProfileForm(forms.ModelForm):
 class post(forms.ModelForm):
     class Meta:
         model = CreatePost
-        fields = ['content','image']
+        fields = ['user','content','image']
 
 
 class friends(forms.ModelForm):
@@ -35,12 +35,13 @@ class friends(forms.ModelForm):
         fields =['userfrom','to_user']
 
 
-class likes(forms.ModelForm):
-    class Meta:
-        # class Meta is basically the inner class. In Django, the use of the Meta class is simply to provide metadata to the ModelForm or the Model class
-        # it use metaclass to automatically generate database table based on that class
-        model=Like
-        fields=['post','likes']
+# class likes(forms.ModelForm):
+#     class Meta:
+#         # class Meta is basically the inner class. In Django, the use of the Meta class is simply to provide metadata to the ModelForm or the Model class
+#         # it use metaclass to automatically generate database table based on that class
+#         model=Like
+#         fields=['post','likes']
+
 
 
 

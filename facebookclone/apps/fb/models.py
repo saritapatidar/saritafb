@@ -11,8 +11,20 @@ from django.core.exceptions import ValidationError
 def validate_phone_number(value):
     if not value.isdigit():
         raise ValidationError("Phone number must contain only digits.")
-    if not (9 <= len(value) <= 15):
-        raise ValidationError("Phone number must be between 9 and 15 digits.")
+    if not (9 <= len(value) <= 12):
+        raise ValidationError("Phone number must be between 9 and 12 digits.")
+
+def validate_password(value):
+    if len(value) < 8:
+        raise ValidationError("Password must be at least 8 characters long.")
+    if not any(char.isupper() for char in value):
+        raise ValidationError("Password must contain at least one uppercase letter.")
+    if not any(char.islower() for char in value):
+        raise ValidationError("Password must contain at least one lowercase letter.")
+    if not any(char.isdigit() for char in value):
+        raise ValidationError("Password must contain at least one digit.")
+    if not any(char in '#?!@$%^&*-' for char in value):
+        raise ValidationError("Password must contain at least one special character.")
 
 class CustomUser(AbstractBaseUser):
     firstname = models.CharField(max_length=10, blank=False, null=False,default="")
@@ -41,6 +53,7 @@ class CustomUser(AbstractBaseUser):
     # # phone_number = models.CharField(max_length=20, blank=True, null=True, validators=[validate_international_phone_number], widget=PhoneNumberWidget())
     # password = models.CharField(validators=[password_regex],max_length=8,null=False,blank=True)
     phone_number = models.CharField(max_length=15,unique=True,null=True)
+    password = models.CharField(max_length=128, null=False, blank=True)
     is_active = models.BooleanField(default=True)
 
     # is_active is a boolean field that indicates whether a user account is considered active,
@@ -52,12 +65,14 @@ class CustomUser(AbstractBaseUser):
     is_superuser = models.BooleanField(default=False)
     
     USERNAME_FIELD='phone_number'
-    REQUIRED_FIELDS=[]
+    REQUIRED_FIELDS=['email']
     objects = UserManagercustom()
     last_login=NONE
 
     def clean(self):
         validate_phone_number(self.phone_number)
+
+        validate_password(self.password)
     
     def has_module_perms(self,is_staff):
         return self.is_staff
@@ -75,16 +90,17 @@ class UserProfile(models.Model):
 
 class CreatePost(models.Model):
     user=models.ForeignKey(UserProfile,on_delete=models.CASCADE)
-    content=models.TextField()
+    content=models.TextField(blank=True,null=True)
     image=models.ImageField(upload_to='post/',blank=True,null=True)
+    # like=models.ManyToManyField(blank=True,null=True)
 
     
 class FriendRequest(models.Model):
     userfrom = models.ForeignKey(CustomUser,related_name="userfrom",on_delete=models.CASCADE)
     to_user = models.ForeignKey(CustomUser,related_name="to_user",on_delete=models.CASCADE)
 
+# related_name=related_name is used to specify the name of the reverse telationship from the related model back to this one
 
-class Like(models.Model):
- post = models.ForeignKey(CreatePost,on_delete=models.CASCADE)
- likes=models.ManyToManyField(CustomUser)
-
+# class Like(models.Model):
+#  post = models.ForeignKey(CreatePost,on_delete=models.CASCADE)
+#  likes=models.ManyToManyField(CustomUser)
