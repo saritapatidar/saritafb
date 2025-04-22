@@ -125,6 +125,18 @@ def accept_request(request,requestid):
         friend_request.save()
     return redirect('friend_request')
 
+def like_post(request, post_id):
+    post = get_object_or_404(CreatePost, id=post_id)
+    user = request.user
+
+    like, created = Like.objects.get_or_create(post=post, liked_by=user)
+
+    if not created:
+        # User already liked, so remove it (unlike)
+        like.delete()
+
+    return redirect('home')  
+
 
 
 
