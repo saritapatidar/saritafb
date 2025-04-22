@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import CustomUser
 from .models import UserProfile
 from .models import CreatePost
-from .models import Friend_request
+from .models import FriendRequest
 @admin.register(CustomUser)
 class users(admin.ModelAdmin):
     list_display=('firstname','lastname','Date_of_birth','gender','email','phone_number')
@@ -11,14 +11,15 @@ class users(admin.ModelAdmin):
 # admin.site.register(UserProfile)
 @admin.register(UserProfile)
 
-
+@admin.register(CreatePost)
 class Postes(admin.ModelAdmin):
-    list_display=('content','image')
+    List_display=('user','content','image')
 
-admin.site.register(CreatePost,Postes)
-
+# admin.site.register(CreatePost,Postes)
+@admin.register(FriendRequest)
 class FriendRequested(admin.ModelAdmin):
-    list_display=('userfrom','to_user')
+    List_display=('userfrom','to_user')
 
-admin.site.register(FriendRequest,FriendRequested)
+# admin.site.register(FriendRequest,FriendRequested)
+
 

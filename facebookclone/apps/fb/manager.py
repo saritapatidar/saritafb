@@ -2,6 +2,7 @@ from django.contrib.auth.base_user import BaseUserManager
 
 
 class UserManagercustom(BaseUserManager):
+    # BaseUserManager in Django is a base class used to create custom user models and their managers
     def create_user(self,phone_number=None,password=None,**extra_fields):
 
         # extra_fields['email']=self.normalize_email(extra_fields['email'])

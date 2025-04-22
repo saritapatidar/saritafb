@@ -21,7 +21,7 @@ from pathlib import Path
 
 
 def home_page(request):
-        return render(request,'post.html')
+        return render(request,'home.html')
 
 
 def logout_user(request):
@@ -36,9 +36,9 @@ def signup_page(request):
         form = forms.SignupForm(request.POST)
         
         if form.is_valid():
-            # password = make_password(form.cleaned_data['password'])
+            password = make_password(form.cleaned_data['password'])
             user = form.save()
-            # user.password = password  
+            user.password = password  
             user.save()  
             return redirect('login')
     
@@ -79,6 +79,7 @@ def post_page(request):
     form = forms.post()
     if request.method == "POST":
         form = forms.post(request.POST,request.FILES)
+        # file=request.FILES.getlist('file[]')
         if form.is_valid():
             post = forms.save()
             post.user = request.user
