@@ -71,3 +71,18 @@
 </body>
 </html>
 
+
+like templates
+{% for post in posts %}
+    <p>{{ post.content }}</p>
+    {% if user.is_authenticated %}
+        {% if post.likes.filter(liked_by=user).exists %}
+            <a href="{% url 'like_post' post.id %}">Unlike</a>
+        {% else %}
+            <a href="{% url 'like_post' post.id %}">Like</a>
+        {% endif %}
+        <p>{{ post.likes.count }} likes</p>
+    {% endif %}
+{% endfor %}
+
+
