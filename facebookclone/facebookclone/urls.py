@@ -29,5 +29,10 @@ urlpatterns = [
       path('profile/',views.profile_page,name='profile'),
       path('post/',views.post_page,name='post'),
       path('friend_request/',views.send_friendrequest,name='friend_request'),
+      path('like/<int:post_id>/', views.like_post, name='like_post'),
+
       # path('likes_functionality',views.likes_unlike,name='likes_functionality'),
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
