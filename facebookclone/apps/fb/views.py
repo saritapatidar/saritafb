@@ -21,7 +21,21 @@ from pathlib import Path
 
 
 def home_page(request):
-        return render(request,'home.html')
+        posts = CreatePost.objects.all().order_by('-created_at')
+        if request.method == 'POST':
+            form = forms.CreatePostForm(request.POST, request.FILES)
+            if form.is_valid():
+                new_post = form.save(commit=False)
+                new_post.user = request.user.userprofile  
+                new_post.save()
+                return redirect('home')
+        else:
+            form = forms.CreatePostForm()
+    
+        return render(request, 'home.html', {
+        'posts': posts,
+        'form': form })
+
 
 
 def logout_user(request):
@@ -71,25 +85,13 @@ def profile_page(request):
     try:
         profile = UserProfile.objects.get(user=request.user)
     except UserProfile.DoesNotExist:
-        form = ProfileForm()
+        form = None
     return render(request, 'profile.html', {'profile': form})
 
 
 def post_page(request):
-    form = forms.post()
-    if request.method == "POST":
-        form = forms.post(request.POST,request.FILES)
-        # file=request.FILES.getlist('file[]')
-        if form.is_valid():
-            post = forms.save()
-            post.user = request.user
-            post.save()
-            return redirect("home")
-    else:
-        form = forms.post()
-
-    return render(request,'post.html',{'post':form})
-
+    return redirect('home')
+        
 def send_friendrequest(request):
     if request.method == 'POST':
         form = friends(request.POST)
