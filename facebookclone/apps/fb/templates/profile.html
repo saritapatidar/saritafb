@@ -1,14 +1,13 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>My Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .profile-banner {
-
-           background-color: #3b5998;*/
-
+            background-color: #3b5998;
             height: 200px;
             border-radius: 0 0 10px 10px;
             position: relative;
@@ -28,61 +27,46 @@
 
         .profile-info {
             margin-top: 90px;
-            padding-left: 180px;
+            padding-left: 190px;
         }
 
         .card-style {
-
-            margin-top: 20px;
-
-            margin-top: 30px
+            margin-top: 30px;
+        }
     </style>
 </head>
+
 <body class="bg-light">
+
     <div class="container">
+        <!-- Profile Banner -->
         <div class="profile-banner"></div>
 
-        {% if profile.profile_picture %}
-            <img src="{{ profile.profile_picture.url }}" class="profile-pic">
+        <!-- Profile Picture -->
+        {% if profile and profile.profile_picture %}
+            <img src="{{ profile.profile_picture.url }}" class="profile-pic" alt="Profile Picture">
         {% else %}
-            <img src="{% static 'default_profile.png' %}" class="profile-pic">
+            <img src="{% static 'default_profile.png' %}" class="profile-pic" alt="Default Profile Picture">
         {% endif %}
 
+        <!-- Profile Info -->
         <div class="profile-info">
-            <h3>{{ request.user.firstname }} {{ request.user.lastname }}</h3>
-
+            <h3>{{ request.user.first_name }} {{ request.user.last_name }}</h3>
         </div>
 
+        <!-- About Card -->
         <div class="card card-style shadow-sm p-3">
             <h5>About</h5>
-            <p><strong>Gender:</strong> {{ request.user.gender }}</p>
-            <p><strong>Date of Birth:</strong> {{ request.user.Date_of_birth }}</p>
-            <p><strong>Phone Number:</strong> {{ request.user.phone_number }}</p>
+            <p><strong>Gender:</strong> {{ request.user.gender|default:"Not set" }}</p>
+            <p><strong>Date of Birth:</strong> {{ request.user.date_of_birth|default:"Not set" }}</p>
+            <p><strong>Phone Number:</strong> {{ request.user.phone_number|default:"Not set" }}</p>
             <p><strong>Bio:</strong> {{ profile.bio|default:"No bio available." }}</p>
         </div>
 
+        <!-- Back Button -->
         <a href="{% url 'home' %}" class="btn btn-primary mt-4">Back to Feed</a>
     </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-        <a href="{% url 'home' %}" class="btn btn-primary mt-4">Back to Feed</a>
-    </div>
-</body>
-</html>
-
-
-like templates
-{% for post in posts %}
-    <p>{{ post.content }}</p>
-    {% if user.is_authenticated %}
-        {% if post.likes.filter(liked_by=user).exists %}
-            <a href="{% url 'like_post' post.id %}">Unlike</a>
-        {% else %}
-            <a href="{% url 'like_post' post.id %}">Like</a>
-        {% endif %}
-        <p>{{ post.likes.count }} likes</p>
-    {% endif %}
-{% endfor %}
-
-
