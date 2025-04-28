@@ -146,27 +146,32 @@ def like_post(request, post_id):
     post = get_object_or_404(CreatePost, id=post_id)
     user = request.user
 
-    like, created = Like.objects.get_or_create(post=post, liked_by=user)
+    if post.likes.filter(id=user.id).exists():
+        # User already liked, so unlike
+        post.likes.remove(user)
+    else:
+        # User has not liked yet
+        post.likes.add(user)
 
-    if not created:
-        # User already liked, so remove it (unlike)
-        like.delete()
+    return redirect('home')
 
-    return redirect('home')  
 
 def comment_post(request, post_id):
-    post = get_object_or_404(post, id=post_id)
+    post = get_object_or_404(CreatePost, id=post_id)
+    
     if request.method == 'POST':
-        form = Comments(request.POST)
+        form = CommentForm(request.POST)  # use form, not model
         if form.is_valid():
-            comment = form.save()
+            comment = form.save(commit=False)  # don't save yet
             comment.user = request.user
             comment.post = post
             comment.save()
             return redirect('post_detail', post_id=post_id)  
     else:
         form = CommentForm()
-    return redirect('home')
+    
+    return render(request, 'post_detail.html', {'post': post, 'form': form})
+
 
 # get_object_or_404 is used in Django to retrieve a single object from the database, 
 # and if the object does not exist, it automatically raises an Http404 exception,
