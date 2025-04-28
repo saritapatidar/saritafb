@@ -40,34 +40,30 @@
 </head>
 <body class="bg-light">
     <div class="container">
-        <div class="profile-banner"></div>
-
-        {% if profile.profile_picture %}
+        <div class="profile-banner"> 
+            {% if profile.profile_picture %}
             <img src="{{ profile.profile_picture.url }}" class="profile-pic">
-        {% else %}
+            {% else %}
             <img src="{% static 'default_profile.png' %}" class="profile-pic">
-        {% endif %}
+            {% endif %}
+
+        </div>
 
         <div class="profile-info">
             <h3>{{ request.user.firstname }} {{ request.user.lastname }}</h3>
 
         </div>
 
-        <div class="card card-style shadow-sm p-3">
+        <div class="card card-style shadow-sm p-2">
             <h5>About</h5>
-            <p><strong>Gender:</strong> {{ request.user.gender }}</p>
             <p><strong>Date of Birth:</strong> {{ request.user.Date_of_birth }}</p>
             <p><strong>Phone Number:</strong> {{ request.user.phone_number }}</p>
             <p><strong>Bio:</strong> {{ profile.bio|default:"No bio available." }}</p>
         </div>
 
-        <a href="{% url 'home' %}" class="btn btn-primary mt-4">Back to Feed</a>
+        <a href="{% url 'home' %}" class="btn btn-primary mt-4">Back </a>
     </div>
 </body>
 </html>
 
-        <a href="{% url 'home' %}" class="btn btn-primary mt-4">Back to Feed</a>
-    </div>
-</body>
-</html>
-
+ 

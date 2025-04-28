@@ -12,16 +12,42 @@ from django.contrib.auth.hashers import make_password ,check_password
 from django.urls import reverse
 from . import forms
 from .forms import LoginForm
-from .forms import post
+from .forms import CreatePostForm
+from .forms import Like
+from .forms import comment
+
+
+
 # . refers to the current package or current directory where the views.py file is located.
 from pathlib import Path
+from .models import CreatePost
+from django.shortcuts import get_object_or_404
+
 # from .backends import PhoneUsernameAuthenticationBackend as EoP
 
 # User=get_user_model()
 
 
 def home_page(request):
-        return render(request,'home.html')
+        posts = CreatePost.objects.all().order_by('-created_at')
+
+        # for post in posts:
+        #     post.is_liked=False
+
+        #     if request.user.is_authenticated:
+        #         post.is_liked=post.likes.filter(liked_by=request.user).exists()
+
+        if request.method == 'POST':
+            form = forms.CreatePostForm(request.POST, request.FILES)
+            if form.is_valid():
+                new_post = form.save()
+                new_post.user = request.user.userprofile  
+                new_post.save()
+                return redirect('home')
+        else:
+            form = forms.CreatePostForm()
+    
+        return render(request, 'home.html', {'posts': posts,'form': form })
 
 
 def logout_user(request):
@@ -76,19 +102,9 @@ def profile_page(request):
 
 
 def post_page(request):
-    form = forms.post()
-    if request.method == "POST":
-        form = forms.post(request.POST,request.FILES)
-        # file=request.FILES.getlist('file[]')
-        if form.is_valid():
-            post = forms.save()
-            post.user = request.user
-            post.save()
-            return redirect("home")
-    else:
-        form = forms.post()
+     return redirect('home')
+    
 
-    return render(request,'post.html',{'post':form})
 
 def send_friendrequest(request):
     if request.method == 'POST':
@@ -126,10 +142,42 @@ def accept_request(request,requestid):
     return redirect('friend_request')
 
 
+def like_post(request, post_id):
+    post = get_object_or_404(CreatePost, id=post_id)
+    user = request.user
+
+    like, created = Like.objects.get_or_create(post=post, liked_by=user)
+
+    if not created:
+        # User already liked, so remove it (unlike)
+        like.delete()
+
+    return redirect('home')  
+
+def comment_post(request, post_id):
+    post = get_object_or_404(post, id=post_id)
+    if request.method == 'POST':
+        form = Comments(request.POST)
+        if form.is_valid():
+            comment = form.save()
+            comment.user = request.user
+            comment.post = post
+            comment.save()
+            return redirect('post_detail', post_id=post_id)  
+    else:
+        form = CommentForm()
+    return redirect('home')
+
+# get_object_or_404 is used in Django to retrieve a single object from the database, 
+# and if the object does not exist, it automatically raises an Http404 exception,
+    
+   
 
 
+# get_or_create() in Django serves as a convenient method for retrieving an 
+# object from the database or creating it if it doesn't exist.
 
-
+  
 
 # def login_page(request):
 #          if request.method == 'POST':

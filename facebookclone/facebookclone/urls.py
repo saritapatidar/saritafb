@@ -25,9 +25,14 @@ urlpatterns = [
       path('signup/',views.signup_page,name='signup'),
       path('login/',views.login_page,name='login'),
       path('logout/',views.logout_user,name='logout'),
-      path('home/',views.home_page,name='home'),
+      path(' ',views.home_page,name='home'),
       path('profile/',views.profile_page,name='profile'),
       path('post/',views.post_page,name='post'),
       path('friend_request/',views.send_friendrequest,name='friend_request'),
-      # path('likes_functionality',views.likes_unlike,name='likes_functionality'),
+      path('like/<int:post_id>/', views.like_post, name='likepost'),
+      path('commen/<int:post_id>/',views.comment_post,name='commen'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# like/<int:post_id>/ defines a URL structure that captures an integer value from the URL and assigns 
+# it to the variable post_id. This pattern is commonly used to handle requests related to specific posts, 
+# where post_id represents the unique identifier of a post.
