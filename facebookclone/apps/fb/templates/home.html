@@ -155,8 +155,8 @@
         <a href="{% url 'profile' %}"><i class="fas fa-user-circle"></i></a>
 
         <a href="{% url 'logout' %}"><i class="fas fa-sign-out"></i></a>
-
     </div>
+        
 </header>
 
 
@@ -186,8 +186,8 @@
             </div>
             <div class="post.actions">
                 <form action="{%url 'likepost' post.id %}" method="POST">
-                <form action="{%url 'commen' post.id %}" method="POST">
-                    {%csrf_token%}
+
+                    {% csrf_token %}
                     <button type="submit">
                         
                         <i class="fa-solid fa-thumbs-up"></i>
@@ -200,6 +200,15 @@
 
                     </button>
 
+                <span>{{post.likes.count}} </span>
+                
+                </form>
+
+
+                <form action="{%url 'commen' post.id %}" method="POST">
+                    {% csrf_token %}
+
+
                     <button type="submit">
                         
                        <i class="fa-solid fa-comment"></i>
@@ -207,16 +216,8 @@
 
 
                 </form>
-                <span>{{post.likes.count}} </span>
-                
-                </form>
 
-
-
-            </div>
-
-
-            
+            </div>  
         {% endfor %}
 
     </div>
