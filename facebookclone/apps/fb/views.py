@@ -13,8 +13,9 @@ from django.urls import reverse
 from . import forms
 from .forms import LoginForm
 from .forms import CreatePostForm
-from .forms import Like
-from .forms import comment
+# from .forms import Like
+from .forms import comments
+from django.views.decorators.cache import never_cache
 
 
 
@@ -40,8 +41,7 @@ def home_page(request):
         if request.method == 'POST':
             form = forms.CreatePostForm(request.POST, request.FILES)
             if form.is_valid():
-                new_post = form.save()
-                new_post.user = request.user.userprofile  
+                new_post = form.save() 
                 new_post.save()
                 return redirect('home')
         else:
@@ -50,14 +50,15 @@ def home_page(request):
         return render(request, 'home.html', {'posts': posts,'form': form })
 
 
+@never_cache
 def logout_user(request):
+
     logout(request)
     return redirect('login')
 
 
 def signup_page(request):
     form = forms.SignupForm()
-    messages = ""
     if request.method == 'POST':
         form = forms.SignupForm(request.POST)
         
@@ -68,7 +69,7 @@ def signup_page(request):
             user.save()  
             return redirect('login')
     
-    return render(request, 'signup.html', context={'form': form})
+    return render(request, 'signup.html',{'form': form})
 
 
 def login_page(request):
@@ -95,9 +96,10 @@ def login_page(request):
 
 def profile_page(request):
     try:
-        profile = UserProfile.objects.get(user=request.user)
+        profile = UserProfile.objects.get(user=request.user.id)
+        profile.save()
     except UserProfile.DoesNotExist:
-        form = ProfileForm()
+        form = forms.ProfileForm()
     return render(request, 'profile.html', {'profile': form})
 
 
@@ -121,10 +123,7 @@ def send_friendrequest(request):
             if request.user == to_user:
                 return redirect('profile_page', username=to_user.username)
 
-            friend_request, created = Friend_request.objects.get_or_create(
-                userfrom=request.user,
-                to_user=to_user
-            )
+            friend_request, created = friend_request.objects.get_or_create(userfrom=request.user, to_user=to_user)
             # get_or_create=prevent dublicate request 
             
 
@@ -134,7 +133,7 @@ def send_friendrequest(request):
 
 
 
-def accept_request(request,requestid):
+def accept_request(request,request_id):
     friend_request=get_object_or_404(FriendRequest,id=request_id)
     if friend_request.to_user==request.user:
         friend_request.is_accepted=True
@@ -142,22 +141,26 @@ def accept_request(request,requestid):
     return redirect('friend_request')
 
 
+
 def like_post(request, post_id):
     post = get_object_or_404(CreatePost, id=post_id)
     user = request.user
 
-    like, created = Like.objects.get_or_create(post=post, liked_by=user)
+    if post.likes.filter(id=user.id).exists():
+    
+        post.likes.remove(user)
+    else:
+        
+        post.likes.add(user)
 
-    if not created:
-        # User already liked, so remove it (unlike)
-        like.delete()
+    return redirect('home')
 
-    return redirect('home')  
+
 
 def comment_post(request, post_id):
-    post = get_object_or_404(post, id=post_id)
+    post = get_object_or_404(CreatePost, id=post_id)
     if request.method == 'POST':
-        form = Comments(request.POST)
+        form = comments(request.POST)
         if form.is_valid():
             comment = form.save()
             comment.user = request.user
@@ -165,7 +168,7 @@ def comment_post(request, post_id):
             comment.save()
             return redirect('post_detail', post_id=post_id)  
     else:
-        form = CommentForm()
+        form = comments()
     return redirect('home')
 
 # get_object_or_404 is used in Django to retrieve a single object from the database, 

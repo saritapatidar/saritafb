@@ -6,6 +6,9 @@ from django.contrib.auth import get_user_model
 from .manager import UserManagercustom
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from datetime import datetime
+
+
 
 
 # phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
@@ -96,6 +99,7 @@ class CreatePost(models.Model):
     user=models.ForeignKey(UserProfile,on_delete=models.CASCADE)
     content=models.TextField(blank=True,null=True)
     image=models.ImageField(upload_to='post/',blank=True,null=True)
+    likes = models.ManyToManyField(CustomUser, related_name='liked_posts', blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     
 
@@ -106,12 +110,12 @@ class FriendRequest(models.Model):
 
 # related_name=related_name is used to specify the name of the reverse relationship from the related model back to this one
 
-class Like(models.Model):
- post = models.ForeignKey(CreatePost,on_delete=models.CASCADE)
- liked_by=models.ManyToManyField(CustomUser)
-
+# class Like(models.Model):
+#  post = models.ForeignKey(CreatePost,on_delete=models.CASCADE)
+#  liked_by=models.ManyToManyField(CustomUser)
 
 class comment(models.Model):
     post=models.ForeignKey(CreatePost,on_delete=models.CASCADE)
+    # user=models.ForeignKey(User,on_delete=models.CASCADE)
     text=models.TextField(blank=True,null=True)
-    created_at=models.DateTimeField(default=timezone.now())
+    created_at=models.DateTimeField(default=timezone.now)
