@@ -97,9 +97,9 @@ def login_page(request):
 def profile_page(request):
     try:
         profile = UserProfile.objects.get(user=request.user.id)
-        profile.save()
+        form = forms.ProfileForm(instance=profile)  # <-- Show existing profile in form
     except UserProfile.DoesNotExist:
-        form = forms.ProfileForm()
+        form = forms.ProfileForm()  # <-- Blank form if profile doesn't exist
     return render(request, 'profile.html', {'profile': form})
 
 
