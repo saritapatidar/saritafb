@@ -10,6 +10,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from .forms import ProfileForm
 from django.contrib.auth.hashers import make_password ,check_password
 from django.urls import reverse
+from pathlib import Path
+from .models import CreatePost
+from django.shortcuts import get_object_or_404
 from . import forms
 from .forms import LoginForm
 from .forms import CreatePostForm
@@ -20,15 +23,13 @@ from django.views.decorators.cache import never_cache
 
 
 # . refers to the current package or current directory where the views.py file is located.
-from pathlib import Path
-from .models import CreatePost
-from django.shortcuts import get_object_or_404
+
 
 # from .backends import PhoneUsernameAuthenticationBackend as EoP
 
 # User=get_user_model()
 
-
+@never_cache
 def home_page(request):
         posts = CreatePost.objects.all().order_by('-created_at')
 
@@ -71,7 +72,7 @@ def signup_page(request):
     
     return render(request, 'signup.html',{'form': form})
 
-
+@never_cache
 def login_page(request):
     if request.method == 'POST':
         form = forms.LoginForm(request.POST)
@@ -97,9 +98,9 @@ def login_page(request):
 def profile_page(request):
     try:
         profile = UserProfile.objects.get(user=request.user.id)
-        profile.save()
+        form = forms.ProfileForm(instance=profile)  # <-- Show existing profile in form
     except UserProfile.DoesNotExist:
-        form = forms.ProfileForm()
+        form = forms.ProfileForm()  # <-- Blank form if profile doesn't exist
     return render(request, 'profile.html', {'profile': form})
 
 
@@ -127,7 +128,7 @@ def send_friendrequest(request):
             # get_or_create=prevent dublicate request 
             
 
-            return redirect('profile_page', username=to_user.username)
+            return redirect('profile_page', username=to_user.firstname)
     
     return redirect('home')
 
@@ -150,26 +151,42 @@ def like_post(request, post_id):
     
         post.likes.remove(user)
     else:
-        
+    
         post.likes.add(user)
 
     return redirect('home')
 
+def post_detail(request, post_id):
+        post = get_object_or_404(CreatePost, pk=post_id)
+        if request.method == 'POST':
+            form = comments(request.POST)
+            if form.is_valid():
+                comment = form.save()
+                comment.post = post
+                comment.user = request.user
+                comment.save()
+
+                return redirect('commen', post_id=post_id)
+        else:
+            form = comments()
+        return render(request, 'comment.html', {'post': post, 'form': form})
 
 
-def comment_post(request, post_id):
-    post = get_object_or_404(CreatePost, id=post_id)
-    if request.method == 'POST':
-        form = comments(request.POST)
-        if form.is_valid():
-            comment = form.save()
-            comment.user = request.user
-            comment.post = post
-            comment.save()
-            return redirect('post_detail', post_id=post_id)  
-    else:
-        form = comments()
-    return redirect('home')
+
+# def comment_post(request, post_id):
+#     post = get_object_or_404(CreatePost, id=post_id)
+#     if request.method == 'POST':
+#         form = comments(request.POST)
+#         if form.is_valid():
+#             comment = form.save()
+#             comment.user = request.user
+#             comment.post = post
+#             comment.save()
+
+#             return redirect('comment_post', post_id=post_id)  
+#     else:
+#         form = comments()
+#     return redirect('home')
 
 # get_object_or_404 is used in Django to retrieve a single object from the database, 
 # and if the object does not exist, it automatically raises an Http404 exception,

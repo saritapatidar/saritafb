@@ -4,6 +4,7 @@ from .models import CustomUser
 from .models import UserProfile
 from .models import CreatePost
 from .models import FriendRequest
+from .models import comment
 # from .models import Like
 @admin.register(CustomUser)
 class users(admin.ModelAdmin):
@@ -24,6 +25,7 @@ class FriendRequested(admin.ModelAdmin):
 # admin.site.register(FriendRequest,FriendRequested)
 
 
-# @admin.register(Like)
-# class likes(admin.ModelAdmin):
-#     List_display=('post','liked_by')
+@admin.register(comment)
+class commentes(admin.ModelAdmin):
+    List_display=('post','user','text')
+

@@ -30,7 +30,7 @@ urlpatterns = [
       path('post/',views.post_page,name='post'),
       path('friend_request/',views.send_friendrequest,name='friend_request'),
       path('like/<int:post_id>/', views.like_post, name='likepost'),
-      path('commen/<int:post_id>/',views.comment_post,name='commen'),
+      path('commen/<int:post_id>/',views.post_detail,name='commen'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # like/<int:post_id>/ defines a URL structure that captures an integer value from the URL and assigns 
