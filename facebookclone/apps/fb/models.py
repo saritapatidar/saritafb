@@ -116,6 +116,6 @@ class FriendRequest(models.Model):
 
 class comment(models.Model):
     post=models.ForeignKey(CreatePost,on_delete=models.CASCADE)
-    # user=models.ForeignKey(User,on_delete=models.CASCADE)
+    user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,default=False)
     text=models.TextField(blank=True,null=True)
     created_at=models.DateTimeField(default=timezone.now)

@@ -1,0 +1,14 @@
+<h2>Comments</h2>
+    {% for comment in post.comments.all %}
+        <p>{{ comment.user.firstname }} said: {{ comment.content }}</p>
+    
+    {% endfor %}
+
+    <h2>Add a comment</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+        
+
+    </form>

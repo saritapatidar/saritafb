@@ -48,4 +48,4 @@ class friends(forms.ModelForm):
 class comments(forms.ModelForm):
     class Meta:
         model=comment
-        fields=['post','text']
+        fields=['post','user','text']
