@@ -32,8 +32,8 @@ class CreatePostForm(forms.ModelForm):
 
 class friends(forms.ModelForm):
     class Meta:
-        model = FriendRequest
-        fields =['userfrom','to_user']
+        model = Friend_Request
+        fields =['from_user','to_user']
 
 
 # class likes(forms.ModelForm):
@@ -49,3 +49,5 @@ class comments(forms.ModelForm):
     class Meta:
         model=comment
         fields=['post','user','text']
+
+

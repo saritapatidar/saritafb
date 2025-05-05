@@ -62,7 +62,7 @@
 <body class="bg-light">
 
 <div class="container mt-5">
-    <!-- Create Post Card -->
+    
     <div class="post-container">
         <div class="post-header">
             {% if request.user.userprofile.profile_picture %}
@@ -87,7 +87,7 @@
         </form>
     </div>
 
-    <!-- Posts Feed -->
+    
     {% if posts %}
         {% for post in posts %}
             <div class="post-container">
@@ -98,7 +98,7 @@
                         <img src="{% static 'default_profile.png' %}" class="profile-pic" alt="Default">
                     {% endif %}
                     <div>
-                        <strong>{{ post.user.user.first_name }} {{ post.user.user.last_name }}</strong>
+                        <strong>{{ post.user.user.firstname }} {{ post.user.user.lastname }}</strong>
                         <div class="post-time">{{ post.created_at|timesince }} ago</div>
                     </div>
                 </div>

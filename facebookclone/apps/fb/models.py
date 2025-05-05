@@ -93,6 +93,7 @@ class UserProfile(models.Model):
     # name=models.CharField(max_length=30,blank=True,null=True)
     bio = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    # profile_picture_url = models.URLField(blank=True, null=True)
     
 
 class CreatePost(models.Model):
@@ -104,8 +105,8 @@ class CreatePost(models.Model):
     
 
     
-class FriendRequest(models.Model):
-    userfrom = models.ForeignKey(CustomUser,related_name="userfrom",on_delete=models.CASCADE)
+class Friend_Request(models.Model):
+    from_user = models.ForeignKey(CustomUser,related_name="from_user",on_delete=models.CASCADE)
     to_user = models.ForeignKey(CustomUser,related_name="to_user",on_delete=models.CASCADE)
 
 # related_name=related_name is used to specify the name of the reverse relationship from the related model back to this one
@@ -119,3 +120,4 @@ class comment(models.Model):
     user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,default=False)
     text=models.TextField(blank=True,null=True)
     created_at=models.DateTimeField(default=timezone.now)
+
