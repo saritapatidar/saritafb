@@ -28,7 +28,9 @@ urlpatterns = [
       path(' ',views.home_page,name='home'),
       path('profile/',views.profile_page,name='profile'),
       path('post/',views.post_page,name='post'),
-      path('friend_request/',views.send_friendrequest,name='friend_request'),
+      path('friendrequest/',views.send_friendrequest,name='friendrequest'),
+      path('acceptrequest/',views.accept_request,name='acceptrequest'),
+      
       path('like/<int:post_id>/', views.like_post, name='likepost'),
       path('commen/<int:post_id>/',views.post_detail,name='commen'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -18,7 +18,9 @@ from .forms import LoginForm
 from .forms import CreatePostForm
 # from .forms import Like
 from .forms import comments
-from django.views.decorators.cache import never_cache
+from django.contrib.auth.decorators import login_required
+
+from django.views.decorators.cache import never_cache,cache_control
 
 
 
@@ -28,8 +30,9 @@ from django.views.decorators.cache import never_cache
 # from .backends import PhoneUsernameAuthenticationBackend as EoP
 
 # User=get_user_model()
-
+@login_required
 @never_cache
+# @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def home_page(request):
         posts = CreatePost.objects.all().order_by('-created_at')
 
@@ -50,8 +53,6 @@ def home_page(request):
     
         return render(request, 'home.html', {'posts': posts,'form': form })
 
-
-@never_cache
 def logout_user(request):
 
     logout(request)
@@ -72,7 +73,7 @@ def signup_page(request):
     
     return render(request, 'signup.html',{'form': form})
 
-@never_cache
+
 def login_page(request):
     if request.method == 'POST':
         form = forms.LoginForm(request.POST)
@@ -109,7 +110,7 @@ def post_page(request):
     
 
 
-def send_friendrequest(request):
+def send_friendrequest(request,to_user_id):
     if request.method == 'POST':
         form = friends(request.POST)
         if form.is_valid():
@@ -128,7 +129,7 @@ def send_friendrequest(request):
             # get_or_create=prevent dublicate request 
             
 
-            return redirect('profile_page', username=to_user.firstname)
+            return redirect('profile', username=to_user.firstname)
     
     return redirect('home')
 
@@ -166,15 +167,18 @@ def post_detail(request, post_id):
                 comment.user = request.user
                 comment.save()
 
-                return redirect('commen', post_id=post_id)
+                return redirect('home', post_id=post_id)
         else:
             form = comments()
-        return render(request, 'comment.html', {'post': post, 'form': form})
+        return render(request, 'home.html', {'post': post, 'form': form})
 
 
 
-# def comment_post(request, post_id):
-#     post = get_object_or_404(CreatePost, id=post_id)
+
+
+
+# def comment_post(request):
+#     post = get_object_or_404(CreatePost)
 #     if request.method == 'POST':
 #         form = comments(request.POST)
 #         if form.is_valid():
@@ -183,10 +187,10 @@ def post_detail(request, post_id):
 #             comment.post = post
 #             comment.save()
 
-#             return redirect('comment_post', post_id=post_id)  
+#             return redirect('comment.html')
 #     else:
 #         form = comments()
-#     return redirect('home')
+#     return redirect('comment.html')
 
 # get_object_or_404 is used in Django to retrieve a single object from the database, 
 # and if the object does not exist, it automatically raises an Http404 exception,
