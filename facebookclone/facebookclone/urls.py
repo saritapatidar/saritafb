@@ -19,6 +19,8 @@ from django.urls import path
 from apps.fb import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
+from django.contrib.auth.views import LoginView
 
 urlpatterns = [
       path('admin/', admin.site.urls),
@@ -28,11 +30,22 @@ urlpatterns = [
       path(' ',views.home_page,name='home'),
       path('profile/',views.profile_page,name='profile'),
       path('post/',views.post_page,name='post'),
-      path('friendrequest/',views.send_friendrequest,name='friendrequest'),
+      path('friendrequest/<int:user_id>/',views.send_friendrequest,name='friendrequest'),
       path('acceptrequest/',views.accept_request,name='acceptrequest'),
       
       path('like/<int:post_id>/', views.like_post, name='likepost'),
       path('commen/<int:post_id>/',views.post_detail,name='commen'),
+      path('follow/<int:user_id>/', views.follow_user, name='follow_user'),
+      path('unfollow/<int:user_id>/',views.unfollow_user, name='unfollow_user'),
+      path('password_reset/',auth_views.PasswordResetView.as_view(),name="password_reset"),
+      path('password_reset_done/',auth_views.PasswordResetDoneView.as_view(),name="password_reset_done"),
+      path('password_reset_confirm/<uidb64>/<token>/',auth_views.PasswordResetConfirmView.as_view(),name="password_reset_confirm"),
+      path('password_reset_complete/',auth_views.PasswordResetCompleteView.as_view(),name="password_reset_complete"),
+      
+
+
+
+
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # like/<int:post_id>/ defines a URL structure that captures an integer value from the URL and assigns 

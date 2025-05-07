@@ -12,6 +12,7 @@ from django.contrib.auth.hashers import make_password ,check_password
 from django.urls import reverse
 from pathlib import Path
 from .models import CreatePost
+from .models import CustomUser
 from django.shortcuts import get_object_or_404
 from . import forms
 from .forms import LoginForm
@@ -20,19 +21,15 @@ from .forms import CreatePostForm
 from .forms import comments
 from django.contrib.auth.decorators import login_required
 
-from django.views.decorators.cache import never_cache,cache_control
-
-
+from django.views.decorators.cache import never_cache
+from.models import Follow
+from .forms import friends
 
 # . refers to the current package or current directory where the views.py file is located.
 
 
-# from .backends import PhoneUsernameAuthenticationBackend as EoP
-
-# User=get_user_model()
 @login_required
 @never_cache
-# @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def home_page(request):
         posts = CreatePost.objects.all().order_by('-created_at')
 
@@ -109,41 +106,6 @@ def post_page(request):
      return redirect('home')
     
 
-
-def send_friendrequest(request,to_user_id):
-    if request.method == 'POST':
-        form = friends(request.POST)
-        if form.is_valid():
-            to_user_id = form.cleaned_data['to_user_id']
-
-            if not str(to_user_id).isdigit():
-                return redirect('home') 
-
-            to_user = get_object_or_404(CustomUser, pk=to_user_id)
-            # get_object_or_404=make sure we do not send a request to a non existing user
-
-            if request.user == to_user:
-                return redirect('profile_page', username=to_user.username)
-
-            friend_request, created = friend_request.objects.get_or_create(userfrom=request.user, to_user=to_user)
-            # get_or_create=prevent dublicate request 
-            
-
-            return redirect('profile', username=to_user.firstname)
-    
-    return redirect('home')
-
-
-
-def accept_request(request,request_id):
-    friend_request=get_object_or_404(FriendRequest,id=request_id)
-    if friend_request.to_user==request.user:
-        friend_request.is_accepted=True
-        friend_request.save()
-    return redirect('friend_request')
-
-
-
 def like_post(request, post_id):
     post = get_object_or_404(CreatePost, id=post_id)
     user = request.user
@@ -156,41 +118,49 @@ def like_post(request, post_id):
         post.likes.add(user)
 
     return redirect('home')
+  
 
 def post_detail(request, post_id):
-        post = get_object_or_404(CreatePost, pk=post_id)
-        if request.method == 'POST':
-            form = comments(request.POST)
-            if form.is_valid():
-                comment = form.save()
-                comment.post = post
-                comment.user = request.user
-                comment.save()
+    post = get_object_or_404(CreatePost, pk=post_id)
 
-                return redirect('home', post_id=post_id)
-        else:
-            form = comments()
-        return render(request, 'home.html', {'post': post, 'form': form})
+    if request.method == 'POST':
+        form = comments(request.POST)
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.post = post
+            new_comment.user = request.user
+            new_comment.save()
+            return redirect('home', post_id=post_id)
+    else:
+        form = comments()
+
+    return render(request, 'home.html', {
+        'post': post,
+        'form': form,
+    })
+
+
+def follow_user(request, user_id):
+    followed_user = get_object_or_404(CustomUser,id=user_id)
+    if not Follow.objects.filter(follower=request.user, followed=followed_user).exists():
+        Follow.objects.create(follower=request.user, followed=followed_user)
+    return redirect('profile')
+    
+
+
+def unfollow_user(request, user_id):
+    followed_user = get_object_or_404(CustomUser,id=user_id)
+    Follow.objects.filter(follower=request.user, followed=followed_user).delete()
+    return redirect('profile')
 
 
 
 
 
 
-# def comment_post(request):
-#     post = get_object_or_404(CreatePost)
-#     if request.method == 'POST':
-#         form = comments(request.POST)
-#         if form.is_valid():
-#             comment = form.save()
-#             comment.user = request.user
-#             comment.post = post
-#             comment.save()
 
-#             return redirect('comment.html')
-#     else:
-#         form = comments()
-#     return redirect('comment.html')
+
+
 
 # get_object_or_404 is used in Django to retrieve a single object from the database, 
 # and if the object does not exist, it automatically raises an Http404 exception,
@@ -202,20 +172,35 @@ def post_detail(request, post_id):
 # object from the database or creating it if it doesn't exist.
 
   
+def send_friendrequest(request,user_id):
+    if request.method == 'POST':
+        form = friends(request.POST)
+        if form.is_valid():
+            to_user_id = form.cleaned_data['user_id']
 
-# def login_page(request):
-#          if request.method == 'POST':
-#              form = LoginForm(request.POST)
-#              if form.is_valid():
-#                  phone_number = form.cleaned_data['phone_number']
-#                  password = form.cleaned_data['password']
-#                  user =authenticate(phone_number=phone_number,password=password)
-#                  if user is not None:
-#                      login(request, user)
-#                      return redirect('home') 
-#                 #  else:
-#                 #      form.add_error(None, "Invalid credentials")
-#          else:
-#              form = LoginForm()
-#          return render(request, 'login.html', {'form': form})
- 
+            if not str(to_user_id).isdigit():
+                return redirect('home') 
+
+            to_user = get_object_or_404(CustomUser, pk=user_id)
+            # get_object_or_404=make sure we do not send a request to a non existing user
+
+            if request.user == to_user:
+                return redirect('friend.html', username=to_user.firstname)
+
+            friend_request, created = friend_request.objects.get_or_create(userfrom=request.user,user_id=user_id)
+            # get_or_create=prevent dublicate request 
+            
+
+            return redirect('friend.html', username=to_user.firstname)
+    
+    return redirect('home')
+
+
+
+def accept_request(request,request_id):
+    friend_request=get_object_or_404(FriendRequest,id=request_id)
+    if friend_request.to_user==request.user:
+        friend_request.is_accepted=True
+        friend_request.save()
+    return redirect('friendrequest')
+

@@ -73,7 +73,7 @@ class CustomUser(AbstractBaseUser):
     USERNAME_FIELD='phone_number'
     REQUIRED_FIELDS=['email']
     objects = UserManagercustom()
-    last_login=NONE
+    last_login=None
 
     def clean(self):
         validate_phone_number(self.phone_number)
@@ -116,8 +116,13 @@ class Friend_Request(models.Model):
 #  liked_by=models.ManyToManyField(CustomUser)
 
 class comment(models.Model):
-    post=models.ForeignKey(CreatePost,on_delete=models.CASCADE)
-    user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,default=False)
-    text=models.TextField(blank=True,null=True)
-    created_at=models.DateTimeField(default=timezone.now)
+    post = models.ForeignKey(CreatePost, on_delete=models.CASCADE, related_name="comments")
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default=False)
+    text = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
+
+class Follow(models.Model):
+    follower = models.ForeignKey(CustomUser, related_name='following', on_delete=models.CASCADE)
+    followed = models.ForeignKey(CustomUser, related_name='followers', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
