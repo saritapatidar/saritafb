@@ -6,9 +6,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .profile-banner {
-
-           background-color: #3b5998;*/
-
+            background-color: #3b5998;
             height: 200px;
             border-radius: 0 0 10px 10px;
             position: relative;
@@ -32,27 +30,23 @@
         }
 
         .card-style {
-
             margin-top: 20px;
-
-            margin-top: 30px
+            margin-top: 30px;
+        }
     </style>
 </head>
 <body class="bg-light">
     <div class="container">
-        <div class="profile-banner"> 
+        <div class="profile-banner">
             {% if profile.UserProfile.profile_picture %}
-
-                <img src="{{profile.UserProfile.profile_picture.url}}" class="profile-pic">
+                <img src="{{ profile.UserProfile.profile_picture.url }}" class="profile-pic">
             {% else %}
                 <img src="{% static 'default_profile.png' %}" class="profile-pic">
             {% endif %}
-
         </div>
 
         <div class="profile-info">
             <h3>{{ request.user.firstname }} {{ request.user.lastname }}</h3>
-
         </div>
         
         <div class="card card-style shadow-sm p-2">
@@ -62,28 +56,27 @@
             <p><strong>Bio:</strong> {{ profile.bio|default:"No bio available." }}</p>
         </div>
 
-        
+        <form method="post" action="{% url 'follow_user' user.id %}">
+            {% csrf_token %}
+            <button type="submit">Follow</button>
+            <span>{{ post.follower.count }}</span>
+            <span>{{ post.followed.count }}</span>
+                
+        </form>
+        <br>
 
-        <ul class ="all_users">
-        {% for user in allusers %}
-        {% if not user.is_superuser %}
-        {% if user not in request.user.friends.all and user != request.user %}
-        <h1>{{user}} <a href="/friendrequest/{{to_user_id}}/"send friend request</a>friendreques </h1>
-        {% endif %}
-        {% endif %}
-        {% endfor %}
-        {% for friend_request in all_friend_requests%}
-        <h1>{{friend_request.from_user}}
-        <a href="/acceptrequest/{{friend_request.id}}/"accept friend request</a>
-        </h1>
-       {% endfor %}
+        <form method="post" action="{% url 'unfollow_user' user.id %}">
+            {% csrf_token %}
+            <button type="submit">Unfollow</button>
+        </form>
+            
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Send Friend Request</button>
+        </form>
 
-        </ul>
-        <a href="{% url 'home' %}" class="btn btn-primary mt-4">Back </a>
+    <a href="{% url 'home' %}" class="btn btn-primary mt-4">Back</a>
     </div>
-
 </body>
-
 </html>
-
- 

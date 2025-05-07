@@ -5,6 +5,7 @@ from .models import UserProfile
 from .models import CreatePost
 from .models import Friend_Request
 from .models import comment
+from .models import Follow
 
 @admin.register(CustomUser)
 class users(admin.ModelAdmin):
@@ -30,3 +31,6 @@ class commentes(admin.ModelAdmin):
     List_display=('post','user','text')
 
 
+@admin.register(Follow)
+class Follows(admin.ModelAdmin):
+    List_display=('follower','followed')

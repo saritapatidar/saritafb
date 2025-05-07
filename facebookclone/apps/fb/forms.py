@@ -51,3 +51,8 @@ class comments(forms.ModelForm):
         fields=['post','user','text']
 
 
+class FollowForm(forms.Form):
+    user_id = forms.IntegerField(widget=forms.HiddenInput)
+    class Meta:
+
+        unique_together = ('follower', 'followed')
