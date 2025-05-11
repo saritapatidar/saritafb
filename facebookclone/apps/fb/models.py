@@ -94,7 +94,7 @@ class UserProfile(models.Model):
     bio = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     # profile_picture_url = models.URLField(blank=True, null=True)
-    
+        following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
 
 class CreatePost(models.Model):
     user=models.ForeignKey(UserProfile,on_delete=models.CASCADE)
@@ -105,7 +105,7 @@ class CreatePost(models.Model):
     
 
     
-class Friend_Request(models.Model):
+class FriendRequest(models.Model):
     from_user = models.ForeignKey(CustomUser,related_name="from_user",on_delete=models.CASCADE)
     to_user = models.ForeignKey(CustomUser,related_name="to_user",on_delete=models.CASCADE)
 
