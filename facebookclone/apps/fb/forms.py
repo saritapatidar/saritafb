@@ -29,11 +29,16 @@ class CreatePostForm(forms.ModelForm):
         model = CreatePost
         fields = ['user','content','image']
 
-
-class friends(forms.ModelForm):
+class FriendRequestForm(forms.ModelForm):
     class Meta:
-        model = Friend_Request
-        fields =['from_user','to_user']
+        model = FriendRequest
+        fields = ['from_user', 'to_user']
+
+class FollowForm(forms.ModelForm):
+    class Meta:
+        model = Follow
+        fields = []
+
 
 
 # class likes(forms.ModelForm):
@@ -51,8 +56,3 @@ class comments(forms.ModelForm):
         fields=['post','user','text']
 
 
-class FollowForm(forms.Form):
-    user_id = forms.IntegerField(widget=forms.HiddenInput)
-    class Meta:
-
-        unique_together = ('follower', 'followed')
