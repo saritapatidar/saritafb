@@ -86,15 +86,25 @@ class CustomUser(AbstractBaseUser):
     def has_perm(self,perm):
         return self.is_superuser
 
-
-
 class UserProfile(models.Model):
-    user = models.OneToOneField(get_user_model(),on_delete=models.CASCADE,null=True,blank=True)
-    # name=models.CharField(max_length=30,blank=True,null=True)
+    user = models.OneToOneField(
+        get_user_model(), 
+        on_delete=models.CASCADE,
+        related_name='userprofile' ,
+        default=False
+    )
     bio = models.TextField(blank=True, null=True)
-    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
-    # profile_picture_url = models.URLField(blank=True, null=True)
-        following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
+    profile_picture = models.ImageField(
+        upload_to='profile_pics/', 
+        blank=True, 
+        null=True,
+        default='default_profile.png'  
+    )
+    following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
+
+
+
+
 
 class CreatePost(models.Model):
     user=models.ForeignKey(UserProfile,on_delete=models.CASCADE)
