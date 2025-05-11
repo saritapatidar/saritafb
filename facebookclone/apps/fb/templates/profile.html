@@ -9,10 +9,12 @@
 
     <style>
         .profile-banner {
-            background-color: #3b5998;
             height: 200px;
             border-radius: 0 0 10px 10px;
             position: relative;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
         .profile-pic {
@@ -57,8 +59,12 @@
 
 <body class="bg-light">
 <div class="container">
+
     <!-- Profile Banner -->
-    <div class="profile-banner">
+    <div class="profile-banner"
+         style="background-image: url('{% if target_user.userprofile.profile_picture %}{{ target_user.userprofile.profile_picture.url }}{% else %}{% static 'default_profile.png' %}{% endif %}');">
+        
+        <!-- Profile Image (Circular) -->
         {% if target_user.userprofile.profile_picture %}
             <img src="{{ target_user.userprofile.profile_picture.url }}" class="profile-pic">
         {% else %}
@@ -82,12 +88,10 @@
                     </span>
                 </div>
             </div>
-
-            
         </div>
     </div>
 
-    
+    <!-- About Card -->
     <div class="card mt-4 shadow-sm">
         <div class="card-body">
             <h5 class="card-title"><i class="fas fa-info-circle"></i> About</h5>
@@ -100,7 +104,7 @@
                 </div>
                 <div class="col-md-6">
                     <p><strong><i class="fas fa-quote-left"></i> Bio:</strong> 
-                        {{ target_user.UserProfile.bio|default:"No bio available" }}</p>
+                        {{ target_user.profile.bio|default:"No bio available" }}</p>
                 </div>
             </div>
         </div>
@@ -111,4 +115,6 @@
         <i class="fas fa-arrow-left"></i> Back to Home
     </a>
 
-    
+</div>
+</body>
+</html>
