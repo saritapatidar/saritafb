@@ -25,10 +25,10 @@ from django.contrib.auth.views import LoginView
 urlpatterns = [
       path('admin/', admin.site.urls),
       path('signup/',views.signup_page,name='signup'),
-      path('login/',views.login_page,name='login'),
+      path('',views.login_page,name='login'),
       path('logout/',views.logout_user,name='logout'),
       path(' ',views.home_page,name='home'),
-      path('profile/',views.profile_page,name='profile'),
+      path('profile/<int:user_id>/',views.profile_page,name='profile'),
       path('post/',views.post_page,name='post'),
       path('friendrequest/<int:user_id>/',views.send_friendrequest,name='friendrequest'),
       path('acceptrequest/',views.accept_request,name='acceptrequest'),
@@ -41,11 +41,14 @@ urlpatterns = [
       path('password_reset_done/',auth_views.PasswordResetDoneView.as_view(),name="password_reset_done"),
       path('password_reset_confirm/<uidb64>/<token>/',auth_views.PasswordResetConfirmView.as_view(),name="password_reset_confirm"),
       path('password_reset_complete/',auth_views.PasswordResetCompleteView.as_view(),name="password_reset_complete"),
-      
-
-
-
-
+      path('send_friend_request/<int:user_id>/', views.send_friend_request, name='send_friend_request'),
+      path('accept_friend_request/<int:request_id>/', views.accept_friend_request, name='accept_friend_request'),
+     
+      path('profile/<int:user_id>/followers/', views.followers_list, name='followers_list'),
+      path('profile/<int:user_id>/following/', views.following_list, name='following_list'),
+    
+      path('profile/edit/', views.edit_profile, name='edit_profiles'),
+   
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # like/<int:post_id>/ defines a URL structure that captures an integer value from the URL and assigns 

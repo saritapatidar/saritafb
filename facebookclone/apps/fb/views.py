@@ -24,6 +24,10 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from.models import Follow
 from .forms import friends
+from .forms import EditProfileForm
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import FriendRequest, Follow
 
 # . refers to the current package or current directory where the views.py file is located.
 
@@ -93,17 +97,43 @@ def login_page(request):
     return render(request, 'login.html', {'form': form})
 
 
-def profile_page(request):
+def profile_page(request, user_id):
+    target_user = get_object_or_404(CustomUser, id=user_id)
+
     try:
-        profile = UserProfile.objects.get(user=request.user.id)
-        form = forms.ProfileForm(instance=profile)  # <-- Show existing profile in form
+        user_profile = UserProfile.objects.get(user=target_user)
     except UserProfile.DoesNotExist:
-        form = forms.ProfileForm()  # <-- Blank form if profile doesn't exist
-    return render(request, 'profile.html', {'profile': form})
+        user_profile = None
+
+    is_following = request.user.following.filter(followed=target_user).exists()
+    users = CustomUser.objects.exclude(id=request.user.id) 
+    has_pending_request = FriendRequest.objects.filter(from_user=request.user, to_user=target_user).exists()
+    request_from_target = FriendRequest.objects.filter(from_user=target_user, to_user=request.user).first()
+
+    are_friends = (
+        request.user.following.filter(followed=target_user).exists() and 
+        target_user.following.filter(followed=request.user).exists()
+    )
+
+    followers_count = target_user.followers.count()
+    following_count = target_user.following.count()
+
+    context = {
+        'target_user': target_user,
+        'user_profile': user_profile,
+        'is_following': is_following,
+        'users':users,
+        'has_pending_request': has_pending_request,
+        'are_friends': are_friends,
+        'followers_count': followers_count,
+        'following_count': following_count,
+        'request_from_target': request_from_target,  
+    }
+    return render(request, 'profile.html', context)
 
 
 def post_page(request):
-     return redirect('home')
+    return redirect('home')
     
 
 def like_post(request, post_id):
@@ -124,13 +154,13 @@ def post_detail(request, post_id):
     post = get_object_or_404(CreatePost, pk=post_id)
 
     if request.method == 'POST':
-        form = comments(request.POST)
+        form = comments(request.POST,request.FILES)
         if form.is_valid():
             new_comment = form.save(commit=False)
             new_comment.post = post
             new_comment.user = request.user
             new_comment.save()
-            return redirect('home', post_id=post_id)
+            return redirect('home')
     else:
         form = comments()
 
@@ -141,17 +171,69 @@ def post_detail(request, post_id):
 
 
 def follow_user(request, user_id):
-    followed_user = get_object_or_404(CustomUser,id=user_id)
-    if not Follow.objects.filter(follower=request.user, followed=followed_user).exists():
-        Follow.objects.create(follower=request.user, followed=followed_user)
-    return redirect('profile')
-    
-
+    target_user = get_object_or_404(CustomUser, id=user_id)
+    Follow.objects.get_or_create(follower=request.user, followed=target_user)
+    return redirect('profile',user_id)
 
 def unfollow_user(request, user_id):
-    followed_user = get_object_or_404(CustomUser,id=user_id)
-    Follow.objects.filter(follower=request.user, followed=followed_user).delete()
-    return redirect('profile')
+    target_user = get_object_or_404(CustomUser, id=user_id)
+    Follow.objects.filter(follower=request.user, followed=target_user).delete()
+    return redirect('profile',user_id=user_id)
+
+
+
+def send_friend_request(request, user_id):
+    to_user = get_object_or_404(CustomUser, id=user_id)
+    if request.user != to_user and not FriendRequest.objects.filter(from_user=request.user, to_user=to_user).exists() and not FriendRequest.objects.filter(from_user=to_user, to_user=request.user).exists():
+      friend_request = FriendRequest.objects.create(from_user=request.user, to_user=to_user)
+      return redirect('friend.html')
+    return redirect('profile', user_id=user_id) # Redirect to the user's profile page
+
+def accept_friend_request(request, request_id):
+    friend_request = get_object_or_404(FriendRequest, id=request_id)
+
+    # Only allow accepting friend requests sent to the current user
+    if friend_request.to_user != request.user:
+        return redirect('accept.html')  
+
+    # # Create mutual follows
+    # Follow.objects.get_or_create(follower=request.user, followed=friend_request.from_user)
+    # Follow.objects.get_or_create(follower=friend_request.from_user, followed=request.user)
+
+    # Delete the friend request
+    friend_request.delete()
+
+    return redirect('accept',user_id=request.user.id)
+
+
+# def followers_list(request, user_id):
+#     user = get_object_or_404(CustomUser, id=user_id)
+#     followers = user.followers.all()  # This retrieves all followers of the target user
+#     return render(request, 'followers_list.html', {'followers': followers, 'target_user': user})
+
+def followers_list(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    follower_relations = Follow.objects.filter(followed=user)
+    followers = [rel.follower for rel in follower_relations]
+
+    # List of users that the current user is following
+    current_user_following = [rel.followed for rel in Follow.objects.filter(follower=request.user)]
+
+    return render(request, 'followers_list.html', {
+        'followers': followers,
+        'target_user': user,
+        'current_user_following': current_user_following
+    })
+
+
+
+def following_list(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    following_relations = Follow.objects.filter(follower=user)
+    following = [relation.followed for relation in following_relations]
+    return render(request, 'following_list.html', {'following': following, 'target_user': user})
+
+
 
 
 
@@ -203,4 +285,16 @@ def accept_request(request,request_id):
         friend_request.is_accepted=True
         friend_request.save()
     return redirect('friendrequest')
+
+
+def edit_profile(request):
+        profile = get_object_or_404(UserProfile, user=request.user)
+        if request.method == 'POST':
+            form = EditProfileForm(request.POST, request.FILES, instance=profile)
+            if form.is_valid():
+                form.save()
+                return redirect('edit_profile') # Redirect to the user's profile page
+        else:
+            form = EditProfileForm(instance=profile)
+        return render(request, 'edit_profile.html', {'form': form})
 

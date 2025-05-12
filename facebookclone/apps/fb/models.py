@@ -35,7 +35,7 @@ def validate_password(value):
 class CustomUser(AbstractBaseUser):
     firstname = models.CharField(max_length=10, blank=False, null=False,default="")
     lastname = models.CharField(max_length=10, blank=False, null=False,default="")
-    Date_of_birth = models.DateField(max_length=10, default="2000-08-01", blank=True, null=True)
+    Date_of_birth = models.DateField(max_length=10, blank=True, null=True)
 
     FEMALE = 'FEMALE'
     MALE = 'MALE'
@@ -45,7 +45,6 @@ class CustomUser(AbstractBaseUser):
     GENDER = [
         (FEMALE, "Female"),
         (MALE, "Male"),
-        (CUSTOM, "Custom"),
         (NONE, "Prefer not to say"),
     ]
 
@@ -89,13 +88,14 @@ class CustomUser(AbstractBaseUser):
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(get_user_model(),on_delete=models.CASCADE,null=True,blank=True)
-    # name=models.CharField(max_length=30,blank=True,null=True)
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE,related_name='userprofile' ,default=False)
     bio = models.TextField(blank=True, null=True)
-    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
-    # profile_picture_url = models.URLField(blank=True, null=True)
-    
+    profile_picture = models.ImageField( upload_to='profile_pics/', blank=True, null=True,default='default_profile.png')
+    following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
 
+
+
+    
 class CreatePost(models.Model):
     user=models.ForeignKey(UserProfile,on_delete=models.CASCADE)
     content=models.TextField(blank=True,null=True)
@@ -105,9 +105,7 @@ class CreatePost(models.Model):
     
 
     
-class Friend_Request(models.Model):
-    from_user = models.ForeignKey(CustomUser,related_name="from_user",on_delete=models.CASCADE)
-    to_user = models.ForeignKey(CustomUser,related_name="to_user",on_delete=models.CASCADE)
+
 
 # related_name=related_name is used to specify the name of the reverse relationship from the related model back to this one
 
@@ -126,3 +124,7 @@ class Follow(models.Model):
     follower = models.ForeignKey(CustomUser, related_name='following', on_delete=models.CASCADE)
     followed = models.ForeignKey(CustomUser, related_name='followers', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+
+class FriendRequest(models.Model):
+    from_user = models.ForeignKey(CustomUser,related_name="from_user",on_delete=models.CASCADE)
+    to_user = models.ForeignKey(CustomUser,related_name="to_user",on_delete=models.CASCADE)
