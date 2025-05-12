@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import CustomUser
 from .models import UserProfile
 from .models import CreatePost
-from .models import Friend_Request
+from .models import FriendRequest
 from .models import comment
 from .models import Follow
 
@@ -13,13 +13,15 @@ class users(admin.ModelAdmin):
 
 # admin.site.register(UserProfile)
 @admin.register(UserProfile)
+class pro(admin.ModelAdmin):
+    List_display=('user','bio','profile_picture','following')
 
 @admin.register(CreatePost)
 class Postes(admin.ModelAdmin):
     List_display=('user','content','image')
 
 # admin.site.register(CreatePost,Postes)
-@admin.register(Friend_Request)
+@admin.register(FriendRequest)
 class FriendRequested(admin.ModelAdmin):
     List_display=('from_user','to_user')
 

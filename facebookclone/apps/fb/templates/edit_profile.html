@@ -1,0 +1,8 @@
+
+<form method="POST">
+                    
+    {% csrf_token %}
+    {{ form.as_p }}
+    <img src="{{ profile.userprofile.profile_picture.url }}" class="profile-pic">
+    <button type="submit" name="action" value="Profile"><i class="fa-solid fa-comment"></i></button>
+</form>

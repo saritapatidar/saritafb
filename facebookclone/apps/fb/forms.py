@@ -7,6 +7,7 @@ from django.forms import ModelForm
 from .models import CreatePost
 
 
+
 class LoginForm(forms.Form):
     # import pdb;pdb.set_trace()
     phone_number = forms.CharField(max_length=12)
@@ -32,7 +33,7 @@ class CreatePostForm(forms.ModelForm):
 
 class friends(forms.ModelForm):
     class Meta:
-        model = Friend_Request
+        model = FriendRequest
         fields =['from_user','to_user']
 
 
@@ -48,11 +49,17 @@ class friends(forms.ModelForm):
 class comments(forms.ModelForm):
     class Meta:
         model=comment
-        fields=['post','user','text']
+        fields=['text']
 
 
 class FollowForm(forms.Form):
     user_id = forms.IntegerField(widget=forms.HiddenInput)
     class Meta:
-
+        model=Follow
         unique_together = ('follower', 'followed')
+
+
+class EditProfileForm(forms.ModelForm):
+        class Meta:
+            model = UserProfile
+            fields = ('bio', 'profile_picture') 

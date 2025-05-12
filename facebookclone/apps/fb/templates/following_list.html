@@ -1,0 +1,14 @@
+{% block content %}
+    <h3>{{ target_user.firstname }} is Following</h3>
+    <ul class="list-group">
+        {% for following in following %}
+            <li class="list-group-item">
+                <a href="{% url 'profile' following.id %}">
+                    {{ following.firstname }} {{ following.lastname }}
+                </a>
+            </li>
+        {% empty %}
+            <li class="list-group-item">Not following anyone yet.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
