@@ -35,25 +35,28 @@ from .models import FriendRequest, Follow
 @login_required
 @never_cache
 def home_page(request):
-        posts = CreatePost.objects.all().order_by('-created_at')
+    posts = CreatePost.objects.all().order_by('-created_at')
+    users = CustomUser.objects.exclude(id=request.user.id)
+    friend_requests = FriendRequest.objects.filter(to_user=request.user)
 
-        # for post in posts:
-        #     post.is_liked=False
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        image = request.FILES.get('image')
+        if content or image:
+            CreatePost.objects.create(user=request.user.userprofile, content=content, image=image)
 
-        #     if request.user.is_authenticated:
-        #         post.is_liked=post.likes.filter(liked_by=request.user).exists()
+        return redirect('home')
 
-        if request.method == 'POST':
-            form = forms.CreatePostForm(request.POST, request.FILES)
-            if form.is_valid():
-                new_post = form.save() 
-                new_post.save()
-                return redirect('home')
-        else:
-            form = forms.CreatePostForm()
-    
-        return render(request, 'home.html', {'posts': posts,'form': form })
-
+    return render(
+        request,
+        'home.html',
+        {
+            'posts': posts,
+            'users': users,
+            'friend_requests': friend_requests
+        }
+    )
+        
 def logout_user(request):
 
     logout(request)
