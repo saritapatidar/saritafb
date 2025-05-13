@@ -288,13 +288,20 @@ def accept_request(request,request_id):
 
 
 def edit_profile(request):
-        profile = get_object_or_404(UserProfile, user=request.user)
-        if request.method == 'POST':
-            form = EditProfileForm(request.POST, request.FILES, instance=profile)
-            if form.is_valid():
-                form.save()
-                return redirect('edit_profile') # Redirect to the user's profile page
-        else:
-            form = EditProfileForm(instance=profile)
-        return render(request, 'edit_profile.html', {'form': form})
+    profile = get_object_or_404(UserProfile, user=request.user)
+
+    if request.method == 'POST':
+        if 'remove_picture' in request.POST:
+            profile.profile_picture.delete(save=True)
+            return redirect('profile', user_id=request.user.id)
+
+        form = EditProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile', user_id=request.user.id)
+    else:
+        form = EditProfileForm(instance=profile)
+
+    return render(request, 'edit_profile.html', {'form': form})
+
 
