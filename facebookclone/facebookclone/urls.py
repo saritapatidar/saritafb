@@ -41,13 +41,15 @@ urlpatterns = [
       path('password_reset_done/',auth_views.PasswordResetDoneView.as_view(),name="password_reset_done"),
       path('password_reset_confirm/<uidb64>/<token>/',auth_views.PasswordResetConfirmView.as_view(),name="password_reset_confirm"),
       path('password_reset_complete/',auth_views.PasswordResetCompleteView.as_view(),name="password_reset_complete"),
-      path('send_friend_request/<int:user_id>/', views.send_friend_request, name='send_friend_request'),
+      path('send_friend_request/<int:user_id>/', views.send_friendrequest, name='send_friend_request'),
+      path('friend_requests/<int:user_id>/',views.friend_requests,name='friend_requests'),
       path('accept_friend_request/<int:request_id>/', views.accept_friend_request, name='accept_friend_request'),
-     
+      
       path('profile/<int:user_id>/followers/', views.followers_list, name='followers_list'),
       path('profile/<int:user_id>/following/', views.following_list, name='following_list'),
-    
-      path('profile/edit/', views.edit_profile, name='edit_profiles'),
+      path('profile/edit/',views.edit_profile,name='edit_profiles'),
+      path('profile/update/',views.upload_profile,name='upload_profiles')
+      
    
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

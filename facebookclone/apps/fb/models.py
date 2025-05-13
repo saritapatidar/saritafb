@@ -59,6 +59,7 @@ class CustomUser(AbstractBaseUser):
     # password = models.CharField(validators=[password_regex],max_length=8,null=False,blank=True)
     phone_number = models.CharField(max_length=12,unique=True,null=True)
     password = models.CharField(max_length=128, null=False, blank=True)
+
     is_active = models.BooleanField(default=True)
 
     # is_active is a boolean field that indicates whether a user account is considered active,

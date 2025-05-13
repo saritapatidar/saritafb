@@ -35,24 +35,28 @@ from .models import FriendRequest, Follow
 @login_required
 @never_cache
 def home_page(request):
-        posts = CreatePost.objects.all().order_by('-created_at')
+    posts = CreatePost.objects.all().order_by('-created_at')
+    users = CustomUser.objects.exclude(id=request.user.id)
+    friend_requests = FriendRequest.objects.filter(to_user=request.user)
 
-        # for post in posts:
-        #     post.is_liked=False
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        image = request.FILES.get('image')
+        if content or image:
+            CreatePost.objects.create(user=request.user.userprofile,content=content, image=image)
 
-        #     if request.user.is_authenticated:
-        #         post.is_liked=post.likes.filter(liked_by=request.user).exists()
+        return redirect('home')
 
-        if request.method == 'POST':
-            form = forms.CreatePostForm(request.POST, request.FILES)
-            if form.is_valid():
-                new_post = form.save() 
-                new_post.save()
-                return redirect('home')
-        else:
-            form = forms.CreatePostForm()
-    
-        return render(request, 'home.html', {'posts': posts,'form': form })
+    return render(
+        request,
+        'home.html',
+        {
+            'posts': posts,
+            'users': users,
+            'friend_requests': friend_requests
+        }
+    )
+
 
 def logout_user(request):
 
@@ -277,24 +281,44 @@ def send_friendrequest(request,user_id):
     
     return redirect('home')
 
-
+def friend_requests(request,user_id):
+    friend_requests = FriendRequest.objects.filter(to_user=request.user)
+    return render(request, 'friend.html', {'friend_requests': friend_requests})
 
 def accept_request(request,request_id):
     friend_request=get_object_or_404(FriendRequest,id=request_id)
     if friend_request.to_user==request.user:
         friend_request.is_accepted=True
         friend_request.save()
-    return redirect('friendrequest')
+    return redirect('friend.html')
 
 
 def edit_profile(request):
-        profile = get_object_or_404(UserProfile, user=request.user)
-        if request.method == 'POST':
-            form = EditProfileForm(request.POST, request.FILES, instance=profile)
-            if form.is_valid():
-                form.save()
-                return redirect('edit_profile') # Redirect to the user's profile page
-        else:
-            form = EditProfileForm(instance=profile)
-        return render(request, 'edit_profile.html', {'form': form})
+    profile = get_object_or_404(UserProfile, user=request.user)
 
+    if request.method == 'POST':
+        if 'remove_picture' in request.POST:
+            profile.profile_picture.delete(save=True)
+            return redirect('profile', user_id=request.user.id)
+
+        form = EditProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile', user_id=request.user.id)
+    else:
+        form = EditProfileForm(instance=profile)
+
+    return render(request, 'edit_profile.html', {'form': form})
+
+
+def upload_profile(request):
+    profile=get_object_or_404(UserProfile,user=request.user)
+
+    if request.method=="POST":
+        form=ProfileForm(request.POST,request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('profile',user_id=request.user_id)
+    else:
+        form=ProfileForm()
+    return render(request,'upload.html',{'form':form})
