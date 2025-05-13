@@ -1,125 +1,117 @@
+
 {% load static %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ target_user.first_name }}'s Profile</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <style>
-        .profile-banner {
-            height: 200px;
-            border-radius: 0 0 10px 10px;
-            position: relative;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
+{% block content %}
+<style>
+    .profile-card {
+        max-width: 500px;
+        margin: auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        text-align: center;
+    }
 
-        .profile-pic {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            border: 5px solid white;
-            object-fit: cover;
-            position: absolute;
-            bottom: -70px;
-            left: 30px;
-            background-color: white;
-        }
+    .profile-image {
+        width: 140px;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid #007bff;
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.2);
+        position: relative;
+    }
 
-        .profile-info {
-            margin-top: 90px;
-            padding-left: 180px;
-        }
+    .edit-icon {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background-color: #ffffff;
+        border-radius: 50%;
+        padding: 4px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
 
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
+    .user-info h3 {
+        margin-top: 15px;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
 
-        .btn-request {
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: 500;
-        }
+    .bio-text {
+        font-size: 15px;
+        color: #333;
+        margin-bottom: 10px;
+    }
 
-        .badge a {
-            color: white;
-            text-decoration: none;
-        }
+    .dob-text {
+        font-size: 14px;
+        color: #888;
+    }
 
-        .badge a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
+    .follow-box {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+        font-size: 16px;
+    }
 
-<body class="bg-light">
-<div class="container">
+    .follow-box div {
+        font-weight: bold;
+    }
 
-    <!-- Profile Banner -->
-    <div class="profile-banner"
-        style="background-image: url('{% if target_user.userprofile.profile_picture %}{{ target_user.userprofile.profile_picture.url }}{% else %}{% static 'default_profile.png' %}{% endif %}');">
-        
-        
-        {% if target_user.userprofile.profile_picture %}
-            <img src="{{ target_user.userprofile.profile_picture.url }}" class="profile-pic">
-        {% else %}
-            <img src="{% static 'default_profile.png' %}" class="profile-pic">
+    .edit-btn {
+        margin-top: 10px;
+    }
+</style>
+
+<div class="profile-card position-relative">
+
+    <!-- Profile Image -->
+    <div class="position-relative d-inline-block">
+        <img src="{% if target_user.userprofile.profile_picture %}
+                    {{ target_user.userprofile.profile_picture.url }}
+                {% else %}
+                    {% static 'default_profile.png' %}
+                {% endif %}"
+             alt="Profile Picture"
+             class="profile-image">
+
+        {% if target_user == user %}
+            <a href="{% url 'edit_profiles' %}" class="edit-icon">
+                ✏️
+            </a>
         {% endif %}
-        
-
     </div>
 
-    <!-- Profile Info -->
-    <div class="profile-info">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h2>{{ target_user.firstname }} {{ target_user.lastname }}</h2>
-                <div class="d-flex gap-3 mt-2">
-                    <span class="badge bg-primary">
-                        <i class="fas fa-users"></i>
-                        <a href="{% url 'followers_list' target_user.id %}">{{ target_user.followers.count }} Followers</a>
-                    </span>
-                    <span class="badge bg-success">
-                        <i class="fas fa-user-friends"></i>
-                        <a href="{% url 'following_list' target_user.id %}">{{ target_user.following.count }} Following</a>
-                    </span>
-
-                
-                </div>
-            </div>
+    <!-- User Info -->
+    <div class="user-info">
+        <h3 class="mt-3">{{ target_user.firstname }}</h3>
+    
+        <div class="bio-text mb-2">
+            <strong>Bio:</strong> {{ target_user.userprofile.bio|default:"No bio added yet." }}
         </div>
-    </div>
-
-    <!-- About Card -->
-    <div class="card mt-4 shadow-sm">
-        <div class="card-body">
-            <h5 class="card-title"><i class="fas fa-info-circle"></i> About</h5>
-            <div class="row mt-3">
-                <div class="col-md-6">
-                    <p><strong><i class="fas fa-birthday-cake"></i> Date of Birth:</strong> 
-                        {{ target_user.Date_of_birth|date:"d M Y" }}</p>
-                    <p><strong><i class="fas fa-phone"></i> Phone:</strong> 
-                        {{ target_user.phone_number }}</p>
-                </div>
-                <form method="POST" action="{% url 'edit_profiles' %}">
-                    {% csrf_token %}
-                    <button type="submit" name="action" value="profile-pic"><i class="fa-solid fa-comment"></i></button>
-                </form>
-            </div>
+    
+        <div class="dob-text mb-2">
+            <strong>Date of Birth:</strong>
+            {{ target_user.userprofile.date_of_birth|default:"N/A" }}
         </div>
 
+        {% if target_user == user %}
+            <a href="{% url 'edit_profiles' %}" class="btn btn-outline-primary btn-sm edit-btn">Edit Profile</a>
+        {% endif %}
     </div>
 
-    
-    <a href="{% url 'home' %}" class="btn btn-primary mt-4">
-        <i class="fas fa-arrow-left"></i> Back to Home
-    </a>
-
-    
+    <!-- Followers / Following -->
+    <div class="follow-box mt-3">
+        <div>
+            {{ target_user.followers.count }}<br><span style="font-weight: normal;">Followers</span>
+        </div>
+        <div>
+            {{ target_user.following.count }}<br><span style="font-weight: normal;">Following</span>
+        </div>
+    </div>
 </div>
-</body>
-</html>
+{% endblock %}
