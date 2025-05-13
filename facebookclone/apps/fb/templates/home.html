@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
-        /* General Styles */
         body {
             margin: 0;
             padding: 0;
@@ -16,7 +15,6 @@
             font-family: Arial, sans-serif;
         }
 
-        /* Header */
         .fb-header {
             display: flex;
             justify-content: space-between;
@@ -49,7 +47,6 @@
             color: #1877f2;
         }
 
-        /* Layout */
         .main-area {
             display: flex;
             justify-content: center;
@@ -60,7 +57,6 @@
             width: 500px;
         }
 
-        /* Post Card */
         .post-card {
             background: white;
             border-radius: 8px;
@@ -175,15 +171,26 @@
         <i class="fas fa-bell"></i>
         <a href="{% url 'profile' user.id %}"><i class="fas fa-user-circle"></i></a>
         <a href="{% url 'logout' %}"><i class="fas fa-sign-out"></i></a>
-        <a href="{% url 'post' % }"><i class="fas fa-user-friends"></i></a>
     </div>
 </header>
 
 <main class="main-area">
     <div class="posts-area">
+
+        <!-- Post Form -->
+        <div class="post-card mb-4">
+            <form method="POST" enctype="multipart/form-data" style="padding: 15px;">
+                {% csrf_token %}
+                <textarea name="content" placeholder="What's on your mind?" rows="3" style="width: 100%; border: none; resize: none; padding: 10px; border-radius: 8px;"></textarea>
+                <input type="file" name="image" accept="image/*" style="margin-top: 10px;" />
+                <br><br>
+                <button type="submit" style="padding: 10px 20px; background-color: #1877f2; color: white; border: none; border-radius: 20px; cursor: pointer;">Post</button>
+            </form>
+        </div>
+
+        <!-- Posts -->
         {% for post in posts %}
         <div class="post-card">
-            <!-- Post Header -->
             <div class="post-header">
                 <div class="user-info">
                     <div>
@@ -194,7 +201,6 @@
                 </div>
             </div>
 
-            <!-- Post Content -->
             <div class="post-body">
                 {% if post.content %}
                     <p>{{ post.content }}</p>
@@ -203,21 +209,18 @@
                     <img src="{{ post.image.url }}" alt="Post image">
                 {% endif %}
             </div>
-           
-            
+
             <div class="post-actions">
                 <form action="{% url 'likepost' post.id %}" method="POST">
                     {% csrf_token %}
                     <button type="submit" name="action" value="like"><i class="fa-solid fa-thumbs-up"></i></button>
-                    
+                    <button type="submit" name="action" value="dislike"><i class="fa-solid fa-thumbs-down"></i></button>
                     <span>{{ post.likes.count }}</span>
                 </form>
             </div>
 
-            <!-- Comment Section -->
             <div class="comment-section">
                 <h4>Comments:</h4>
-
                 {% for comment in post.comments.all %}
                     <div class="comment">
                         <strong>{{ comment.user.firstname }}:</strong> {{ comment.text }}<br>
@@ -227,8 +230,6 @@
                     <p>No comments yet.</p>
                 {% endfor %}
 
-                
-
                 <form action="{% url 'commen' post.id %}" method="POST">
                     {% csrf_token %}
 
@@ -237,7 +238,6 @@
 
                     <button type="submit" name="action" value="comment"><i class="fa-solid fa-comment"></i></button>
                 </form>
-
             </div>
         </div>
         {% endfor %}
