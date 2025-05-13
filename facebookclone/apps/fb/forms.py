@@ -14,11 +14,11 @@ class LoginForm(forms.Form):
     password = forms.CharField(max_length=8,widget=forms.PasswordInput)
     # password = forms.CharField(max_length=8)
 
-class SignupForm(ModelForm):
+class SignupForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['firstname','lastname','Date_of_birth','gender','email','phone_number','password']
-        widgets={'Date_of_birth':forms.SelectDateWidget(years=range(1900, 2025))}
+        widgets={'Date_of_birth':forms.SelectDateWidget(years=range(1900, 2025)),'password': forms.PasswordInput}
 
 class ProfileForm(forms.ModelForm):
     class Meta:
