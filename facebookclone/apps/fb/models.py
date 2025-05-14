@@ -91,7 +91,7 @@ class CustomUser(AbstractBaseUser):
 class UserProfile(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE,related_name='userprofile' ,default=False)
     bio = models.TextField(blank=True, null=True)
-    profile_picture = models.ImageField( upload_to='profile_pics/', blank=True, null=True,default='default_profile.png')
+    profile_picture = models.ImageField( upload_to='profile_pics/', blank=True, null=True)
     following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
 
 

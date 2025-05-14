@@ -9,16 +9,18 @@ from .models import CreatePost
 
 
 class LoginForm(forms.Form):
+
     # import pdb;pdb.set_trace()
     phone_number = forms.CharField(max_length=12)
     password = forms.CharField(max_length=8,widget=forms.PasswordInput)
+   
     # password = forms.CharField(max_length=8)
 
 class SignupForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['firstname','lastname','Date_of_birth','gender','email','phone_number','password']
-        widgets={'Date_of_birth':forms.SelectDateWidget(years=range(1900, 2025)),'password': forms.PasswordInput}
+        widgets={'Date_of_birth':forms.SelectDateWidget(years=range(1990, 2025)),'password': forms.PasswordInput}
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -46,14 +48,14 @@ class friends(forms.ModelForm):
 
 
 
-class comments(forms.ModelForm):
+class commentform(forms.ModelForm):
     class Meta:
         model=comment
         fields=['text']
 
 
 class FollowForm(forms.Form):
-    user_id = forms.IntegerField(widget=forms.HiddenInput)
+    user_id = forms.IntegerField()
     class Meta:
         model=Follow
         unique_together = ('follower', 'followed')
