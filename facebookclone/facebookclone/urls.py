@@ -30,25 +30,21 @@ urlpatterns = [
       path(' ',views.home_page,name='home'),
       path('profile/<int:user_id>/',views.profile_page,name='profile'),
       path('post/',views.post_page,name='post'),
-      path('friendrequest/<int:user_id>/',views.send_friendrequest,name='friendrequest'),
-      path('acceptrequest/',views.accept_request,name='acceptrequest'),
-      
       path('like/<int:post_id>/', views.like_post, name='likepost'),
-      path('commen/<int:post_id>/',views.post_detail,name='commen'),
-      path('follow/<int:user_id>/', views.follow_user, name='follow_user'),
-      path('unfollow/<int:user_id>/',views.unfollow_user, name='unfollow_user'),
+      path('commen/<int:post_id>/',views.comments,name='commen'),
+      # path('follow/<int:user_id>/', views.follow_user, name='follow_user'),
+      # path('unfollow/<int:user_id>/',views.unfollow_user, name='unfollow_user'),
       path('password_reset/',auth_views.PasswordResetView.as_view(),name="password_reset"),
       path('password_reset_done/',auth_views.PasswordResetDoneView.as_view(),name="password_reset_done"),
       path('password_reset_confirm/<uidb64>/<token>/',auth_views.PasswordResetConfirmView.as_view(),name="password_reset_confirm"),
       path('password_reset_complete/',auth_views.PasswordResetCompleteView.as_view(),name="password_reset_complete"),
       path('send_friend_request/<int:user_id>/', views.send_friendrequest, name='send_friend_request'),
-      path('friend_requests/<int:user_id>/',views.friend_requests,name='friend_requests'),
-      path('accept_friend_request/<int:request_id>/', views.accept_friend_request, name='accept_friend_request'),
+      path('accept_friend_request/<int:request_id>/', views.accept_request, name='accept_friend_request'),
       
       path('profile/<int:user_id>/followers/', views.followers_list, name='followers_list'),
       path('profile/<int:user_id>/following/', views.following_list, name='following_list'),
       path('profile/edit/',views.edit_profile,name='edit_profiles'),
-      path('profile/update/',views.upload_profile,name='upload_profiles')
+      
       
    
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

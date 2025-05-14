@@ -140,7 +140,7 @@ AUTHENTICATION_BACKENDS = [
 
 EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST="smtp.gmail.com"
-EMAIT_POST=587
+EMAIT_PORT=587
 EMAIL_USE_TLS=True
 EMAIL_HOST_USER="saritapatidar@thoughtwin.com"
-EMAIL_HOST_PASSWORD='Saritapatidar108'
+EMAIL_HOST_PASSWORD='hnxu gqgp cczv gwfc'
