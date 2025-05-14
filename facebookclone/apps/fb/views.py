@@ -109,10 +109,6 @@ def profile_page(request, user_id):
         user_profile = None
 
     is_following = request.user.following.filter(followed=target_user).exists()
-    users = CustomUser.objects.exclude(id=request.user.id) 
-    has_pending_request = FriendRequest.objects.filter(from_user=request.user, to_user=target_user).exists()
-    request_from_target = FriendRequest.objects.filter(from_user=target_user, to_user=request.user).first()
-
     are_friends = (
         request.user.following.filter(followed=target_user).exists() and 
         target_user.following.filter(followed=request.user).exists()
@@ -121,16 +117,26 @@ def profile_page(request, user_id):
     followers_count = target_user.followers.count()
     following_count = target_user.following.count()
 
+    # All users except self
+    users = CustomUser.objects.exclude(id=request.user.id)
+
+    # Friend request tracking
+    sent_requests = FriendRequest.objects.filter(from_user=request.user)
+    received_requests = FriendRequest.objects.filter(to_user=request.user)
+
+    sent_request_ids = set(sent_requests.values_list('to_user_id', flat=True))
+    received_request_dict = {fr.from_user.id: fr.id for fr in received_requests}
+
     context = {
         'target_user': target_user,
         'user_profile': user_profile,
         'is_following': is_following,
-        'users':users,
-        'has_pending_request': has_pending_request,
         'are_friends': are_friends,
         'followers_count': followers_count,
         'following_count': following_count,
-        'request_from_target': request_from_target,  
+        'users': users,
+        'sent_request_ids': sent_request_ids,
+        'received_request_dict': received_request_dict,
     }
     return render(request, 'profile.html', context)
 
