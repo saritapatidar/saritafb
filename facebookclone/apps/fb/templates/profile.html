@@ -1,6 +1,7 @@
 {% load static %}
-
+{% load custom_filter %}
 {% block content %}
+
 <style>
     .profile-card {
         max-width: 500px;
@@ -59,6 +60,13 @@
 
     .follow-box div {
         font-weight: bold;
+        cursor: pointer;
+    }
+
+    .follow-box ul {
+        list-style: none;
+        padding-left: 0;
+        margin-top: 10px;
     }
 
     .edit-btn {
@@ -93,7 +101,6 @@
 </style>
 
 <div class="profile-card position-relative">
-    <!-- Profile Image -->
     <div class="position-relative d-inline-block">
         <img src="{% if target_user.userprofile.profile_picture %}
                     {{ target_user.userprofile.profile_picture.url }}
@@ -108,17 +115,15 @@
         {% endif %}
     </div>
 
-    <!-- User Info -->
     <div class="user-info">
-        <h3 class="mt-3">{{ target_user.firstname }}</h3>
+        <h3>{{ target_user.firstname }}</h3>
 
-        <div class="bio-text mb-2">
+        <div class="bio-text">
             <strong>Bio:</strong> {{ target_user.userprofile.bio|default:"No bio added yet." }}
         </div>
 
-        <div class="dob-text mb-2">
-            <strong>Date of Birth:</strong>
-            {{ target_user.userprofile.date_of_birth|default:"N/A" }}
+        <div class="dob-text">
+            <strong>Date of Birth:</strong> {{ target_user.userprofile.date_of_birth|default:"N/A" }}
         </div>
 
         {% if target_user == user %}
@@ -126,19 +131,34 @@
         {% endif %}
     </div>
 
-    <!-- Followers / Following -->
     <div class="follow-box mt-3">
-        <div>
-            {{ target_user.followers.count }}<br><span style="font-weight: normal;">Followers</span>
+        <!-- Followers -->
+        <div onclick="toggleList('followers-list')">
+            {{ followers_count }}<br><span style="font-weight: normal;">Followers</span>
+            <ul id="followers-list" style="display: none;">
+                {% for follower in followers %}
+                    <li>{{ follower.firstname }}</li>
+                {% empty %}
+                    <li>No followers yet.</li>
+                {% endfor %}
+            </ul>
         </div>
-        <div>
-            {{ target_user.following.count }}<br><span style="font-weight: normal;">Following</span>
+
+        <!-- Following -->
+        <div onclick="toggleList('following-list')">
+            {{ following_count }}<br><span style="font-weight: normal;">Following</span>
+            <ul id="following-list" style="display: none;">
+                {% for followee in following %}
+                    <li>{{ followee.firstname }}</li>
+                {% empty %}
+                    <li>Not following anyone.</li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 </div>
 
 {% if target_user == user %}
-    <!-- Show All Users -->
     <div class="text-center mt-4">
         <button onclick="toggleUsers()" class="btn btn-primary">Show Users</button>
     </div>
@@ -148,12 +168,11 @@
         {% for u in users %}
             <div class="user-item">
                 <div class="user-name">{{ u.firstname }}</div>
-
                 <div>
                     {% if u.id in sent_request_ids %}
                         <button class="btn btn-secondary btn-sm" disabled>Request Sent</button>
                     {% elif u.id in received_request_dict %}
-                        <a href="{% url 'accept_friend_request' received_request_dict.u.id %}" class="btn btn-success btn-sm">Accept</a>
+                        <a href="{% url 'accept_friend_request' received_request_dict|get_item:u.id %}" class="btn btn-success btn-sm">Accept</a>
                     {% else %}
                         <a href="{% url 'send_friend_request' u.id %}" class="btn btn-outline-primary btn-sm">Send Request</a>
                     {% endif %}
@@ -161,12 +180,18 @@
             </div>
         {% endfor %}
     </div>
-
-    <script>
-        function toggleUsers() {
-            const list = document.getElementById("users-list");
-            list.style.display = list.style.display === "none" ? "block" : "none";
-        }
-    </script>
 {% endif %}
+
+<script>
+    function toggleUsers() {
+        const list = document.getElementById("users-list");
+        list.style.display = list.style.display === "none" ? "block" : "none";
+    }
+
+    function toggleList(id) {
+        const el = document.getElementById(id);
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+</script>
+
 {% endblock %}
