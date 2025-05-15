@@ -11,12 +11,14 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import os
-from os import path 
+import os ,sys
+from os import path
+from sys import path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
+# print(BASE_DIR)
+sys.path.insert(0,os.path.join(BASE_DIR,'apps'))
+# print(sys.path[0])
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -26,7 +28,7 @@ SECRET_KEY = 'django-insecure-##obv#n&=(kuxcgy5)qknuic0a00$7d-3c2+m-$0erq+psash5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL='fb.CustomUser'
 
 LOGIN_URL = 'login'
@@ -40,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'apps.fb' 
+    'fb',
 ]
 
 MIDDLEWARE = [
@@ -59,7 +61,10 @@ ROOT_URLCONF = 'facebookclone.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR /'templates'],
+        'DIRS': [
+            BASE_DIR/"templates",
+            BASE_DIR / "templates/fb",
+            ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -81,7 +86,7 @@ WSGI_APPLICATION = 'facebookclone.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE':'django.db.backends.postgresql',
-        'NAME':'facebook',
+        'NAME':'facebook1',
         'USER':"postgres",
         'PASSWORD':'1234',
         'HOST':'localhost',
