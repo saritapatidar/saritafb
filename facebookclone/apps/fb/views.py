@@ -108,19 +108,27 @@ def profile_page(request, user_id):
     except UserProfile.DoesNotExist:
         user_profile = None
 
+    # Check if the current user is following the target user
     is_following = request.user.following.filter(followed=target_user).exists()
+
+    # Check if they are mutual friends (following each other)
     are_friends = (
         request.user.following.filter(followed=target_user).exists() and 
         target_user.following.filter(followed=request.user).exists()
     )
 
+    # Followers & Following counts
     followers_count = target_user.followers.count()
     following_count = target_user.following.count()
 
-    # All users except self
+    # Extract CustomUser objects from Follow relations
+    followers = [f.follower for f in target_user.followers.all()]
+    following = [f.followed for f in target_user.following.all()]
+
+    # All users except the current user
     users = CustomUser.objects.exclude(id=request.user.id)
 
-    # Friend request tracking
+    # Friend requests
     sent_requests = FriendRequest.objects.filter(from_user=request.user)
     received_requests = FriendRequest.objects.filter(to_user=request.user)
 
@@ -134,12 +142,14 @@ def profile_page(request, user_id):
         'are_friends': are_friends,
         'followers_count': followers_count,
         'following_count': following_count,
+        'followers': followers,  # List of CustomUser followers
+        'following': following,  # List of CustomUser following
         'users': users,
         'sent_request_ids': sent_request_ids,
         'received_request_dict': received_request_dict,
     }
-    return render(request, 'profile.html', context)
 
+    return render(request, 'profile.html', context)
 
 def post_page(request):
     return redirect('home')
@@ -193,17 +203,21 @@ def unfollow_user(request, user_id):
 
 def send_friend_request(request, user_id):
     to_user = get_object_or_404(CustomUser, id=user_id)
-    if request.user != to_user and not FriendRequest.objects.filter(from_user=request.user, to_user=to_user).exists() and not FriendRequest.objects.filter(from_user=to_user, to_user=request.user).exists():
-      friend_request = FriendRequest.objects.create(from_user=request.user, to_user=to_user)
-      return redirect('friend.html')
-    return redirect('profile', user_id=user_id) # Redirect to the user's profile page
+
+    if request.user != to_user and not FriendRequest.objects.filter(from_user=request.user, to_user=to_user).exists():
+        FriendRequest.objects.create(from_user=request.user, to_user=to_user)
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 def accept_friend_request(request, request_id):
     friend_request = get_object_or_404(FriendRequest, id=request_id)
 
-    # Only allow accepting friend requests sent to the current user
-    if friend_request.to_user != request.user:
-        return redirect('accept.html')  
+    if friend_request.to_user == request.user:
+        Follow.objects.get_or_create(follower=request.user, followed=friend_request.from_user)
+        Follow.objects.get_or_create(follower=friend_request.from_user, followed=request.user)
+        friend_request.delete()
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
     # # Create mutual follows
     # Follow.objects.get_or_create(follower=request.user, followed=friend_request.from_user)
