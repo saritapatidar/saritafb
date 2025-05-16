@@ -1,5 +1,5 @@
 {% load static %}
-{% load custom_filter %}
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -160,25 +160,12 @@
         <i class="fab fa-facebook" style="color: #1877f2; font-size: 35px;"></i>
     </div>
     <div class="header-center">
-         <a href="{% url 'home' %}" class="btn btn-primary mt-4"><i class="fas fa-home active" title="Home"></i></a>
-        <div class="text-center mt-4"><button onclick="toggleUsers()" ><i class="fas fa-user-friends" title="show user" style="color:blue" ></i></button></div>
+        <a href="{% url 'home' %}" class="btn btn-primary mt-4"><i class="fas fa-home active" title="Home"></i></a>
+        <a href="{% url 'show_friends' user.id %}" class="btn btn-primary mt-4"><i class="fas fa-user-friends" title="SendRequest"></i></a>
+        
+       
 
-           <div id="users-list" style="display: none;"><h4>All Registered Users</h4>
-           {% for u in users %}
-                <div class="user-item">
-                    <div class="user-name">{{ u.firstname }}</div>
-                    <div>
-                        {% if u.id in sent_request_ids %}
-                            <button class="btn btn-secondary btn-sm" disabled>Request Sent</button>
-                        {% elif u.id in received_request_dict %}
-                            <a href="{% url 'accept_friend_request' received_request_dict|get_item:u.id %}" class="btn btn-success btn-sm">Accept</a>
-                        {% else %}
-                            <a href="{% url 'send_friend_request' u.id %}" class="btn btn-outline-primary btn-sm">Send Request</a>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endfor %}
-            </div>
+        
         
     </div>
     <div class="header-right">
@@ -253,35 +240,14 @@
                     <input type="text" name="text" placeholder="Write your comment..." required />
 
                     <button type="submit" name="action" value="comment"><i class="fa-solid fa-comment"></i></button>
+
                 </form>
+                
             </div>
         </div>
         {% endfor %}
-        {% if target_user == user %}
-           <div class="text-center mt-4"><button onclick="toggleUsers()" class="btn btn-primary">Show Users</button></div>
-
-           <div id="users-list" style="display: none;"><h4>All Registered Users</h4>
-           {% for u in users %}
-                <div class="user-item">
-                    <div class="user-name">{{ u.firstname }}</div>
-                    <div>
-                        {% if u.id in sent_request_ids %}
-                            <button class="btn btn-secondary btn-sm" disabled>Request Sent</button>
-                        {% elif u.id in received_request_dict %}
-                            <a href="{% url 'accept_friend_request' received_request_dict|get_item:u.id %}" class="btn btn-success btn-sm">Accept</a>
-                        {% else %}
-                            <a href="{% url 'send_friend_request' u.id %}" class="btn btn-outline-primary btn-sm">Send Request</a>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endfor %}
-            </div>
-        {% endif %}
-        <script> function toggleUsers() {
-        const list = document.getElementById("users-list");
-        list.style.display = list.style.display === "none" ? "block" : "none";}
-        </script>
-
+       
+            
     </div>
 </main>
 
