@@ -147,12 +147,6 @@ def profile_page(request,user_id):
     # All users except the current user
     users = CustomUser.objects.exclude(id=request.user.id)
 
-    # Friend requests
-    sent_requests = FriendRequest.objects.filter(from_user=request.user)
-    received_requests = FriendRequest.objects.filter(to_user=request.user)
-
-    sent_request_ids = set(sent_requests.values_list('to_user_id', flat=True))
-    received_request_dict = {fr.from_user.id: fr.id for fr in received_requests}
 
     context = {
         'target_user': target_user,
@@ -164,9 +158,7 @@ def profile_page(request,user_id):
         'followers': followers,  # List of CustomUser followers
         'following': following,  # List of CustomUser following
         'users': users,
-        'sent_request_ids': sent_request_ids,
-        'received_request_dict': received_request_dict,
-    }
+       }
     return render(request, 'fb/profile.html', context)
 
 
@@ -224,6 +216,25 @@ def accept_friend_request(request, request_id):
         friend_request.delete()
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
+
+def show_friend_request(request,user_id):
+    target_user = get_object_or_404(CustomUser, id=user_id)
+
+    users = CustomUser.objects.exclude(id=request.user.id)
+
+    # Friend requests
+    sent_requests = FriendRequest.objects.filter(from_user=request.user)
+    received_requests = FriendRequest.objects.filter(to_user=request.user)
+
+    sent_request_ids = set(sent_requests.values_list('to_user_id', flat=True))
+    received_request_dict = {fr.from_user.id: fr.id for fr in received_requests}
+
+    context={'users': users,
+        'sent_request_ids': sent_request_ids,
+        'received_request_dict': received_request_dict,
+        'target_user':target_user
+    }
+    return render(request,'send_request.html',context)
 
 
 

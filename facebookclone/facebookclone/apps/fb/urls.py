@@ -28,7 +28,7 @@ urlpatterns = [
       path('profile/<int:user_id>/followers/', views.followers_list, name='followers_list'),
       path('profile/<int:user_id>/following/', views.following_list, name='following_list'),
       path('profile/edit/',views.edit_profile,name='edit_profiles'),
-      
+      path('show_friends/<int:user_id>/',views.show_friend_request,name='show_friends')
       
    
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
