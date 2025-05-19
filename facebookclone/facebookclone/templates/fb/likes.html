@@ -1,12 +1,46 @@
 
 {% for post in posts %}
-    <p>{{ post.content }}</p>
-    {% if user.is_authenticated %}
-        {% if post.likes.filter(liked_by=user).exists %}
-            <a href="{% url 'like_post' post.id %}">Unlike</a>
-        {% else %}
-            <a href="{% url 'like_post' post.id %}">Like</a>
-        {% endif %}
-        <p>{{ post.likes.count }} likes</p>
-    {% endif %}
+    <div class="post">
+        <p>{{ post.content }}</p>
+        <button <i class="fa-solid fa-thumbs-up"> data-post-id="{{ post.id }}" data-liked="{% if request.user in post.likes.all %}true{% else %}false{% endif %}">
+            {% if request.user in post.likes.all %}
+                Unlike 
+            {% else %}
+                Like
+            {% endif %}
+            (<span class="like-count">{{ post.number_of_likes }}</span>)
+        </button>
+    </div>
 {% endfor %}
+
+<script>
+    const likeButtons = document.querySelectorAll('.like-btn');
+    likeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const postId = this.dataset.postId;
+            const liked = this.dataset.liked === 'true';
+            fetch(`/like_post/${postId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const likeCountSpan = button.querySelector('.like-count');
+                    likeCountSpan.textContent = data.likes_count;
+                    if (data.liked) {
+                        button.textContent = `Unlike (${data.likes_count})`;
+                        button.dataset.liked = 'true';
+                    } else {
+                         button.textContent = `Like (${data.likes_count})`;
+                         button.dataset.liked = 'false';
+                    }
+                }
+            });
+        });
+    });
+</script>

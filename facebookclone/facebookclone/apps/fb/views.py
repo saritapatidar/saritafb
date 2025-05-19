@@ -51,11 +51,11 @@ def home_page(request):
     users = CustomUser.objects.exclude(id=request.user.id)
 
     # Friend requests
-    sent_requests = FriendRequest.objects.filter(from_user=request.user)
-    received_requests = FriendRequest.objects.filter(to_user=request.user)
+    # sent_requests = FriendRequest.objects.filter(from_user=request.user)
+    # received_requests = FriendRequest.objects.filter(to_user=request.user)
 
-    sent_request_ids = set(sent_requests.values_list('to_user_id', flat=True))
-    received_request_dict = {fr.from_user.id: fr.id for fr in received_requests}
+    # sent_request_ids = set(sent_requests.values_list('to_user_id', flat=True))
+    # received_request_dict = {fr.from_user.id: fr.id for fr in received_requests}
 
 
 
@@ -66,8 +66,8 @@ def home_page(request):
             'posts': posts,
             'users': users,
             'users': users,
-            'sent_request_ids': sent_request_ids,
-            'received_request_dict': received_request_dict,
+            # 'sent_request_ids': sent_request_ids,
+            # 'received_request_dict': received_request_dict,
             
         }
     )
@@ -176,6 +176,7 @@ def like_post(request, post_id):
     else:
     
         post.likes.add(user)
+    # return render(request,'likes.html')
 
     return redirect('home')
   
