@@ -170,8 +170,7 @@
     </div>
     <div class="header-right">
         <a href="{% url 'profile' user.id %}"><i class="fas fa-user-circle" title="profile"></i></a>
-        <a href="{% url 'logout' %}"><i class="fas fa-sign-out" title="logout"></i></a>
-       
+        
         
 
     </div>
@@ -213,12 +212,18 @@
                 {% endif %}
             </div>
 
+
+
             <div class="post-actions">
-                <form action="{% url 'likepost' post.id %}" method="POST">
-                    {% csrf_token %}
-                    <button type="submit" name="action" value="like"><i class="fa-solid fa-thumbs-up"></i></button>
+                
                     
+                <form action="{% url 'likepost' post.id %}" method="POST">
+
+                    {% csrf_token %}
+                    
+                    <button type="submit" name="action" value="like"><i class="fa-solid fa-thumbs-up"></i></button>
                     <span>{{ post.likes.count }}</span>
+                    
                 </form>
             </div>
 
@@ -242,8 +247,10 @@
                     <button type="submit" name="action" value="comment"><i class="fa-solid fa-comment"></i></button>
 
                 </form>
+
                 
             </div>
+
         </div>
         {% endfor %}
        
