@@ -137,7 +137,7 @@
             {{ followers_count }}<br><span style="font-weight: normal;">Followers</span>
             <ul id="followers-list" style="display: none;">
                 {% for follower in followers %}
-                    <li>{{ follower.firstname }}</li>
+                    <li>{{ follower.firstname }} {{follower.lastname}}</li>
                 {% empty %}
                     <li>No followers yet.</li>
                 {% endfor %}
@@ -149,7 +149,7 @@
             {{ following_count }}<br><span style="font-weight: normal;">Following</span>
             <ul id="following-list" style="display: none;">
                 {% for followee in following %}
-                    <li>{{ followee.firstname }}</li>
+                    <li>{{ followee.firstname }} {{followee.lastname}}</li>
                 {% empty %}
                     <li>Not following anyone.</li>
                 {% endfor %}
@@ -159,26 +159,7 @@
     </div>
     <a href="{% url 'home' %}" class="btn btn-primary mt-4"><i class="fas fa-arrow-left"></i> Back to Home
     </a>
-    {% if target_user == user %}
-           <div class="text-center mt-4"><button onclick="toggleUsers()" class="btn btn-primary">Show Users</button></div>
-
-           <div id="users-list" style="display: none;"><h4>All Registered Users</h4>
-           {% for u in users %}
-                <div class="user-item">
-                    <div class="user-name">{{ u.firstname }} {{ u.lastname }} </div>
-                    <div>
-                        {% if u.id in sent_request_ids %}
-                            <button class="btn btn-secondary btn-sm" disabled>Request Sent</button>
-                        {% elif u.id in received_request_dict %}
-                            <a href="{% url 'accept_friend_request' received_request_dict|get_item:u.id %}" class="btn btn-success btn-sm">Accept</a>
-                        {% else %}
-                            <a href="{% url 'send_friend_request' u.id %}" class="btn btn-outline-primary btn-sm">send request</a>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endfor %}
-            </div>
-        {% endif %}
+    
 </div>
 
 

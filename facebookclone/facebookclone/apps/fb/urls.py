@@ -15,6 +15,7 @@ urlpatterns = [
       path('profile/<int:user_id>/',views.profile_page,name='profile'),
       path('post/',views.post_page,name='post'),
       path('likepost/<int:post_id>/', views.like_post, name='likepost'),
+
       path('commen/<int:post_id>/',views.comments,name='commen'),
       path('send_friend_request/<int:user_id>/', views.send_friend_request, name='send_friend_request'),
       path('accept_friend_request/<int:request_id>/', views.accept_friend_request, name='accept_friend_request'), 
