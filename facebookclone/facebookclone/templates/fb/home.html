@@ -161,14 +161,11 @@
     </div>
     <div class="header-center">
         <a href="{% url 'home' %}" class="btn btn-primary mt-4"><i class="fas fa-home active" title="Home"></i></a>
-        <a href="{% url 'show_friends' user.id %}" class="btn btn-primary mt-4"><i class="fas fa-user-friends" title="SendRequest"></i></a>
-        
-       
-
-        
-        
+        <a href="{% url 'show_friends' user.id %}" class="btn btn-primary mt-4"><i class="fas fa-user-friends" title="Request"></i></a>
+           
     </div>
     <div class="header-right">
+        <a href="{% url 'logout' %}"><i class="fas fa-sign-out" title="logout"></i></a>
         <a href="{% url 'profile' user.id %}"><i class="fas fa-user-circle" title="profile"></i></a>
         
         
@@ -211,27 +208,23 @@
                     <img src="{{ post.image.url }}" alt="Post image">
                 {% endif %}
             </div>
-
-
+            
 
             <div class="post-actions">
-                
-                    
                 <form action="{% url 'likepost' post.id %}" method="POST">
-
                     {% csrf_token %}
+                    <button type="submit" name="action" data-post-id="{{ post.id }}" class="like-btn"value="like"><i class="fa-solid fa-thumbs-up"></i></button>
                     
-                    <button type="submit" name="action" value="like"><i class="fa-solid fa-thumbs-up"></i></button>
                     <span>{{ post.likes.count }}</span>
-                    
                 </form>
             </div>
+          
 
             <div class="comment-section">
                 <h4>Comments:</h4>
                 {% for comment in post.comments.all %}
                     <div class="comment">
-                        <strong>{{ comment.user.firstname }}:</strong> {{ comment.text }}<br>
+                        <strong>{{ comment.user.firstname }} {{comment.user.lastname }}:</strong> {{ comment.text }}<br>
                         <small>{{ comment.created_at|date:"d M Y" }}</small>
                     </div>
                 {% empty %}
@@ -257,6 +250,35 @@
             
     </div>
 </main>
+
+
+<script>
+        $('.like-btn').click(function(e) {
+            e.preventDefault();
+            var postId = $(this).data('post-id');
+            var button = $(this);
+            $.ajax({
+                type: 'POST',
+                url: '/likepost/'+postId,
+                data: {
+                    post_id: postId,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.liked) {
+                        button.text('Unlike (' + response.count + ')');
+                    } else {
+                        button.text('Like (' + response.count + ')');
+                    }
+                    button.find('.like-count').text(response.count);
+
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>

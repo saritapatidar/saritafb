@@ -29,6 +29,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import FriendRequest, Follow
 from django.core.mail import send_mail
+from django.http import JsonResponse
 
 # . refers to the current package or current directory where the views.py file is located.
 
@@ -164,22 +165,46 @@ def profile_page(request,user_id):
 
 def post_page(request):
     return redirect('home')
+
+
     
+
+# def like_post(request, post_id):
+#     post = get_object_or_404(CreatePost, id=post_id)
+#     user = request.user
+
+#     if post.likes.filter(id=user.id).exists():
+    
+#         post.likes.remove(user)
+        
+#     else:
+    
+#         post.likes.add(user)
+       
+#     # return render(request,'likes.html')
+    
+
+#     return redirect('home')
+
 
 def like_post(request, post_id):
-    post = get_object_or_404(CreatePost, id=post_id)
-    user = request.user
+    if request.method == 'POST':
+        post = get_object_or_404(CreatePost, id=post_id)
+        user = request.user
 
-    if post.likes.filter(id=user.id).exists():
-    
-        post.likes.remove(user)
+        if post.likes.filter(id=user.id).exists():
+            post.likes.remove(user)
+        
+        else:
+            post.likes.add(user)
+
+        return JsonResponse({'likes_count': post.likes.count()})
+        # return redirect('home')
     else:
-    
-        post.likes.add(user)
-    # return render(request,'likes.html')
 
-    return redirect('home')
-  
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
 
 def comments(request, post_id):
     post = get_object_or_404(CreatePost, pk=post_id)
@@ -199,6 +224,7 @@ def comments(request, post_id):
         'post': post,
         'form': form,
     })
+
 
 def send_friend_request(request, user_id):
     to_user = get_object_or_404(CustomUser, id=user_id)
