@@ -29,6 +29,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import FriendRequest, Follow
 from django.core.mail import send_mail
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
 # . refers to the current package or current directory where the views.py file is located.
 
@@ -166,19 +168,23 @@ def post_page(request):
     return redirect('home')
     
 
+@csrf_exempt
 def like_post(request, post_id):
-    post = get_object_or_404(CreatePost, id=post_id)
-    user = request.user
+    if request.method == 'POST':
+        post = get_object_or_404(CreatePost, id=post_id)
+        user = request.user
 
-    if post.likes.filter(id=user.id).exists():
-    
-        post.likes.remove(user)
+        existing_like = Like.objects.filter(post=post, liked_by=user).first()
+
+        if existing_like:
+            existing_like.delete()  # Unlike
+        else:
+            Like.objects.create(post=post, liked_by=user)  # Like
+
+        return JsonResponse({'likes_count': post.likes.count()})
     else:
-    
-        post.likes.add(user)
-    # return render(request,'likes.html')
+        return JsonResponse({'error': 'Invalid request'}, status=400)
 
-    return redirect('home')
   
 
 def comments(request, post_id):
