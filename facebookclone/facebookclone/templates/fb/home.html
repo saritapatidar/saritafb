@@ -152,6 +152,8 @@
             cursor: pointer;
         }
     </style>
+   
+
 </head>
 <body>
 
@@ -161,12 +163,17 @@
     </div>
     <div class="header-center">
         <a href="{% url 'home' %}" class="btn btn-primary mt-4"><i class="fas fa-home active" title="Home"></i></a>
-        <a href="{% url 'show_friends' user.id %}" class="btn btn-primary mt-4"><i class="fas fa-user-friends" title="Request"></i></a>
-           
+        <a href="{% url 'show_friends' user.id %}" class="btn btn-primary mt-4"><i class="fas fa-user-friends" title="SendRequest"></i></a>
+        
+       
+
+        
+        
     </div>
     <div class="header-right">
         <a href="{% url 'logout' %}"><i class="fas fa-sign-out" title="logout"></i></a>
         <a href="{% url 'profile' user.id %}"><i class="fas fa-user-circle" title="profile"></i></a>
+        
         
         
 
@@ -208,23 +215,30 @@
                     <img src="{{ post.image.url }}" alt="Post image">
                 {% endif %}
             </div>
-            
+
+
 
             <div class="post-actions">
-                <form action="{% url 'likepost' post.id %}" method="POST">
-                    {% csrf_token %}
-                    <button type="submit" name="action" data-post-id="{{ post.id }}" class="like-btn"value="like"><i class="fa-solid fa-thumbs-up"></i></button>
+                
+                <div class="post">
                     
-                    <span>{{ post.likes.count }}</span>
-                </form>
+                    <button class="like-btn" data-post-id="{{ post.id }}"><i class="fa-solid fa-thumbs-up "></i>
+                       <!--  {% if request.user in post.likes.all %}
+                           Unlike
+                        {% else %}
+                           Like
+                        {% endif %} -->
+                    </button>
+                    <span class="likes-count">{{ post.likes.count }}</span> 
+                </div>
+                
             </div>
-          
 
             <div class="comment-section">
                 <h4>Comments:</h4>
                 {% for comment in post.comments.all %}
                     <div class="comment">
-                        <strong>{{ comment.user.firstname }} {{comment.user.lastname }}:</strong> {{ comment.text }}<br>
+                        <strong>{{ comment.user.firstname }}:</strong> {{ comment.text }}<br>
                         <small>{{ comment.created_at|date:"d M Y" }}</small>
                     </div>
                 {% empty %}
@@ -240,7 +254,16 @@
                     <button type="submit" name="action" value="comment"><i class="fa-solid fa-comment"></i></button>
 
                 </form>
+               <!--  <form id="comment-form" data-post-id="{{ post.id }}" method="POST">
+                    {% csrf_token %}
+                    
+                    <input type="hidden" name="post" value="{{ post.id }}">
+                    <input type="text" name="text" placeholder="Write your comment..." required />
 
+                    <button type="submit" name="action" value="comment"><i class="fa-solid fa-comment"></i></button>
+                   
+                </form> 
+ -->
                 
             </div>
 
@@ -250,35 +273,77 @@
             
     </div>
 </main>
-
+<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 
 <script>
-        $('.like-btn').click(function(e) {
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const likeButtons = document.querySelectorAll('.like-btn');
+
+        likeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const postId = this.getAttribute('data-post-id');
+                const csrftoken = getCookie('csrftoken');
+
+                fetch('/likepost/' + postId + '/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: 'post_id=' + postId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const likesCountSpan = document.querySelector(`.post [data-post-id="${postId}"] + .likes-count`);
+                    const likeButton = document.querySelector(`.post [data-post-id="${postId}"]`);
+
+                    likesCountSpan.textContent = `${data.likes_count} `;
+                    //  if (data.liked) {
+                    //     likeButton.textContent = 'Unlike';
+                    // } else {
+                    //     likeButton.textContent = 'Like';
+                    // }
+                });
+            });
+        });
+    });
+</script>
+<script>
+     $(document).ready(function() {
+        $('#comment-form').submit(function(e) {
             e.preventDefault();
             var postId = $(this).data('post-id');
-            var button = $(this);
             $.ajax({
                 type: 'POST',
-                url: '/likepost/'+postId,
-                data: {
-                    post_id: postId,
-                    csrfmiddlewaretoken: '{{ csrf_token }}'
-                },
+                url: '/commen/' + postId + '/',
+                data: $(this).serialize(),
                 success: function(response) {
-                    if (response.liked) {
-                        button.text('Unlike (' + response.count + ')');
+                    if (response.success) {
+                        $('#comments-container').append(response.comment_html);
+                        $('#comment-form')[0].reset();
                     } else {
-                        button.text('Like (' + response.count + ')');
+                       // Handle errors
                     }
-                    button.find('.like-count').text(response.count);
-
-                },
-                error: function(error) {
-                    console.error('Error:', error);
                 }
             });
         });
-    </script>
-
+    });
+</script>
+      
 </body>
 </html>
