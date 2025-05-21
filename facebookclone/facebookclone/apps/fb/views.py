@@ -30,6 +30,8 @@ from django.contrib.auth.decorators import login_required
 from .models import FriendRequest, Follow
 from django.core.mail import send_mail
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 
 # . refers to the current package or current directory where the views.py file is located.
 
@@ -75,7 +77,7 @@ def home_page(request):
 
 
 def signup_page(request):
-    form = forms.SignupForm()
+    # form = forms.SignupForm()
     if request.method == 'POST':
         form = forms.SignupForm(request.POST)
         
@@ -90,6 +92,9 @@ def signup_page(request):
                       "saritapatidar@thoughtwin.com",
                        [email])
             return redirect('login')
+    else:
+        form=forms.SignupForm()
+        
     return render(request, 'fb/signup.html',{'form': form})
 
 
@@ -187,23 +192,20 @@ def post_page(request):
 #     return redirect('home')
 
 
-def like_post(request, post_id):
-    if request.method == 'POST':
-        post = get_object_or_404(CreatePost, id=post_id)
-        user = request.user
 
-        if post.likes.filter(id=user.id).exists():
-            post.likes.remove(user)
-        
-        else:
-            post.likes.add(user)
 
-        return JsonResponse({'likes_count': post.likes.count()})
-        # return redirect('home')
+def like_post(request,post_id):
+    
+    post = get_object_or_404(CreatePost, id=post_id)
+    user=request.user
+    if post.likes.filter(id=user.id).exists():
+        post.likes.remove(user)
+        liked = False
     else:
+        post.likes.add(user)
+        liked = True
 
-        return JsonResponse({'error': 'Invalid request'}, status=400)
-
+    return JsonResponse({'liked': liked, 'likes_count': post.likes.count()})
 
 
 def comments(request, post_id):
@@ -217,6 +219,7 @@ def comments(request, post_id):
             new_comment.user = request.user
             new_comment.save()
             return redirect('home')
+
     else:
         form = commentform()
 
