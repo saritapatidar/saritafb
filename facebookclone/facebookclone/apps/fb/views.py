@@ -170,20 +170,25 @@ def post_page(request):
 
 @csrf_exempt
 def like_post(request, post_id):
-    if request.method == 'POST':
+    if request.method == 'POST' and request.user.is_authenticated:
         post = get_object_or_404(CreatePost, id=post_id)
         user = request.user
 
-        existing_like = Like.objects.filter(post=post, liked_by=user).first()
-
-        if existing_like:
-            existing_like.delete()  # Unlike
+        
+        if post.likes.filter(id=user.id).exists():
+            post.likes.remove(user)
+            liked=False
         else:
-            Like.objects.create(post=post, liked_by=user)  # Like
+            post.likes.add(user)
+            liked = True
 
-        return JsonResponse({'likes_count': post.likes.count()})
+        return JsonResponse({
+            'count': post.likes.count(),
+            'liked': liked,
+        })
     else:
         return JsonResponse({'error': 'Invalid request'}, status=400)
+
 
   
 
