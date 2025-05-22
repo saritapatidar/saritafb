@@ -23,6 +23,7 @@ from django.contrib.auth.decorators import login_required
 
 from django.views.decorators.cache import never_cache
 from.models import Follow
+from .models import comment
 from .forms import friends
 from .forms import EditProfileForm
 from django.shortcuts import render, redirect, get_object_or_404
@@ -30,7 +31,7 @@ from django.contrib.auth.decorators import login_required
 from .models import FriendRequest, Follow
 from django.core.mail import send_mail
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+# from django.views.decorators.csrf import csrf_exempt
 
 
 # . refers to the current package or current directory where the views.py file is located.
@@ -68,7 +69,7 @@ def home_page(request):
         {
             'posts': posts,
             'users': users,
-            'users': users,
+            # 'users': users,
             # 'sent_request_ids': sent_request_ids,
             # 'received_request_dict': received_request_dict,
             
@@ -210,12 +211,15 @@ def like_post(request,post_id):
 
 def comments(request, post_id):
     post = get_object_or_404(CreatePost, pk=post_id)
+    # latest_comments = comment.objects.filter(post=pk).order_by('-created_at')[:5]
 
     if request.method == 'POST':
         form = commentform(request.POST,request.FILES)
+        # latest_comments = Comment.objects.filter(post=post).order_by('-created_at')[:5]
         if form.is_valid():
             new_comment = form.save(commit=False)
             new_comment.post = post
+            # new_comment.latest_comments=latest_comments
             new_comment.user = request.user
             new_comment.save()
             return redirect('home')
@@ -225,6 +229,7 @@ def comments(request, post_id):
 
     return render(request, 'home.html', {
         'post': post,
+        # 'latest_comments':latest_comments,
         'form': form,
     })
 
@@ -327,4 +332,29 @@ def edit_profile(request):
 #     target_user = get_object_or_404(CustomUser, id=user_id)
 #     Follow.objects.filter(follower=request.user, followed=target_user).delete()
 #     return redirect('profile',user_id=user_id)
+
+def showcomments(request, post_id):
+    post = get_object_or_404(CreatePost, pk=post_id)
+    # latest_comments = comment.objects.filter(post=pk).order_by('-created_at')[:5]
+
+    if request.method == 'POST':
+        form = commentform(request.POST,request.FILES)
+        # latest_comments = Comment.objects.filter(post=post).order_by('-created_at')[:5]
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.post = post
+            # new_comment.latest_comments=latest_comments
+            new_comment.user = request.user
+            new_comment.save()
+            return redirect('home')
+
+    else:
+        form = commentform()
+
+    return render(request, 'morecomment.html', {
+        'post': post,
+        # 'latest_comments':latest_comments,
+        'form': form,
+    })
+
 

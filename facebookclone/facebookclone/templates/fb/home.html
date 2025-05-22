@@ -120,7 +120,7 @@
             margin-left: 10px;
         }
 
-        .comment-section {
+        .comment-section  {
             padding: 10px 15px;
             border-top: 1px solid #eee;
             background: #fafafa;
@@ -236,10 +236,13 @@
 
             <div class="comment-section">
                 <h4>Comments:</h4>
-                {% for comment in post.comments.all %}
+                {% for comment in post.comments.all|dictsortreversed:'created_at'|slice:":5" %} 
+
                     <div class="comment">
-                        <strong>{{ comment.user.firstname }}:</strong> {{ comment.text }}<br>
-                        <small>{{ comment.created_at|date:"d M Y" }}</small>
+                
+                        <strong>{{ comment.user.firstname }} {{ comment.user.lastname }} : </strong> {{ comment.text }}<br>
+                        <small>{{ comment.created_at|date:"d M Y" }} | </small>
+                        <small>{{ comment.created_at|timesince }}</small>
                     </div>
                 {% empty %}
                     <p>No comments yet.</p>
@@ -254,17 +257,7 @@
                     <button type="submit" name="action" value="comment"><i class="fa-solid fa-comment"></i></button>
 
                 </form>
-               <!--  <form id="comment-form" data-post-id="{{ post.id }}" method="POST">
-                    {% csrf_token %}
-                    
-                    <input type="hidden" name="post" value="{{ post.id }}">
-                    <input type="text" name="text" placeholder="Write your comment..." required />
-
-                    <button type="submit" name="action" value="comment"><i class="fa-solid fa-comment"></i></button>
-                   
-                </form> 
- -->
-                
+                <a href="{% url 'morecomment' post.id %}"><button class="btn btn-primary">Show all comment </button></a>       
             </div>
 
         </div>

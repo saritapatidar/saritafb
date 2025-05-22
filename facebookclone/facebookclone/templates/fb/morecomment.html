@@ -1,0 +1,24 @@
+<style>
+.comment-section  {
+            padding: 10px 15px;
+            border-top: 1px solid #eee;
+            background: #fafafa;
+        }
+</style>
+
+<div class="comment-section">
+                <h4>Comments:</h4>
+                {% for comment in post.comments.all %} 
+
+                    <div class="comment">
+                
+                        <strong>{{ comment.user.firstname }}:</strong> {{ comment.text }}<br>
+                        <small>{{ comment.user.created_at|date:"d M Y" }}</small>
+                    </div>
+                {% empty %}
+                    <p>No comments yet.</p>
+                {% endfor %}
+
+</div>
+<a href="{% url 'home' %}"><button class="btn btn-primary"> Back To Home </button></a>
+

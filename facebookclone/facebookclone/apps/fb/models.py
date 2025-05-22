@@ -116,6 +116,13 @@ class comment(models.Model):
     text = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
 
+# class Comment(models.Model):
+#     post = models.ForeignKey(CreatePost, on_delete=models.CASCADE)
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     text = models.TextField()
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+
 
 class Follow(models.Model):
     follower = models.ForeignKey(CustomUser, related_name='following', on_delete=models.CASCADE)
