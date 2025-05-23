@@ -1,6 +1,5 @@
 {% load static %}
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +7,8 @@
     <title>Home | Facebook Clone</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+     <style>
         body {
             margin: 0;
             padding: 0;
@@ -183,25 +183,23 @@
 <main class="main-area">
     <div class="posts-area">
 
-        <!-- Post Form -->
+        <!-- Post Creation Form -->
         <div class="post-card mb-4">
             <form method="POST" enctype="multipart/form-data" style="padding: 15px;">
                 {% csrf_token %}
-                <textarea name="content" placeholder="What's on your mind?" rows="3" style="width: 80%; border: none; resize: none; padding: 10px; border-radius: 8px;"></textarea>
-                <input type="file" name="image" accept="image/*" style="margin-top: 10px;" />
-                <br><br>
-                <button type="submit" style="padding: 10px 20px; background-color: #1877f2; color: white; border: none; border-radius: 20px; cursor: pointer;">Post</button>
+                <textarea name="content" placeholder="What's on your mind?" rows="3"></textarea>
+                <input type="file" name="image" accept="image/*" />
+                <button type="submit">Post</button>
             </form>
         </div>
 
-        <!-- Posts -->
+        <!-- Posts Loop -->
         {% for post in posts %}
         <div class="post-card">
             <div class="post-header">
                 <div class="user-info">
                     <div>
                         <h4>{{ post.user.user.firstname }} {{ post.user.user.lastname }}</h4>
-                        <small>{{ post.user.user.phone_number }}</small><br>
                         <small>{{ post.created_at|timesince }} ago</small>
                     </div>
                 </div>
@@ -216,65 +214,46 @@
                 {% endif %}
             </div>
 
-
-
             <div class="post-actions">
-                
-                <div class="post">
-                    
-                    <button class="like-btn" data-post-id="{{ post.id }}"><i class="fa-solid fa-thumbs-up "></i>
-                       <!--  {% if request.user in post.likes.all %}
-                           Unlike
-                        {% else %}
-                           Like
-                        {% endif %} -->
-                    </button>
-                    <span class="likes-count">{{ post.likes.count }}</span> 
-                </div>
-                
+                <button class="like-btn" data-post-id="{{ post.id }}">
+                    <i class="fa-solid fa-thumbs-up"></i>
+                </button>
+                <span class="likes-count">{{ post.likes.count }}</span>
             </div>
 
+            <!-- Comment Section -->
             <div class="comment-section">
                 <h4>Comments:</h4>
-                {% for comment in post.comments.all|dictsortreversed:'created_at'|slice:":5" %} 
 
-                    <div class="comment">
-                
-                        <strong>{{ comment.user.firstname }} {{ comment.user.lastname }} : </strong> {{ comment.text }}<br>
-                        <small>{{ comment.created_at|date:"d M Y" }} | </small>
-                        <small>{{ comment.created_at|timesince }}</small>
-                    </div>
-                {% empty %}
-                    <p>No comments yet.</p>
-                {% endfor %}
+                <div id="comments-container-{{ post.id }}">
 
-                <form action="{% url 'commen' post.id %}" method="POST">
+                    {% for comment in latest_comments  %}
+                        {% include "fb/comment_single.html" %}
+                    
+                    {% endfor %}
+                </div>
+
+                <!-- AJAX Comment Form -->
+                <form id="comment-form-{{ post.id }}" class="comment-form" data-post-id="{{ post.id }}">
                     {% csrf_token %}
-
-                    <input type="hidden" name="post" value="{{ post.id }}">
                     <input type="text" name="text" placeholder="Write your comment..." required />
-
-                    <button type="submit" name="action" value="comment"><i class="fa-solid fa-comment"></i></button>
-
+                    <button type="submit"><i class="fa-solid fa-comment"></i></button>
                 </form>
-                <a href="{% url 'morecomment' post.id %}"><button class="btn btn-primary">Show all comment </button></a>       
+                <a href="{% url 'morecomment' post.id %}"><button class="btn btn-primary">Show all comment </button></a>    
             </div>
-
         </div>
         {% endfor %}
-       
-            
     </div>
 </main>
-<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 
+<!-- JavaScript for AJAX -->
 <script>
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
                 if (cookie.startsWith(name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
@@ -284,59 +263,53 @@
         return cookieValue;
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const likeButtons = document.querySelectorAll('.like-btn');
-
-        likeButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const postId = this.getAttribute('data-post-id');
-                const csrftoken = getCookie('csrftoken');
-
-                fetch('/likepost/' + postId + '/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRFToken': csrftoken
-                    },
-                    body: 'post_id=' + postId
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const likesCountSpan = document.querySelector(`.post [data-post-id="${postId}"] + .likes-count`);
-                    const likeButton = document.querySelector(`.post [data-post-id="${postId}"]`);
-
-                    likesCountSpan.textContent = `${data.likes_count} `;
-                    //  if (data.liked) {
-                    //     likeButton.textContent = 'Unlike';
-                    // } else {
-                    //     likeButton.textContent = 'Like';
-                    // }
-                });
-            });
-        });
-    });
-</script>
-<script>
-     $(document).ready(function() {
-        $('#comment-form').submit(function(e) {
+    $(document).ready(function() {
+        $('.comment-form').submit(function(e) {
             e.preventDefault();
-            var postId = $(this).data('post-id');
+            const form = $(this);
+            const postId = form.data('post-id');
+            const formData = form.serialize();
+            const csrfToken = getCookie('csrftoken');
+
             $.ajax({
                 type: 'POST',
                 url: '/commen/' + postId + '/',
-                data: $(this).serialize(),
+                data: formData,
+                headers: { 'X-CSRFToken': csrfToken },
                 success: function(response) {
                     if (response.success) {
-                        $('#comments-container').append(response.comment_html);
-                        $('#comment-form')[0].reset();
-                    } else {
-                       // Handle errors
+                        $('#comments-container-' + postId).prepend(response.comment_html);
+                        form[0].reset();
                     }
+                },
+                error: function(xhr) {
+                    alert("Error: " + xhr.responseJSON.errors.text);
+                }
+            });
+        });
+
+        $('.like-btn').click(function() {
+            const postId = $(this).data('post-id');
+            const csrftoken = getCookie('csrftoken');
+
+            $.ajax({
+                type: 'POST',
+                url: '/likepost/' + postId + '/',
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
+                success: function(data) {
+                    const countSpan = $(`.like-btn[data-post-id="${postId}"]`).next('.likes-count');
+                    countSpan.text(data.likes_count);
                 }
             });
         });
     });
 </script>
-      
+
 </body>
 </html>
+
+
+
+

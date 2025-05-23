@@ -8,15 +8,15 @@
 
 <div class="comment-section">
                 <h4>Comments:</h4>
-                {% for comment in post.comments.all %} 
+                
+                {% for comment in post.comments.all|dictsortreversed:'created_at'%} 
 
                     <div class="comment">
                 
-                        <strong>{{ comment.user.firstname }}:</strong> {{ comment.text }}<br>
-                        <small>{{ comment.user.created_at|date:"d M Y" }}</small>
+                        <strong>{{ comment.user.firstname }} {{ comment.user.lastname }}:</strong> {{ comment.text }}<br>
+                        <small>{{ comment.created_at|date:"d M Y" }} | {{ comment.created_at|timesince }}</small>
+                        
                     </div>
-                {% empty %}
-                    <p>No comments yet.</p>
                 {% endfor %}
 
 </div>
