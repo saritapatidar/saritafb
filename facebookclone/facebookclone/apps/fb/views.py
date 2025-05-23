@@ -31,6 +31,11 @@ from django.contrib.auth.decorators import login_required
 from .models import FriendRequest, Follow
 from django.core.mail import send_mail
 from django.http import JsonResponse
+
+from django.template.loader import render_to_string
+
+
+
 # from django.views.decorators.csrf import csrf_exempt
 
 
@@ -51,34 +56,19 @@ def home_page(request):
             CreatePost.objects.get_or_create(user=request.user.userprofile,content=content, image=image)
 
         return redirect('home')
-     # All users except the current user
-    users = CustomUser.objects.exclude(id=request.user.id)
-
-    # Friend requests
-    # sent_requests = FriendRequest.objects.filter(from_user=request.user)
-    # received_requests = FriendRequest.objects.filter(to_user=request.user)
-
-    # sent_request_ids = set(sent_requests.values_list('to_user_id', flat=True))
-    # received_request_dict = {fr.from_user.id: fr.id for fr in received_requests}
-
-
-
+   
     return render(
         request,
         'home.html',
         {
             'posts': posts,
-            'users': users,
-            # 'users': users,
-            # 'sent_request_ids': sent_request_ids,
-            # 'received_request_dict': received_request_dict,
-            
+            'users': users,   
         }
     )
 
 
 def signup_page(request):
-    # form = forms.SignupForm()
+
     if request.method == 'POST':
         form = forms.SignupForm(request.POST)
         
@@ -173,28 +163,6 @@ def post_page(request):
     return redirect('home')
 
 
-    
-
-# def like_post(request, post_id):
-#     post = get_object_or_404(CreatePost, id=post_id)
-#     user = request.user
-
-#     if post.likes.filter(id=user.id).exists():
-    
-#         post.likes.remove(user)
-        
-#     else:
-    
-#         post.likes.add(user)
-       
-#     # return render(request,'likes.html')
-    
-
-#     return redirect('home')
-
-
-
-
 def like_post(request,post_id):
     
     post = get_object_or_404(CreatePost, id=post_id)
@@ -211,27 +179,25 @@ def like_post(request,post_id):
 
 def comments(request, post_id):
     post = get_object_or_404(CreatePost, pk=post_id)
-    # latest_comments = comment.objects.filter(post=pk).order_by('-created_at')[:5]
+    latest_comments = post.comments.order_by('-created_at')[:5]
 
-    if request.method == 'POST':
-        form = commentform(request.POST,request.FILES)
-        # latest_comments = Comment.objects.filter(post=post).order_by('-created_at')[:5]
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        form = commentform(request.POST)
         if form.is_valid():
             new_comment = form.save(commit=False)
             new_comment.post = post
-            # new_comment.latest_comments=latest_comments
             new_comment.user = request.user
             new_comment.save()
-            return redirect('home')
 
-    else:
-        form = commentform()
+            html = render_to_string('fb/comment_single.html', {'comment': new_comment}, request=request)
+            return JsonResponse({'success': True, 'comment_html': html})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
 
-    return render(request, 'home.html', {
-        'post': post,
-        # 'latest_comments':latest_comments,
-        'form': form,
-    })
+    # GET request ke liye latest comments bhejna
+    html = render_to_string('fb/comments_list.html', {'latest_comments': latest_comments}, request=request)
+    return JsonResponse({'success': True, 'comments_html': html})
+
 
 
 def send_friend_request(request, user_id):
@@ -241,6 +207,8 @@ def send_friend_request(request, user_id):
         FriendRequest.objects.create(from_user=request.user, to_user=to_user)
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
+    
+
 
 def accept_friend_request(request, request_id):
     friend_request = get_object_or_404(FriendRequest, id=request_id)
@@ -323,15 +291,6 @@ def edit_profile(request):
     return render(request, 'edit_profile.html', {'form': form})
 
 
-# def follow_user(request, user_id):
-#     target_user = get_object_or_404(CustomUser, id=user_id)
-#     Follow.objects.get_or_create(follower=request.user, followed=target_user)
-#     return redirect('profile',user_id)
-
-# def unfollow_user(request, user_id):
-#     target_user = get_object_or_404(CustomUser, id=user_id)
-#     Follow.objects.filter(follower=request.user, followed=target_user).delete()
-#     return redirect('profile',user_id=user_id)
 
 def showcomments(request, post_id):
     post = get_object_or_404(CreatePost, pk=post_id)
@@ -356,5 +315,30 @@ def showcomments(request, post_id):
         # 'latest_comments':latest_comments,
         'form': form,
     })
+
+
+
+
+# def comments(request, post_id):
+#     post = get_object_or_404(CreatePost, pk=post_id)
+#     latest_comments = post.comments.order_by('-created_at')[:5]
+
+#     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#         form = commentform(request.POST)
+#         if form.is_valid():
+#             new_comment = form.save(commit=False)
+#             new_comment.post = post
+#             new_comment.user = request.user
+#             new_comment.save()
+
+#             html = render_to_string('fb/comment_single.html', {'comment': new_comment}, request=request)
+#             return JsonResponse({'success': True, 'comment_html': html})
+#         else:
+#             return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+
+#     # GET request ke liye latest comments bhejna
+#     html = render_to_string('fb/comments_list.html', {'latest_comments': latest_comments}, request=request)
+#     return JsonResponse({'success': True, 'comments_html': html})
+
 
 

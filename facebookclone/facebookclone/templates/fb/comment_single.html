@@ -1,0 +1,4 @@
+<div class="comment">
+    <strong>{{ comment.user.firstname }} {{ comment.user.lastname }}:</strong> {{ comment.text }}<br>
+    <small>{{ comment.created_at|date:"d M Y" }} | {{ comment.created_at|timesince }} ago</small>
+</div>
