@@ -114,7 +114,27 @@ def send_friendrequest(request):
 
 
 
+def user_posts(request):
+    if request.user.is_authenticated:
+        user_profile = UserProfile.objects.get(user=request.user)
+        posts = CreatePost.objects.filter(user=user_profile).order_by('-created_at')
+        return render(request, 'user_posts.html', {'posts': posts})
+    else:
+        return redirect('login')
+    
+@login_required
+def delete_post(request, post_id):
+    if request.user.is_authenticated:
+        user_profile = UserProfile.objects.get(user=request.user)
+        post = get_object_or_404(CreatePost, id=post_id, user=user_profile)
 
+        if request.method == "POST":
+            post.delete()
+            return redirect('user_posts')
+
+        return render(request, 'confirm_delete.html', {'post': post})
+    else:
+        return redirect('login')
 
 
 
