@@ -29,4 +29,7 @@ urlpatterns = [
       path('profile/',views.profile_page,name='profile'),
       path('post/',views.post_page,name='post'),
       path('friend_request/',views.send_friendrequest,name='friend_request'),
+      path('deletepost/<int:post_id>/', views.delete_post, name='delete_post'),
+      path('myposts/', views.user_posts, name='user_posts'),
+
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
