@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-     <style>
+      <style>
         body {
             margin: 0;
             padding: 0;
@@ -120,7 +120,7 @@
             margin-left: 10px;
         }
 
-        .comment-section  {
+        .comment-section {
             padding: 10px 15px;
             border-top: 1px solid #eee;
             background: #fafafa;
@@ -151,8 +151,23 @@
             border-radius: 20px;
             cursor: pointer;
         }
+        .button {
+            background-color: blue;
+            border: none;
+            color: white;
+            padding: 15px 6px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;}
+
+
     </style>
+
    
+
 
 </head>
 <body>
@@ -176,6 +191,7 @@
         
         
         
+        
 
     </div>
 </header>
@@ -187,9 +203,10 @@
         <div class="post-card mb-4">
             <form method="POST" enctype="multipart/form-data" style="padding: 15px;">
                 {% csrf_token %}
-                <textarea name="content" placeholder="What's on your mind?" rows="3"></textarea>
-                <input type="file" name="image" accept="image/*" />
-                <button type="submit">Post</button>
+                <textarea name="content" placeholder="What's on your mind?"  rows="3" style="width: 450px;"></textarea></br>
+                <input type="file" name="image" accept="image/*" class="button" style="color:white;"/></br>
+
+                <button type="submit" style="color:white; background-color: blue;" >Post</button>
             </form>
         </div>
 
@@ -239,7 +256,7 @@
                     <input type="text" name="text" placeholder="Write your comment..." required />
                     <button type="submit"><i class="fa-solid fa-comment"></i></button>
                 </form>
-                <a href="{% url 'morecomment' post.id %}"><button class="btn btn-primary">Show all comment </button></a>    
+                <a href="{% url 'morecomment' post.id %}"><button class="btn btn-primary"  style="color:white; background-color: blue;">Show all comment </button></a>    
             </div>
         </div>
         {% endfor %}
