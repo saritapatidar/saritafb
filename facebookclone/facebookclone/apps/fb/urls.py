@@ -20,10 +20,12 @@ urlpatterns = [
       path('morecomment/<int:post_id>/',views.showcomments,name='morecomment'),
       path('send_friend_request/<int:user_id>/', views.send_friend_request, name='send_friend_request'),
       path('accept_friend_request/<int:request_id>/', views.accept_friend_request, name='accept_friend_request'), 
-      path('profile/<int:user_id>/followers/', views.followers_list, name='followers_list'),
-      path('profile/<int:user_id>/following/', views.following_list, name='following_list'),
+      # path('profile/<int:user_id>/followers/', views.followers_list, name='followers_list'),
+      # path('profile/<int:user_id>/following/', views.following_list, name='following_list'),
       path('profile/edit/',views.edit_profile,name='edit_profiles'),
-      path('show_friends/<int:user_id>/',views.show_friend_request,name='show_friends')
+      path('show_friends/<int:user_id>/',views.show_friend_request,name='show_friends'),
+      path('deletepost/<int:post_id>/', views.delete_post, name='delete_post'),
+      path('myposts/', views.user_posts, name='user_posts'),
       
    
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

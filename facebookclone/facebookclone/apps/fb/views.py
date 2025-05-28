@@ -17,10 +17,8 @@ from django.shortcuts import get_object_or_404
 from . import forms
 from .forms import LoginForm
 from .forms import CreatePostForm
-# from .forms import Like
 from .forms import commentform
 from django.contrib.auth.decorators import login_required
-
 from django.views.decorators.cache import never_cache
 from.models import Follow
 from .models import comment
@@ -33,11 +31,6 @@ from django.core.mail import send_mail
 from django.http import JsonResponse
 
 from django.template.loader import render_to_string
-
-
-
-# from django.views.decorators.csrf import csrf_exempt
-
 
 # . refers to the current package or current directory where the views.py file is located.
 
@@ -218,58 +211,32 @@ def accept_friend_request(request, request_id):
         Follow.objects.get_or_create(follower=friend_request.from_user, followed=request.user)
         friend_request.delete()
 
+
+
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 def show_friend_request(request,user_id):
     target_user = get_object_or_404(CustomUser, id=user_id)
-
     users = CustomUser.objects.exclude(id=request.user.id)
-
     # Friend requests
     sent_requests = FriendRequest.objects.filter(from_user=request.user)
     received_requests = FriendRequest.objects.filter(to_user=request.user)
+    following=Follow.objects.filter(follower=request.user).values_list('followed_id',flat=True)
+    users=users.exclude(id__in=following)
+    # users=users.exclude(following)
 
     sent_request_ids = set(sent_requests.values_list('to_user_id', flat=True))
+    
     received_request_dict = {fr.from_user.id: fr.id for fr in received_requests}
+    # users.objects.filter(received_requests==users).delete()
 
-    context={'users': users,
+    context={
+        'users': users,
         'sent_request_ids': sent_request_ids,
         'received_request_dict': received_request_dict,
-        'target_user':target_user
+        'target_user':target_user   
     }
     return render(request,'send_request.html',context)
-
-
-
-
-def followers_list(request, user_id):
-    user = get_object_or_404(CustomUser, id=user_id)
-    follower_relations = Follow.objects.filter(followed=user)
-    followers = [rel.follower for rel in follower_relations]
-
-    # List of users that the current user is following
-    current_user_following = [rel.followed for rel in Follow.objects.filter(follower=request.user)]
-
-    return render(request, 'followers_list.html', {
-        'followers': followers,
-        'target_user': user,
-        'current_user_following': current_user_following
-    })
-
-
-
-def following_list(request, user_id):
-    user = get_object_or_404(CustomUser, id=user_id)
-    following_relations = Follow.objects.filter(follower=user)
-    following = [relation.followed for relation in following_relations]
-    return render(request, 'following_list.html', {'following': following, 'target_user': user})
-
-# get_object_or_404 is used in Django to retrieve a single object from the database, 
-# and if the object does not exist, it automatically raises an Http404 exception,
-    
-# get_or_create() in Django serves as a convenient method for retrieving an 
-# object from the database or creating it if it doesn't exist.
- 
 
 
 
@@ -289,7 +256,6 @@ def edit_profile(request):
         form = EditProfileForm(instance=profile)
 
     return render(request, 'edit_profile.html', {'form': form})
-
 
 
 def showcomments(request, post_id):
@@ -317,28 +283,52 @@ def showcomments(request, post_id):
     })
 
 
+def user_posts(request):
+    if request.user.is_authenticated:
+        user_profile = UserProfile.objects.get(user=request.user)
+        posts = CreatePost.objects.filter(user=user_profile).order_by('-created_at')
+        return render(request, 'user_posts.html', {'posts': posts})
+    else:
+        return redirect('login')
+
+def delete_post(request, post_id):
+    if request.user.is_authenticated:
+        user_profile = UserProfile.objects.get(user=request.user)
+        post = get_object_or_404(CreatePost, id=post_id, user=user_profile)
+
+        if request.method == "POST":
+            post.delete()
+            return redirect('user_posts')
+
+        return render(request, 'confirm_delete.html', {'post': post})
+    else:
+        return redirect('login')
 
 
-# def comments(request, post_id):
-#     post = get_object_or_404(CreatePost, pk=post_id)
-#     latest_comments = post.comments.order_by('-created_at')[:5]
+# def followers_list(request, user_id):
+#     user = get_object_or_404(CustomUser, id=user_id)
+#     follower_relations = Follow.objects.filter(followed=user)
+#     followers = [rel.follower for rel in follower_relations]
 
-#     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-#         form = commentform(request.POST)
-#         if form.is_valid():
-#             new_comment = form.save(commit=False)
-#             new_comment.post = post
-#             new_comment.user = request.user
-#             new_comment.save()
+#     # List of users that the current user is following
+#     current_user_following = [rel.followed for rel in Follow.objects.filter(follower=request.user)]
 
-#             html = render_to_string('fb/comment_single.html', {'comment': new_comment}, request=request)
-#             return JsonResponse({'success': True, 'comment_html': html})
-#         else:
-#             return JsonResponse({'success': False, 'errors': form.errors}, status=400)
-
-#     # GET request ke liye latest comments bhejna
-#     html = render_to_string('fb/comments_list.html', {'latest_comments': latest_comments}, request=request)
-#     return JsonResponse({'success': True, 'comments_html': html})
+#     return render(request, 'followers_list.html', {
+#         'followers': followers,
+#         'target_user': user,
+#         'current_user_following': current_user_following
+#     })
 
 
 
+# def following_list(request, user_id):
+#     user = get_object_or_404(CustomUser, id=user_id)
+#     following_relations = Follow.objects.filter(follower=user)
+#     following = [relation.followed for relation in following_relations]
+#     return render(request, 'following_list.html', {'following': following, 'target_user': user})
+
+# get_object_or_404 is used in Django to retrieve a single object from the database, 
+# and if the object does not exist, it automatically raises an Http404 exception,
+    
+# get_or_create() in Django serves as a convenient method for retrieving an 
+# object from the database or creating it if it doesn't exist.
