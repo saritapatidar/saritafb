@@ -264,6 +264,8 @@ def show_friend_request(request,user_id):
     # Friend requests
     sent_requests = FriendRequest.objects.filter(from_user=request.user)
     received_requests = FriendRequest.objects.filter(to_user=request.user)
+    following=Follow.objects.filter(follower=request.user).values_list('followed_id',flat=True)
+    users=users.exclude(id__in=following)
 
     sent_request_ids = set(sent_requests.values_list('to_user_id', flat=True))
     received_request_dict = {fr.from_user.id: fr.id for fr in received_requests}
@@ -336,7 +338,7 @@ def showcomments(request, post_id):
         if form.is_valid():
             new_comment = form.save(commit=False)
             new_comment.post = post
-            # new_comment.latest_comments=latest_comments
+            new_comment.latest_comments=latest_comments
             new_comment.user = request.user
             new_comment.save()
             return redirect('home')
@@ -385,7 +387,7 @@ def delete_post(request, post_id):
 ############################ API VIEWS #######################################################
 
 
-from.custompermissions import Mypermission
+# from.custompermissions import Mypermission
 
 class usermodelviewset(viewsets.ModelViewSet):
     queryset=CustomUser.objects.all()
