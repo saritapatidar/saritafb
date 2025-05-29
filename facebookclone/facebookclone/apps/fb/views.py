@@ -17,11 +17,12 @@ from django.shortcuts import get_object_or_404
 from . import forms
 from .forms import LoginForm
 from .forms import CreatePostForm
+# from .forms import Like
 from .forms import commentform
 from django.contrib.auth.decorators import login_required
+
 from django.views.decorators.cache import never_cache
 from.models import Follow
-from .models import comment
 from .forms import friends
 from .forms import EditProfileForm
 from django.shortcuts import render, redirect, get_object_or_404
@@ -29,8 +30,17 @@ from django.contrib.auth.decorators import login_required
 from .models import FriendRequest, Follow
 from django.core.mail import send_mail
 from django.http import JsonResponse
-
-from django.template.loader import render_to_string
+from django.views.decorators.csrf import csrf_exempt
+from .serializers import userserializer
+from .serializers import postserializer
+from .serializers import commentserializer
+from rest_framework import viewsets
+from .models import CustomUser
+from .models import CreatePost
+from .models import comment
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser
 
 # . refers to the current package or current directory where the views.py file is located.
 
@@ -49,19 +59,34 @@ def home_page(request):
             CreatePost.objects.get_or_create(user=request.user.userprofile,content=content, image=image)
 
         return redirect('home')
-   
+     # All users except the current user
+    users = CustomUser.objects.exclude(id=request.user.id)
+
+    # Friend requests
+    # sent_requests = FriendRequest.objects.filter(from_user=request.user)
+    # received_requests = FriendRequest.objects.filter(to_user=request.user)
+
+    # sent_request_ids = set(sent_requests.values_list('to_user_id', flat=True))
+    # received_request_dict = {fr.from_user.id: fr.id for fr in received_requests}
+
+
+
     return render(
         request,
         'home.html',
         {
             'posts': posts,
-            'users': users,   
+            'users': users,
+            'users': users,
+            # 'sent_request_ids': sent_request_ids,
+            # 'received_request_dict': received_request_dict,
+            
         }
     )
 
 
 def signup_page(request):
-
+    # form = forms.SignupForm()
     if request.method == 'POST':
         form = forms.SignupForm(request.POST)
         
@@ -156,6 +181,28 @@ def post_page(request):
     return redirect('home')
 
 
+    
+
+# def like_post(request, post_id):
+#     post = get_object_or_404(CreatePost, id=post_id)
+#     user = request.user
+
+#     if post.likes.filter(id=user.id).exists():
+    
+#         post.likes.remove(user)
+        
+#     else:
+    
+#         post.likes.add(user)
+       
+#     # return render(request,'likes.html')
+    
+
+#     return redirect('home')
+
+
+
+
 def like_post(request,post_id):
     
     post = get_object_or_404(CreatePost, id=post_id)
@@ -172,25 +219,23 @@ def like_post(request,post_id):
 
 def comments(request, post_id):
     post = get_object_or_404(CreatePost, pk=post_id)
-    latest_comments = post.comments.order_by('-created_at')[:5]
 
-    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        form = commentform(request.POST)
+    if request.method == 'POST':
+        form = commentform(request.POST,request.FILES)
         if form.is_valid():
             new_comment = form.save(commit=False)
             new_comment.post = post
             new_comment.user = request.user
             new_comment.save()
+            return redirect('home')
 
-            html = render_to_string('fb/comment_single.html', {'comment': new_comment}, request=request)
-            return JsonResponse({'success': True, 'comment_html': html})
-        else:
-            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+    else:
+        form = commentform()
 
-    # GET request ke liye latest comments bhejna
-    html = render_to_string('fb/comments_list.html', {'latest_comments': latest_comments}, request=request)
-    return JsonResponse({'success': True, 'comments_html': html})
-
+    return render(request, 'home.html', {
+        'post': post,
+        'form': form,
+    })
 
 
 def send_friend_request(request, user_id):
@@ -200,8 +245,6 @@ def send_friend_request(request, user_id):
         FriendRequest.objects.create(from_user=request.user, to_user=to_user)
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
-    
-
 
 def accept_friend_request(request, request_id):
     friend_request = get_object_or_404(FriendRequest, id=request_id)
@@ -211,32 +254,58 @@ def accept_friend_request(request, request_id):
         Follow.objects.get_or_create(follower=friend_request.from_user, followed=request.user)
         friend_request.delete()
 
-
-
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 def show_friend_request(request,user_id):
     target_user = get_object_or_404(CustomUser, id=user_id)
+
     users = CustomUser.objects.exclude(id=request.user.id)
+
     # Friend requests
     sent_requests = FriendRequest.objects.filter(from_user=request.user)
     received_requests = FriendRequest.objects.filter(to_user=request.user)
-    following=Follow.objects.filter(follower=request.user).values_list('followed_id',flat=True)
-    users=users.exclude(id__in=following)
-    # users=users.exclude(following)
 
     sent_request_ids = set(sent_requests.values_list('to_user_id', flat=True))
-    
     received_request_dict = {fr.from_user.id: fr.id for fr in received_requests}
-    # users.objects.filter(received_requests==users).delete()
 
-    context={
-        'users': users,
+    context={'users': users,
         'sent_request_ids': sent_request_ids,
         'received_request_dict': received_request_dict,
-        'target_user':target_user   
+        'target_user':target_user
     }
     return render(request,'send_request.html',context)
+
+
+
+
+def followers_list(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    follower_relations = Follow.objects.filter(followed=user)
+    followers = [rel.follower for rel in follower_relations]
+
+    # List of users that the current user is following
+    current_user_following = [rel.followed for rel in Follow.objects.filter(follower=request.user)]
+
+    return render(request, 'followers_list.html', {
+        'followers': followers,
+        'target_user': user,
+        'current_user_following': current_user_following
+    })
+
+
+
+def following_list(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    following_relations = Follow.objects.filter(follower=user)
+    following = [relation.followed for relation in following_relations]
+    return render(request, 'following_list.html', {'following': following, 'target_user': user})
+
+# get_object_or_404 is used in Django to retrieve a single object from the database, 
+# and if the object does not exist, it automatically raises an Http404 exception,
+    
+# get_or_create() in Django serves as a convenient method for retrieving an 
+# object from the database or creating it if it doesn't exist.
+ 
 
 
 
@@ -256,7 +325,6 @@ def edit_profile(request):
         form = EditProfileForm(instance=profile)
 
     return render(request, 'edit_profile.html', {'form': form})
-
 
 def showcomments(request, post_id):
     post = get_object_or_404(CreatePost, pk=post_id)
@@ -282,7 +350,6 @@ def showcomments(request, post_id):
         'form': form,
     })
 
-
 def user_posts(request):
     if request.user.is_authenticated:
         user_profile = UserProfile.objects.get(user=request.user)
@@ -304,31 +371,43 @@ def delete_post(request, post_id):
     else:
         return redirect('login')
 
+# def follow_user(request, user_id):
+#     target_user = get_object_or_404(CustomUser, id=user_id)
+#     Follow.objects.get_or_create(follower=request.user, followed=target_user)
+#     return redirect('profile',user_id)
 
-# def followers_list(request, user_id):
-#     user = get_object_or_404(CustomUser, id=user_id)
-#     follower_relations = Follow.objects.filter(followed=user)
-#     followers = [rel.follower for rel in follower_relations]
-
-#     # List of users that the current user is following
-#     current_user_following = [rel.followed for rel in Follow.objects.filter(follower=request.user)]
-
-#     return render(request, 'followers_list.html', {
-#         'followers': followers,
-#         'target_user': user,
-#         'current_user_following': current_user_following
-#     })
+# def unfollow_user(request, user_id):
+#     target_user = get_object_or_404(CustomUser, id=user_id)
+#     Follow.objects.filter(follower=request.user, followed=target_user).delete()
+#     return redirect('profile',user_id=user_id)
 
 
+############################ API VIEWS #######################################################
 
-# def following_list(request, user_id):
-#     user = get_object_or_404(CustomUser, id=user_id)
-#     following_relations = Follow.objects.filter(follower=user)
-#     following = [relation.followed for relation in following_relations]
-#     return render(request, 'following_list.html', {'following': following, 'target_user': user})
 
-# get_object_or_404 is used in Django to retrieve a single object from the database, 
-# and if the object does not exist, it automatically raises an Http404 exception,
-    
-# get_or_create() in Django serves as a convenient method for retrieving an 
-# object from the database or creating it if it doesn't exist.
+from.custompermissions import Mypermission
+
+class usermodelviewset(viewsets.ModelViewSet):
+    queryset=CustomUser.objects.all()
+    serializer_class=userserializer
+    authentication_class=[BasicAuthentication]
+    Permission_class=[IsAuthenticated]
+
+
+
+
+
+class postmodelviewset(viewsets.ModelViewSet):
+    queryset=CreatePost.objects.all()
+    serializer_class=postserializer
+    authentication_class=[BasicAuthentication]
+    Permission_class=[IsAuthenticated]
+
+
+class commentmodelviewset(viewsets.ModelViewSet):
+    queryset=comment.objects.all()
+    serializer_class=commentserializer
+    authentication_class=[BasicAuthentication]
+    Permission_class=[IsAuthenticated]
+
+

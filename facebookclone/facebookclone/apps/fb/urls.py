@@ -1,10 +1,18 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
 from fb import views
 from django.conf import settings
 from django.conf.urls.static import static
 # from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LoginView
+from rest_framework.routers import DefaultRouter
+
+router=DefaultRouter()
+
+router.register('userapi',views.usermodelviewset,basename='user')
+router.register('postapi',views.postmodelviewset,basename='post')
+router.register('commen',views.commentmodelviewset,basename='comment')
+
 
 urlpatterns = [
       
@@ -26,6 +34,7 @@ urlpatterns = [
       path('show_friends/<int:user_id>/',views.show_friend_request,name='show_friends'),
       path('deletepost/<int:post_id>/', views.delete_post, name='delete_post'),
       path('myposts/', views.user_posts, name='user_posts'),
+      path('api', include(router.urls)),
       
    
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
