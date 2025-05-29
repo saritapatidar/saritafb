@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'fb',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -148,4 +149,4 @@ EMAIL_HOST="smtp.gmail.com"
 EMAIT_PORT=587
 EMAIL_USE_TLS=True
 EMAIL_HOST_USER="saritapatidar@thoughtwin.com"
-EMAIL_HOST_PASSWORD='hnxu gqgp cczv gwfc'
+EMAIL_HOST_PASSWORD='toop flxa aygt fdgu'
