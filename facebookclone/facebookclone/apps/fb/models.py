@@ -33,6 +33,7 @@ def validate_password(value):
         raise ValidationError("Password must contain at least one special character.")
 
 class CustomUser(AbstractBaseUser):
+    # username=models.CharField(max_length=10,blank=False,null=False,default="")
     firstname = models.CharField(max_length=10, blank=False, null=False,default="")
     lastname = models.CharField(max_length=10, blank=False, null=False,default="")
     Date_of_birth = models.DateField(max_length=10, blank=True, null=True)
@@ -106,10 +107,6 @@ class CreatePost(models.Model):
     
 
     
-
-
-
-
 class comment(models.Model):
     post = models.ForeignKey(CreatePost, on_delete=models.CASCADE, related_name="comments")
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default=False)

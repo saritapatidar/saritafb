@@ -38,8 +38,8 @@ from rest_framework import viewsets
 from .models import CustomUser
 from .models import CreatePost
 from .models import comment
-from rest_framework.authentication import BasicAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import BasicAuthentication,SessionAuthentication
+from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
 from rest_framework.permissions import IsAdminUser
 
 # . refers to the current package or current directory where the views.py file is located.
@@ -387,29 +387,29 @@ def delete_post(request, post_id):
 ############################ API VIEWS #######################################################
 
 
-# from.custompermissions import Mypermission
+from.custompermissions import IsOwnerOrReadOnly
+# from .custompermissions import postconditions
+# from rest_framework.authentication import TokenAuthentication
+
 
 class usermodelviewset(viewsets.ModelViewSet):
     queryset=CustomUser.objects.all()
     serializer_class=userserializer
-    authentication_class=[BasicAuthentication]
-    Permission_class=[IsAuthenticated]
-
-
-
-
+    authentication_classes=[SessionAuthentication]
+    # permissions_classes=[IsAuthenticatedOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
 class postmodelviewset(viewsets.ModelViewSet):
     queryset=CreatePost.objects.all()
     serializer_class=postserializer
-    authentication_class=[BasicAuthentication]
-    Permission_class=[IsAuthenticated]
-
+    authentication_classes=[SessionAuthentication]
+    permissions_classes=[IsAuthenticatedOrReadOnly]
+    
 
 class commentmodelviewset(viewsets.ModelViewSet):
     queryset=comment.objects.all()
     serializer_class=commentserializer
-    authentication_class=[BasicAuthentication]
-    Permission_class=[IsAuthenticated]
+    authentication_classes=[SessionAuthentication]
+    permissions_classes=[IsAuthenticatedOrReadOnly]
 
-
+    
