@@ -8,15 +8,19 @@ class userserializer(serializers.ModelSerializer):
 		model =CustomUser
 		fields='__all__'
 
-
 class postserializer(serializers.ModelSerializer):
 	class Meta:
 		model=CreatePost
 		fields='__all__'
+		read_only_fields=['created_at','user']
 
 class commentserializer(serializers.ModelSerializer):
 	class Meta:
 		model=comment
 		fields='__all__'
+		read_only_fields=['created_at']
+        
+
+
 
 

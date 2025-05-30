@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 # from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LoginView
 from rest_framework.routers import DefaultRouter
+# from rest_framework.authtoken.views import obtain_auth_token
 
 router=DefaultRouter()
 
@@ -34,7 +35,10 @@ urlpatterns = [
       path('show_friends/<int:user_id>/',views.show_friend_request,name='show_friends'),
       path('deletepost/<int:post_id>/', views.delete_post, name='delete_post'),
       path('myposts/', views.user_posts, name='user_posts'),
-      path('api', include(router.urls)),
+      path('api',include(router.urls)),
+      path('api-auth/',include('rest_framework.urls')),
+
+      # path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
       
    
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
