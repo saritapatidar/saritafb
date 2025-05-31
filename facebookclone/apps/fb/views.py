@@ -125,7 +125,33 @@ def accept_request(request,requestid):
         friend_request.save()
     return redirect('friend_request')
 
+class usermodelviewset(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = userserializer
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsOwnerOrReadOnly]
 
+
+class postmodelviewset(viewsets.ModelViewSet):
+    queryset = CreatePost.objects.all()
+    serializer_class = postserializer
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsOwnerOrReadOnly]
+
+    # def perform_create(self, serializer):
+    #     serializer.save(user=self.request.user.userprofile)  # save UserProfile
+
+
+class commentmodelviewset(viewsets.ModelViewSet):
+    queryset = comment.objects.all()
+    serializer_class = commentserializer
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsOwnerOrReadOnly]
+
+    # def perform_create(self, serializer):
+    #     serializer.save(user=self.request.user)  # save CustomUser
+
+# from rest_framework.authentication import BasicAuthentication
 
 
 
