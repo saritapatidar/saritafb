@@ -235,6 +235,30 @@ path('api', include(router.urls)),
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
+.env
+# Django Secret Key
+SECRET_KEY=django-insecure-##obv#n&=(kuxcgy5)qknuic0a00$7d-3c2+m-$0erq+psash5
+
+# Debug mode
+DEBUG=True
+
+# Allowed Hosts
+ALLOWED_HOSTS=127.0.0.1,localhost
+
+# Database Configuration
+DB_NAME=facebook1
+DB_USER=postgres
+DB_PASSWORD=1234
+DB_HOST=localhost
+DB_PORT=5432
+
+# Email Configuration
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=saritapatidar@thoughtwin.com
+EMAIL_HOST_PASSWORD=toop flxa aygt fdgu
 
 
 # def login_page(request):
