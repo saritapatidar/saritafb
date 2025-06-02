@@ -44,7 +44,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'fb',
     'rest_framework',
-    # 'rest_framework.authtoken',
+    'fbapi',
+
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt'
 ]
 
 MIDDLEWARE = [
@@ -158,3 +161,12 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.PageNumberPagination',
         'PAGE_SIZE':5 
 }
+
+# REST_FRAMEWORK = {
+#         'DEFAULT_AUTHENTICATION_CLASSES': (
+#             'rest_framework_simplejwt.authentication.JWTAuthentication', 
+#         ),
+#         'DEFAULT_PERMISSION_CLASSES': (
+#             'rest_framework.permissions.IsAuthenticated',
+#         ),
+#     }

@@ -31,16 +31,16 @@ from .models import FriendRequest, Follow
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .serializers import userserializer
-from .serializers import postserializer
-from .serializers import commentserializer
-from rest_framework import viewsets
-from .models import CustomUser
-from .models import CreatePost
-from .models import comment
-from rest_framework.authentication import BasicAuthentication,SessionAuthentication
-from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
-from rest_framework.permissions import IsAdminUser
+# from .serializers import userserializer
+# from .serializers import postserializer
+# from .serializers import commentserializer
+# from rest_framework import viewsets
+# from .models import CustomUser
+# from .models import CreatePost
+# from .models import comment
+# from rest_framework.authentication import BasicAuthentication,SessionAuthentication
+# from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
+# from rest_framework.permissions import IsAdminUser
 
 # . refers to the current package or current directory where the views.py file is located.
 
@@ -387,29 +387,30 @@ def delete_post(request, post_id):
 ############################ API VIEWS #######################################################
 
 
-from.custompermissions import IsOwnerOrReadOnly
-# from .custompermissions import postconditions
-# from rest_framework.authentication import TokenAuthentication
+# from.custompermissions import IsOwnerOrReadOnly
+# # from .custompermissions import postconditions
+# # from rest_framework.authentication import TokenAuthentication
 
 
-class usermodelviewset(viewsets.ModelViewSet):
-    queryset=CustomUser.objects.all()
-    serializer_class=userserializer
-    authentication_classes=[SessionAuthentication]
-    # permissions_classes=[IsAuthenticatedOrReadOnly]
-    permission_classes = [IsOwnerOrReadOnly]
+# class usermodelviewset(viewsets.ModelViewSet):
+#     queryset = CustomUser.objects.all()
+#     serializer_class = userserializer
+#     authentication_classes = [SessionAuthentication]
+#     permission_classes = [IsOwnerOrReadOnly]
 
-class postmodelviewset(viewsets.ModelViewSet):
-    queryset=CreatePost.objects.all()
-    serializer_class=postserializer
-    authentication_classes=[SessionAuthentication]
-    permissions_classes=[IsAuthenticatedOrReadOnly]
-    
 
-class commentmodelviewset(viewsets.ModelViewSet):
-    queryset=comment.objects.all()
-    serializer_class=commentserializer
-    authentication_classes=[SessionAuthentication]
-    permissions_classes=[IsAuthenticatedOrReadOnly]
+# class postmodelviewset(viewsets.ModelViewSet):
+#     queryset = CreatePost.objects.all()
+#     serializer_class = postserializer
+#     authentication_classes = [SessionAuthentication]
+#     permission_classes = [IsOwnerOrReadOnly]
 
     
+
+# class commentmodelviewset(viewsets.ModelViewSet):
+#     queryset = comment.objects.all()
+#     serializer_class = commentserializer
+#     authentication_classes = [SessionAuthentication]
+#     permission_classes = [IsOwnerOrReadOnly]
+
+   

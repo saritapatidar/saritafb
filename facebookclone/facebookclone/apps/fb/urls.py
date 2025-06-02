@@ -5,14 +5,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 # from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LoginView
-from rest_framework.routers import DefaultRouter
+# from rest_framework.routers import DefaultRouter
 # from rest_framework.authtoken.views import obtain_auth_token
 
-router=DefaultRouter()
+# router=DefaultRouter()
 
-router.register('userapi',views.usermodelviewset,basename='user')
-router.register('postapi',views.postmodelviewset,basename='post')
-router.register('commen',views.commentmodelviewset,basename='comment')
+# router.register('userapi',views.usermodelviewset,basename='user')
+# router.register('postapi',views.postmodelviewset,basename='post')
+# router.register('comment',views.commentmodelviewset,basename='comment')
 
 
 urlpatterns = [
@@ -24,19 +24,19 @@ urlpatterns = [
       path('profile/<int:user_id>/',views.profile_page,name='profile'),
       path('post/',views.post_page,name='post'),
       path('likepost/<int:post_id>/', views.like_post, name='likepost'),
-
       path('commen/<int:post_id>/',views.comments,name='commen'),
       path('morecomment/<int:post_id>/',views.showcomments,name='morecomment'),
       path('send_friend_request/<int:user_id>/', views.send_friend_request, name='send_friend_request'),
       path('accept_friend_request/<int:request_id>/', views.accept_friend_request, name='accept_friend_request'), 
-      # path('profile/<int:user_id>/followers/', views.followers_list, name='followers_list'),
-      # path('profile/<int:user_id>/following/', views.following_list, name='following_list'),
       path('profile/edit/',views.edit_profile,name='edit_profiles'),
       path('show_friends/<int:user_id>/',views.show_friend_request,name='show_friends'),
       path('deletepost/<int:post_id>/', views.delete_post, name='delete_post'),
       path('myposts/', views.user_posts, name='user_posts'),
-      path('api',include(router.urls)),
-      path('api-auth/',include('rest_framework.urls')),
+      
+      # path('profile/<int:user_id>/followers/', views.followers_list, name='followers_list'),
+      # path('profile/<int:user_id>/following/', views.following_list, name='following_list'),
+      # path('api',include(router.urls)),
+      # path('api-auth/',include('rest_framework.urls')),
 
       # path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
       
