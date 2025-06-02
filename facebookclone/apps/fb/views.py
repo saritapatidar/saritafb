@@ -139,10 +139,102 @@ def like_post(request, post_id):
 
     return redirect('home')  
 
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication
+
+# from rest_framework.authentication import BasicAuthentication
+class usermodelviewset(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = userserializer
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsOwnerOrReadOnly]
 
 
+class postmodelviewset(viewsets.ModelViewSet):
+    queryset = CreatePost.objects.all()
+    serializer_class = postserializer
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsOwnerOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
+class commentmodelviewset(viewsets.ModelViewSet):
+    queryset = comment.objects.all()
+    serializer_class = commentserializer
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsOwnerOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+from rest_framework import status
+from .serializers import Loginserializer, registrationserializer
+from rest_framework.permissions import AllowAny
+from rest_framework.generics import CreateAPIView
+from .models import CustomUser
+from rest_framework.generics import GenericAPIView
+
+
+class UserRegistrationView(CreateAPIView):
+    serializer_class = registrationserializer
+    permission_classes = [AllowAny]
+
+
+class Login(GenericAPIView):
+    serializer_class = Loginserializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            phone_number = serializer.validated_data['phone_number']
+            password = serializer.validated_data['password']
+
+            user = authenticate(request, username=phone_number, password=password)
+
+            if user:
+                token, created = Token.objects.get_or_create(user=user)
+                return Response({
+                    "status": True,
+                    "token": str(token),
+                    "message": "Login successful"
+                })
+            else:
+                return Response({
+                    "status": False,
+                    "message": "Invalid phone number or password"
+                }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        return Response({
+            "status": False,
+            "errors": serializer.errors,
+            "message": "Validation failed"
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        request.user.auth_token.delete()
+        return Response({'message': 'Logged out successfully'}, status=status.HTTP_200_OK)
+
+
+path('api', include(router.urls)),
+      path('api-auth/',include('rest_framework.urls')),
+      path('register/', UserRegistrationView.as_view(), name='register'),
+      path('loginapi/', Login.as_view(), name='loginapi'),
+      path('logoutapi/', LogoutAPI.as_view(), name='logoutapi'),
+]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 
 # def login_page(request):
