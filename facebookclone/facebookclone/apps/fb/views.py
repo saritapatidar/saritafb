@@ -384,33 +384,3 @@ def delete_post(request, post_id):
 #     return redirect('profile',user_id=user_id)
 
 
-############################ API VIEWS #######################################################
-
-
-# from.custompermissions import IsOwnerOrReadOnly
-# # from .custompermissions import postconditions
-# # from rest_framework.authentication import TokenAuthentication
-
-
-# class usermodelviewset(viewsets.ModelViewSet):
-#     queryset = CustomUser.objects.all()
-#     serializer_class = userserializer
-#     authentication_classes = [SessionAuthentication]
-#     permission_classes = [IsOwnerOrReadOnly]
-
-
-# class postmodelviewset(viewsets.ModelViewSet):
-#     queryset = CreatePost.objects.all()
-#     serializer_class = postserializer
-#     authentication_classes = [SessionAuthentication]
-#     permission_classes = [IsOwnerOrReadOnly]
-
-    
-
-# class commentmodelviewset(viewsets.ModelViewSet):
-#     queryset = comment.objects.all()
-#     serializer_class = commentserializer
-#     authentication_classes = [SessionAuthentication]
-#     permission_classes = [IsOwnerOrReadOnly]
-
-   
