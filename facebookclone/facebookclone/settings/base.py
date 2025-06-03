@@ -14,6 +14,7 @@ from pathlib import Path
 import os ,sys
 from os import path
 from sys import path
+from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # print(BASE_DIR)
@@ -45,9 +46,8 @@ INSTALLED_APPS = [
     'fb',
     'rest_framework',
     'fbapi',
-
     'rest_framework.authtoken',
-    'rest_framework_simplejwt'
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -162,11 +162,13 @@ REST_FRAMEWORK = {
         'PAGE_SIZE':5 
 }
 
-# REST_FRAMEWORK = {
-#         'DEFAULT_AUTHENTICATION_CLASSES': (
-#             'rest_framework_simplejwt.authentication.JWTAuthentication', 
-#         ),
-#         'DEFAULT_PERMISSION_CLASSES': (
-#             'rest_framework.permissions.IsAuthenticated',
-#         ),
-#     }
+REST_FRAMEWORK = {
+       'DEFAULT_AUTHENTICATION_CLASSES': [
+           'rest_framework_simplejwt.authentication.JWTAuthentication',
+       ],
+   }
+
+SIMPLE_JWT = {
+       'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),  # Token validity
+       'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  # Refresh token validity
+   }

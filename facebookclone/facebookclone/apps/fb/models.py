@@ -104,9 +104,7 @@ class CreatePost(models.Model):
     image=models.ImageField(upload_to='post/',blank=True,null=True)
     likes = models.ManyToManyField(CustomUser, related_name='liked_posts', blank=True)
     created_at = models.DateTimeField(default=timezone.now)
-    
-
-    
+   
 class comment(models.Model):
     post = models.ForeignKey(CreatePost, on_delete=models.CASCADE, related_name="comments")
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default=False)
@@ -129,3 +127,8 @@ class Follow(models.Model):
 class FriendRequest(models.Model):
     from_user = models.ForeignKey(CustomUser,related_name="from_user",on_delete=models.CASCADE)
     to_user = models.ForeignKey(CustomUser,related_name="to_user",on_delete=models.CASCADE)
+
+
+class Like(models.Model):
+ post = models.ForeignKey(CreatePost,on_delete=models.CASCADE)
+ liked_by=models.ManyToManyField(CustomUser)
