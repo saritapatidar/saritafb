@@ -312,3 +312,109 @@ class Login(GenericAPIView):
             'status': False,
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
+
+class LogoutAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh")
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response({'message': 'Logged out successfully'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': 'Invalid or expired refresh token'}, status=status.HTTP_400_BAD_REQUEST)
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ROTATE_REFRESH_TOKENS': True,
+}
+INSTALLED_APPS = [
+    ...
+    'rest_framework_simplejwt.token_blacklist',
+]
+class LikeViewSet(viewsets.ModelViewSet):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        post = serializer.validated_data['post']
+        user = self.request.user
+
+        # Check if already liked
+        if Like.objects.filter(user=user, post=post).exists():
+            raise serializers.ValidationError("You have already liked this post.")
+
+        serializer.save(user=user)
+class Comment(models.Model):
+    post = models.ForeignKey(CreatePost, on_delete=models.CASCADE, related_name="comments")
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    text = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='replies', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Comment by {self.user} on {self.post}"
+
+    class Meta:
+        ordering = ['created_at']
+from django import forms
+from .models import Comment
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text', 'parent']
+        widgets = {'parent': forms.HiddenInput()}  # hide parent field from user
+from django.shortcuts import get_object_or_404, redirect, render
+from .models import CreatePost, Comment
+from .forms import CommentForm
+
+def comments(request, post_id):
+    post = get_object_or_404(CreatePost, pk=post_id)
+
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.post = post
+            new_comment.user = request.user
+            new_comment.save()
+            return redirect('home')
+    else:
+        form = CommentForm()
+
+    # Pass all comments to template (including replies)
+    comments = post.comments.filter(parent__isnull=True)  # only top-level comments
+
+    return render(request, 'home.html', {
+        'post': post,
+        'form': form,
+        'comments': comments,
+    })
+        comment_single.html
+<div class="comment" style="margin-left: {{ level|default:0 }}px;">
+    <strong>{{ comment.user.firstname }} {{ comment.user.lastname }}:</strong> {{ comment.text }}<br>
+    <small>{{ comment.created_at|date:"d M Y" }} | {{ comment.created_at|timesince }}</small>
+
+    <!-- Reply button triggers showing reply form (optional, can be a link that shows form) -->
+    <a href="#" class="reply-link" data-comment-id="{{ comment.id }}">Reply</a>
+
+    <!-- Replies -->
+    {% for reply in comment.replies.all %}
+        {% include "comment_single.html" with comment=reply level=level|add:"20" %}
+    {% endfor %}
+</div>
