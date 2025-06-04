@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +7,7 @@
     <title>Home | Facebook Clone</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -14,7 +16,6 @@
             font-family: Arial, sans-serif;
         }
 
-        /* Header styles */
         .fb-header {
             display: flex;
             justify-content: space-between;
@@ -35,25 +36,18 @@
             background: #f0f2f5;
         }
 
-        .header-center i {
-            margin: 0 15px;
-            font-size: 24px;
+        .header-center i,
+        .header-right i {
+            font-size: 22px;
             color: #65676b;
             cursor: pointer;
+            margin: 0 10px;
         }
 
         .header-center i.active {
             color: #1877f2;
         }
 
-        .header-right i {
-            margin: 0 10px;
-            font-size: 22px;
-            color: #65676b;
-            cursor: pointer;
-        }
-
-        /* Main Content */
         .main-area {
             display: flex;
             justify-content: center;
@@ -64,7 +58,6 @@
             width: 500px;
         }
 
-        /* Post Card */
         .post-card {
             background: white;
             border-radius: 8px;
@@ -117,56 +110,113 @@
             background: #f0f2f5;
         }
 
-        .post-actions a {
-            text-decoration: none;
-            color: #65676b;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        .post-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
         }
 
-        .post-actions a:hover {
-            background: #e4e6eb;
-            border-radius: 5px;
-            padding: 5px 10px;
+        .post-actions span {
+            margin-left: 10px;
+        }
+
+        .comment-section {
+            padding: 10px 15px;
+            border-top: 1px solid #eee;
+            background: #fafafa;
+        }
+
+        .comment {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .comment small {
+            color: #777;
+        }
+
+        .add-comment input[type="text"] {
+            width: 80%;
+            padding: 6px 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+        }
+
+        .add-comment input[type="submit"] {
+            padding: 6px 15px;
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .button {
+            background-color: blue;
+            border: none;
+            color: white;
+            padding: 15px 6px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+
+        /* Nested comment indentation */
+        .comment.reply {
+            margin-left: 20px;
+            border-left: 2px solid #ddd;
+            padding-left: 10px;
+        }
+
+        /* Reply link style */
+        .reply-link {
+            font-size: 12px;
+            color: #1877f2;
+            cursor: pointer;
+            margin-left: 10px;
         }
     </style>
 </head>
 <body>
 
-<!-- Facebook Header -->
 <header class="fb-header">
     <div class="header-left">
-        <i class="fab fa-facebook" id="logo" style="color: #1877f2; font-size: 35px;"></i>
-        <input type="text" placeholder="Search Facebook">
+        <i class="fab fa-facebook" style="color: #1877f2; font-size: 35px;"></i>
     </div>
     <div class="header-center">
-        <i class="fas fa-home active"></i>
-        <i class="fas fa-user-friends"></i>
-        <i class="fas fa-tv"></i>
-        <i class="fas fa-store"></i>
-        <i class="fas fa-users"></i>
+        <a href="{% url 'home' %}" class="btn btn-primary mt-4"><i class="fas fa-home active" title="Home"></i></a>
+        <a href="{% url 'show_friends' user.id %}" class="btn btn-primary mt-4"><i class="fas fa-user-friends" title="SendRequest"></i></a>
     </div>
     <div class="header-right">
-        <i class="fas fa-th"></i>
-        <i class="fab fa-facebook-messenger"></i>
-        <i class="fas fa-bell"></i>
-        <a href="{% url 'profile' %}"><i class="fas fa-user-circle"></i></a>
+        <a href="{% url 'logout' %}"><i class="fas fa-sign-out" title="logout"></i></a>
+        <a href="{% url 'profile' user.id %}"><i class="fas fa-user-circle" title="profile"></i></a>
     </div>
 </header>
 
-<!-- Main Content -->
 <main class="main-area">
     <div class="posts-area">
+
+        <!-- Post Creation Form -->
+        <div class="post-card mb-4">
+            <form method="POST" enctype="multipart/form-data" style="padding: 15px;">
+                {% csrf_token %}
+                <textarea name="content" placeholder="What's on your mind?" rows="3" style="width: 450px;"></textarea></br>
+                <input type="file" name="image" accept="image/*" class="button" style="color:white;" /></br>
+                <button type="submit" style="color:white; background-color: blue;">Post</button>
+            </form>
+        </div>
+
+        <!-- Posts Loop -->
         {% for post in posts %}
         <div class="post-card">
             <div class="post-header">
                 <div class="user-info">
-                    
                     <div>
-                        <h4>{{ post.user.user.first_name }} {{ post.user.user.last_name }}</h4>
-                        <small>{{ post.user.user.phone_number }}</small><br>
+                        <h4>{{ post.user.user.firstname }} {{ post.user.user.lastname }}</h4>
                         <small>{{ post.created_at|timesince }} ago</small>
                     </div>
                 </div>
@@ -174,19 +224,137 @@
 
             <div class="post-body">
                 {% if post.content %}
-                <p>{{ post.content }}</p>
+                    <p>{{ post.content }}</p>
                 {% endif %}
-
                 {% if post.image %}
-                <img src="{{ post.image.url }}" alt="Post image">
+                    <img src="{{ post.image.url }}" alt="Post image">
                 {% endif %}
             </div>
 
-           
+            <div class="post-actions">
+                <button class="like-btn" data-post-id="{{ post.id }}">
+                    <i class="fa-solid fa-thumbs-up"></i>
+                </button>
+                <span class="likes-count">{{ post.likes.count }}</span>
+            </div>
+
+            <!-- Comment Section -->
+            <div class="comment-section">
+                <h4>Comments:</h4>
+
+                <!-- Render top-level comments -->
+                {% for comment in post.comments.all|dictsortreversed:"created_at" %}
+                    {% if not comment.parent %}
+                        <div class="comment" id="comment-{{ comment.id }}">
+                            <strong>{{ comment.user.firstname }} {{ comment.user.lastname }}:</strong> {{ comment.text }}<br>
+                            <small>{{ comment.created_at|date:"d M Y" }} | {{ comment.created_at|timesince }}</small>
+                            <span class="reply-link" data-comment-id="{{ comment.id }}">Reply</span>
+
+                            <!-- Nested replies -->
+                            {% for reply in comment.replies.all %}
+                                <div class="comment reply" id="comment-{{ reply.id }}">
+                                    <strong>{{ reply.user.firstname }} {{ reply.user.lastname }}:</strong> {{ reply.text }}<br>
+                                    <small>{{ reply.created_at|date:"d M Y" }} | {{ reply.created_at|timesince }}</small>
+                                    <span class="reply-link" data-comment-id="{{ reply.id }}">Reply</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Comment Form for adding new comment or reply -->
+                <form method="POST" id="comment-form-{{ post.id }}" class="comment-form" data-post-id="{{ post.id }}" style="margin-top: 10px;">
+                    {% csrf_token %}
+                    <input type="text" name="text" placeholder="Write your comment..." required />
+                    <!-- Hidden parent input to store reply comment id -->
+                    <input type="hidden" name="parent" id="parent-input-{{ post.id }}" value="" />
+                    <button type="submit"><i class="fa-solid fa-comment"></i></button>
+                </form>
+
+                <a href="{% url 'morecomment' post.id %}">
+                    <button class="btn btn-primary" style="color:white; background-color: blue;">Show all comment</button>
+                </a>
+            </div>
         </div>
         {% endfor %}
     </div>
 </main>
+
+<!-- JavaScript for AJAX and reply handling -->
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    $(document).ready(function() {
+        // Handle comment form submission (for all posts)
+        $('.comment-form').submit(function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const postId = form.data('post-id');
+            const formData = form.serialize();
+            const csrfToken = getCookie('csrftoken');
+
+            $.ajax({
+                type: 'POST',
+                url: '/commen/' + postId + '/',
+                data: formData,
+                headers: { 'X-CSRFToken': csrfToken },
+                success: function(response) {
+                    if (response.success) {
+                        // Prepend new comment HTML
+                        form.prev('.comment-section').prepend(response.comment_html);
+                        form[0].reset();
+
+                        // Clear hidden parent field after reply is submitted
+                        form.find('input[name="parent"]').val('');
+                    }
+                },
+                error: function(xhr) {
+                    alert("Error: " + xhr.responseJSON.errors.text);
+                }
+            });
+        });
+
+        // Like button AJAX
+        $('.like-btn').click(function() {
+            const postId = $(this).data('post-id');
+            const csrftoken = getCookie('csrftoken');
+
+            $.ajax({
+                type: 'POST',
+                url: '/likepost/' + postId + '/',
+                headers: { 'X-CSRFToken': csrftoken },
+                success: function(data) {
+                    const countSpan = $(`.like-btn[data-post-id="${postId}"]`).next('.likes-count');
+                    countSpan.text(data.likes_count);
+                }
+            });
+        });
+
+        // Reply link click event to set parent id in hidden input
+        $('.comment-section').on('click', '.reply-link', function(e) {
+            e.preventDefault();
+            const commentId = $(this).data('comment-id');
+            const postId = $(this).closest('.comment-section').siblings('.comment-form').data('post-id');
+            // Set the parent input value inside the comment form of this post
+            $(`#comment-form-${postId} input[name="parent"]`).val(commentId);
+            // Focus the input field for typing reply
+            $(`#comment-form-${postId} input[name="text"]`).focus();
+        });
+    });
+</script>
 
 </body>
 </html>
