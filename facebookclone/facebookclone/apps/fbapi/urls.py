@@ -16,7 +16,9 @@ router.register('like',views.likemodelviewset,basename='like')
 
 urlpatterns = [
 
-                path('api',include(router.urls)),
+                path('',include(router.urls)),
+                # path('userapi/',views.usermodelviewset.as_view(),name='user'),
+
                 path('api-auth/',include('rest_framework.urls')),
                 path('register/', UserRegistrationView.as_view(), name='register'),
                 path('loginapi/', Login.as_view(), name='loginapi'),
@@ -29,3 +31,4 @@ urlpatterns = [
 
        
       
+    

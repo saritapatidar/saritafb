@@ -105,11 +105,11 @@ class CreatePost(models.Model):
     likes = models.ManyToManyField(CustomUser, related_name='liked_posts', blank=True)
     created_at = models.DateTimeField(default=timezone.now)
    
-class comment(models.Model):
-    post = models.ForeignKey(CreatePost, on_delete=models.CASCADE, related_name="comments")
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default=False)
-    text = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(default=timezone.now)
+# class comment(models.Model):
+#     post = models.ForeignKey(CreatePost, on_delete=models.CASCADE, related_name="comments")
+#     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default=False)
+#     text = models.TextField(blank=True, null=True)
+#     created_at = models.DateTimeField(default=timezone.now)
 
 # class Comment(models.Model):
 #     post = models.ForeignKey(CreatePost, on_delete=models.CASCADE)
@@ -130,5 +130,13 @@ class FriendRequest(models.Model):
 
 
 class Like(models.Model):
- post = models.ForeignKey(CreatePost,on_delete=models.CASCADE)
- liked_by=models.ManyToManyField(CustomUser)
+    post = models.ForeignKey(CreatePost,on_delete=models.CASCADE)
+    liked_by=models.ManyToManyField(CustomUser)
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(CreatePost, on_delete=models.CASCADE, related_name="comments")
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    text = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='replies', on_delete=models.CASCADE)

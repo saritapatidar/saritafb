@@ -18,7 +18,7 @@ from . import forms
 from .forms import LoginForm
 from .forms import CreatePostForm
 # from .forms import Like
-from .forms import commentform
+from .forms import CommentForm
 from django.contrib.auth.decorators import login_required
 
 from django.views.decorators.cache import never_cache
@@ -31,16 +31,6 @@ from .models import FriendRequest, Follow
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-# from .serializers import userserializer
-# from .serializers import postserializer
-# from .serializers import commentserializer
-# from rest_framework import viewsets
-# from .models import CustomUser
-# from .models import CreatePost
-# from .models import comment
-# from rest_framework.authentication import BasicAuthentication,SessionAuthentication
-# from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
-# from rest_framework.permissions import IsAdminUser
 
 # . refers to the current package or current directory where the views.py file is located.
 
@@ -217,24 +207,47 @@ def like_post(request,post_id):
     return JsonResponse({'liked': liked, 'likes_count': post.likes.count()})
 
 
+# def comments(request, post_id):
+#     post = get_object_or_404(CreatePost, pk=post_id)
+
+#     if request.method == 'POST':
+#         form = commentform(request.POST,request.FILES)
+#         if form.is_valid():
+#             new_comment = form.save(commit=False)
+#             new_comment.post = post
+#             new_comment.user = request.user
+#             new_comment.save()
+#             return redirect('home')
+
+#     else:
+#         form = commentform()
+
+#     return render(request, 'home.html', {
+#         'post': post,
+#         'form': form,
+#     })
+
 def comments(request, post_id):
     post = get_object_or_404(CreatePost, pk=post_id)
 
     if request.method == 'POST':
-        form = commentform(request.POST,request.FILES)
+        form = CommentForm(request.POST)
         if form.is_valid():
             new_comment = form.save(commit=False)
             new_comment.post = post
             new_comment.user = request.user
             new_comment.save()
             return redirect('home')
-
     else:
-        form = commentform()
+        form = CommentForm()
+
+    # Pass all comments to template (including replies)
+    comments = post.comments.filter(parent__isnull=True)  # only top-level comments
 
     return render(request, 'home.html', {
         'post': post,
         'form': form,
+        'comments': comments,
     })
 
 
@@ -333,7 +346,7 @@ def showcomments(request, post_id):
     # latest_comments = comment.objects.filter(post=pk).order_by('-created_at')[:5]
 
     if request.method == 'POST':
-        form = commentform(request.POST,request.FILES)
+        form = CommentForm(request.POST,request.FILES)
         # latest_comments = Comment.objects.filter(post=post).order_by('-created_at')[:5]
         if form.is_valid():
             new_comment = form.save(commit=False)
@@ -344,7 +357,7 @@ def showcomments(request, post_id):
             return redirect('home')
 
     else:
-        form = commentform()
+        form = CommentForm()
 
     return render(request, 'morecomment.html', {
         'post': post,
@@ -384,3 +397,22 @@ def delete_post(request, post_id):
 #     return redirect('profile',user_id=user_id)
 
 
+
+
+def add_comment(request):
+    if request.method == "POST":
+        post_id = request.POST.get("post_id")
+        parent_id = request.POST.get("parent_id")
+        text = request.POST.get("text")
+
+        post = CreatePost.objects.get(id=post_id)
+        parent_comment = Comment.objects.get(id=parent_id) if parent_id else None
+
+        Comment.objects.create(
+            user=request.user,
+            post=post,
+            parent=parent_comment,
+            text=text
+        )
+
+    return redirect("home") 

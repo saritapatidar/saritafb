@@ -1,53 +1,60 @@
 from rest_framework import serializers
 from fb.models import CustomUser
 from fb.models import CreatePost
-from fb.models import comment
+from fb.models import Comment
 from fb.models import Like
+from django.contrib.auth.hashers import make_password
+
 
 class userserializer(serializers.ModelSerializer):
 	class Meta:
 		model =CustomUser
-		fields=['id','firstname','lastname','Date_of_birth','email','phone_number']
+		fields=['id','firstname','lastname','Date_of_birth','email','phone_number','password']
 
 
 class postserializer(serializers.ModelSerializer):
 	like_count=serializers.SerializerMethodField()
 	class Meta:
 		model=CreatePost
-		fields='__all__'
-		read_only_fields=['created_at','user','likes']
+		fields=['id','content','image','like_count','user']
+		read_only_fields=['user']
 
 	def get_like_count(self,obj):
-		return obj.likes.count()
+		return obj.likes.count() 
 
+
+class commentserializer(serializers.ModelSerializer):
+	class Meta:
+		model=Comment
+
+		fields=['post','text','user']
+		read_only_fields=['user']
+        
 class likeserializer(serializers.ModelSerializer):
 	like_count=serializers.SerializerMethodField()
 	class Meta:
 		model=Like
-		fields=['id','post','liked_by','like_count']
+		fields=['post','liked_by','like_count']
 
 	def get_like_count(self,obj):
 		return obj.liked_by.count()
+		
 
-class commentserializer(serializers.ModelSerializer):
-	class Meta:
-		model=comment
-		fields='__all__'
-		read_only_fields=['created_at']
-        
-class registrationserializer(serializers.ModelSerializer):
-	class Meta:
-		model=CustomUser
-		# field=['firstname','lastname','Date_of_birth','email','phone_number','password']
-		fields='__all__'
-		read_only_fields=['is_active','is_staff','is_superuser']
 
 class Loginserializer(serializers.Serializer):
     phone_number = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
 
-# class Loginserializer(serializers.ModelSerializer):
-# 	class Meta:
-# 		model=CustomUser
-# 		fields=['phone_number','password']
+
+class registrationserializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields=['firstname','lastname','Date_of_birth','gender','email','phone_number','password']
+
+    password = serializers.CharField(write_only=True, style={'input_type': 'password'})
+
+    def create(self, validated_data):
+        # Hash the password before saving
+        validated_data['password'] = make_password(validated_data['password'])
+        return super().create(validated_data)
