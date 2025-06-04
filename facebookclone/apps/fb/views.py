@@ -277,3 +277,38 @@ EMAIL_HOST_PASSWORD=toop flxa aygt fdgu
 #              form = LoginForm()
 #          return render(request, 'login.html', {'form': form})
  
+class Login(GenericAPIView):
+    serializer_class = Loginserializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            phone_number = serializer.validated_data['phone_number']
+            password = serializer.validated_data['password']
+
+            # 📌 Authenticate user using phone number and password
+            user = authenticate(phone_number=phone_number, password=password)
+
+            if user:
+                # ✅ Generate JWT token (refresh & access)
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    'status': True,
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                    'user_id': user.id,
+                    'firstname': user.firstname,
+                    'phone_number': user.phone_number
+                }, status=status.HTTP_200_OK)
+
+            else:
+                return Response({
+                    'status': False,
+                    'message': 'Invalid phone number or password'
+                }, status=status.HTTP_401_UNAUTHORIZED)
+
+        return Response({
+            'status': False,
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
