@@ -46,8 +46,10 @@ INSTALLED_APPS = [
     'fb',
     'rest_framework',
     'fbapi',
-    'rest_framework.authtoken',
+    # 'rest_framework.authtoken',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
+
 ]
 
 MIDDLEWARE = [
@@ -91,7 +93,7 @@ WSGI_APPLICATION = 'facebookclone.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE':'django.db.backends.postgresql',
-        'NAME':'facebook1',
+        'NAME':'facebook2',
         'USER':"postgres",
         'PASSWORD':'1234',
         'HOST':'localhost',
@@ -162,13 +164,21 @@ REST_FRAMEWORK = {
         'PAGE_SIZE':5 
 }
 
+
 REST_FRAMEWORK = {
-       'DEFAULT_AUTHENTICATION_CLASSES': [
-           'rest_framework_simplejwt.authentication.JWTAuthentication',
-       ],
-   }
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+
+}
 
 SIMPLE_JWT = {
-       'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),  # Token validity
-       'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  # Refresh token validity
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ROTATE_REFRESH_TOKENS': True,
+}
+
+SIMPLE_JWT = {
+       'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),  
+       'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  
    }

@@ -4,7 +4,7 @@ from .models import CustomUser
 from .models import UserProfile
 from .models import CreatePost
 from .models import FriendRequest
-from .models import comment
+from .models import Comment
 from .models import Follow
 
 @admin.register(CustomUser)
@@ -28,7 +28,7 @@ class FriendRequested(admin.ModelAdmin):
 # admin.site.register(FriendRequest,FriendRequested)
 
 
-@admin.register(comment)
+@admin.register(Comment)
 class commentes(admin.ModelAdmin):
     List_display=('text')
 
