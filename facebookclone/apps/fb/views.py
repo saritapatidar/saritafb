@@ -418,3 +418,50 @@ def comments(request, post_id):
         {% include "comment_single.html" with comment=reply level=level|add:"20" %}
     {% endfor %}
 </div>
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status, viewsets
+from rest_framework.permissions import IsAuthenticated
+from .models import CreatePost
+from .serializers import postserializer
+
+class postmodelviewset(viewsets.ModelViewSet):
+    queryset = CreatePost.objects.all()
+    serializer_class = postserializer
+    permission_classes = [IsOwnerOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user.userprofile)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        # Agar image pass nahi ki gayi to purani image hi rahe
+        if not request.data.get('image'):
+            request.data._mutable = True
+            request.data['image'] = instance.image
+
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'], url_path='likes', permission_classes=[IsAuthenticated])
+    def like_unlike(self, request, pk=None):
+        post = self.get_object()
+        user = request.user
+
+        if user in post.likes.all():
+            post.likes.remove(user)
+            return Response({'message': 'Post unliked'}, status=status.HTTP_200_OK)
+        else:
+            post.likes.add(user)
+            return Response({'message': 'Post liked'}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='likes', permission_classes=[IsAuthenticated])
+    def liked_posts(self, request):
+        user = request.user
+        posts = CreatePost.objects.filter(likes=user)
+        serializer = self.get_serializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
