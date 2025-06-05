@@ -18,7 +18,7 @@ from . import forms
 from .forms import LoginForm
 from .forms import CreatePostForm
 # from .forms import Like
-from .forms import CommentForm
+from .forms import commentform
 from django.contrib.auth.decorators import login_required
 
 from django.views.decorators.cache import never_cache
@@ -207,48 +207,50 @@ def like_post(request,post_id):
     return JsonResponse({'liked': liked, 'likes_count': post.likes.count()})
 
 
+def comments(request, post_id):
+    post = get_object_or_404(CreatePost, pk=post_id)
+
+    if request.method == 'POST':
+        # import pdb;pdb.set_trace()
+        form = commentform(request.POST,request.FILES)
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.post = post
+            new_comment.user = request.user
+            # import pdb;pdb.set_trace()
+            new_comment.save()
+            return redirect('home')
+
+    else:
+        form = commentform()
+
+    return render(request, 'home.html', {
+        'post': post,
+        'form': form,
+    })
+
 # def comments(request, post_id):
 #     post = get_object_or_404(CreatePost, pk=post_id)
 
 #     if request.method == 'POST':
-#         form = commentform(request.POST,request.FILES)
+#         form = CommentForm(request.POST)
 #         if form.is_valid():
 #             new_comment = form.save(commit=False)
 #             new_comment.post = post
 #             new_comment.user = request.user
 #             new_comment.save()
 #             return redirect('home')
-
 #     else:
-#         form = commentform()
+#         form = CommentForm()
+
+#     # Pass all comments to template (including replies)
+#     comments = post.comments.filter(parent__isnull=True)  # only top-level comments
 
 #     return render(request, 'home.html', {
 #         'post': post,
 #         'form': form,
+#         'comments': comments,
 #     })
-
-def comments(request, post_id):
-    post = get_object_or_404(CreatePost, pk=post_id)
-
-    if request.method == 'POST':
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            new_comment = form.save(commit=False)
-            new_comment.post = post
-            new_comment.user = request.user
-            new_comment.save()
-            return redirect('home')
-    else:
-        form = CommentForm()
-
-    # Pass all comments to template (including replies)
-    comments = post.comments.filter(parent__isnull=True)  # only top-level comments
-
-    return render(request, 'home.html', {
-        'post': post,
-        'form': form,
-        'comments': comments,
-    })
 
 
 def send_friend_request(request, user_id):
@@ -346,7 +348,8 @@ def showcomments(request, post_id):
     # latest_comments = comment.objects.filter(post=pk).order_by('-created_at')[:5]
 
     if request.method == 'POST':
-        form = CommentForm(request.POST,request.FILES)
+        import pdp;pdp_set_trace()
+        form = commentform(request.POST,request.FILES)
         # latest_comments = Comment.objects.filter(post=post).order_by('-created_at')[:5]
         if form.is_valid():
             new_comment = form.save(commit=False)
@@ -357,7 +360,7 @@ def showcomments(request, post_id):
             return redirect('home')
 
     else:
-        form = CommentForm()
+        form = commentform()
 
     return render(request, 'morecomment.html', {
         'post': post,
@@ -399,20 +402,20 @@ def delete_post(request, post_id):
 
 
 
-def add_comment(request):
-    if request.method == "POST":
-        post_id = request.POST.get("post_id")
-        parent_id = request.POST.get("parent_id")
-        text = request.POST.get("text")
+# def add_comment(request):
+#     if request.method == "POST":
+#         post_id = request.POST.get("post_id")
+#         parent_id = request.POST.get("parent_id")
+#         text = request.POST.get("text")
 
-        post = CreatePost.objects.get(id=post_id)
-        parent_comment = Comment.objects.get(id=parent_id) if parent_id else None
+#         post = CreatePost.objects.get(id=post_id)
+#         parent_comment = Comment.objects.get(id=parent_id) if parent_id else None
 
-        Comment.objects.create(
-            user=request.user,
-            post=post,
-            parent=parent_comment,
-            text=text
-        )
+#         Comment.objects.create(
+#             user=request.user,
+#             post=post,
+#             parent=parent_comment,
+#             text=text
+#         )
 
-    return redirect("home") 
+#     return redirect("home") 

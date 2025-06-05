@@ -9,16 +9,15 @@
 <div class="comment-section">
                 <h4>Comments:</h4>
                 
-                {% for Comment in post.comments.all|dictsortreversed:'created_at'%} 
+                {% for comment in post.comments.all|dictsortreversed:'created_at'%} 
 
                     <div class="comment">
                 
-                        <strong>{{ Comment.user.firstname }} {{ Comment.user.lastname }}:</strong> {{ Comment.text }}<br>
-                        <small>{{ Comment.created_at|date:"d M Y" }} | {{ Comment.created_at|timesince }}</small>
+                        <strong>{{ comment.user.firstname }} {{ comment.user.lastname }}:</strong> {{ comment.text }}<br>
+                        <small>{{ comment.created_at|date:"d M Y" }} | {{ comment.created_at|timesince }}</small>
                         
                     </div>
                 {% endfor %}
 
 </div>
 <a href="{% url 'home' %}"><button class="btn btn-primary"> Back To Home </button></a>
-

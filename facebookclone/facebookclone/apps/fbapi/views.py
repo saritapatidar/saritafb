@@ -8,7 +8,7 @@ from .serializers import commentserializer,Loginserializer,likeserializer
 from rest_framework import viewsets
 from .models import CustomUser
 from .models import CreatePost
-from .models import Comment,Like
+from .models import comment,Like
 from rest_framework.authentication import BasicAuthentication,SessionAuthentication,TokenAuthentication
 from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
 from rest_framework.permissions import IsAdminUser
@@ -26,6 +26,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 from rest_framework import serializers
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from rest_framework.decorators import action
 
 # class usermodelviewset(viewsets.ModelViewSet):
 
@@ -45,10 +46,14 @@ class postmodelviewset(viewsets.ModelViewSet):
    
     permission_classes = [IsOwnerOrReadOnly]
 
+    def update (self, request, *args, **kwargs):
+        instance=self.get_object()
 
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)  
+        data=request.data.copy()
+        if 'image' not in data or data.get('image') in [None, '','null']:
+            data['image']=instance.image
+
+        serializer=self.get_serializer(instance,data=data,partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
@@ -59,9 +64,30 @@ class postmodelviewset(viewsets.ModelViewSet):
     def get_like_count(self,obj):
     	return getattr(obj,'like_count',obj.likes.count())
 
+    @action(detail=True, methods=['post'], url_path='likes', permission_classes=[IsAuthenticated])
+    def like_unlike(self, request, pk=None):
+        post = self.get_object()
+        user = request.user
+
+        if user in post.likes.all():
+            post.likes.remove(user)
+            return Response({'message': 'Post unliked'}, status=status.HTTP_200_OK)
+        else:
+            post.likes.add(user)
+            return Response({'message': 'Post liked'}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='likes', permission_classes=[IsAuthenticated])
+    def liked_posts(self, request):
+        user = request.user
+        posts = CreatePost.objects.filter(likes=user)
+        serializer = self.get_serializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
 
 class commentmodelviewset(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
+    queryset = comment.objects.all()
     serializer_class = commentserializer
     
     permission_classes = [IsOwnerOrReadOnly]
@@ -84,7 +110,7 @@ class likemodelviewset(viewsets.ModelViewSet):
 
         like= serializer.save()
         like.liked_by.add(user)
-
+  
 
 class UserRegistrationView(CreateAPIView):
 

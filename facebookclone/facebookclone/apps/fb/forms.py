@@ -48,10 +48,10 @@ class likes(forms.ModelForm):
 
 
 
-class CommentForm(forms.ModelForm):
+class commentform(forms.ModelForm):
     class Meta:
-        model = Comment
-        fields = ['text', 'parent']
+        model = comment
+        fields = ['text']
         widgets = {'parent': forms.HiddenInput()}
 
         
