@@ -20,7 +20,7 @@ urlpatterns = [
                 # path('userapi/',views.usermodelviewset.as_view(),name='user'),
 
                 path('api-auth/',include('rest_framework.urls')),
-                path('register/', UserRegistrationView.as_view(), name='register'),
+                path('registeration/', UserRegistrationView.as_view(), name='registeration'),
                 path('loginapi/', Login.as_view(), name='loginapi'),
                 path('logoutapi/', LogoutAPI.as_view(), name='logoutapi'),
                 path('gettoken/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

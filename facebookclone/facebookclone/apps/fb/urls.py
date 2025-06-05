@@ -32,7 +32,7 @@ urlpatterns = [
       path('show_friends/<int:user_id>/',views.show_friend_request,name='show_friends'),
       path('deletepost/<int:post_id>/', views.delete_post, name='delete_post'),
       path('myposts/', views.user_posts, name='user_posts'),
-      path('add_comment/',views.add_comment,name='add_comment')
+      # path('add_comment/',views.add_comment,name='add_comment')
       
       # path('profile/<int:user_id>/followers/', views.followers_list, name='followers_list'),
       # path('profile/<int:user_id>/following/', views.following_list, name='following_list'),

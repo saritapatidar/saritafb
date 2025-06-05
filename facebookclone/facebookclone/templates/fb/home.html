@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
+      <style>
         body {
             margin: 0;
             padding: 0;
@@ -151,7 +151,6 @@
             border-radius: 20px;
             cursor: pointer;
         }
-
         .button {
             background-color: blue;
             border: none;
@@ -162,24 +161,14 @@
             display: inline-block;
             font-size: 16px;
             margin: 4px 2px;
-            cursor: pointer;
-        }
+            cursor: pointer;}
 
-        /* Nested comment indentation */
-        .comment.reply {
-            margin-left: 20px;
-            border-left: 2px solid #ddd;
-            padding-left: 10px;
-        }
 
-        /* Reply link style */
-        .reply-link {
-            font-size: 12px;
-            color: #1877f2;
-            cursor: pointer;
-            margin-left: 10px;
-        }
     </style>
+
+   
+
+
 </head>
 <body>
 
@@ -190,10 +179,20 @@
     <div class="header-center">
         <a href="{% url 'home' %}" class="btn btn-primary mt-4"><i class="fas fa-home active" title="Home"></i></a>
         <a href="{% url 'show_friends' user.id %}" class="btn btn-primary mt-4"><i class="fas fa-user-friends" title="SendRequest"></i></a>
+        
+       
+
+        
+        
     </div>
     <div class="header-right">
         <a href="{% url 'logout' %}"><i class="fas fa-sign-out" title="logout"></i></a>
         <a href="{% url 'profile' user.id %}"><i class="fas fa-user-circle" title="profile"></i></a>
+        
+        
+        
+        
+
     </div>
 </header>
 
@@ -204,9 +203,10 @@
         <div class="post-card mb-4">
             <form method="POST" enctype="multipart/form-data" style="padding: 15px;">
                 {% csrf_token %}
-                <textarea name="content" placeholder="What's on your mind?" rows="3" style="width: 450px;"></textarea></br>
-                <input type="file" name="image" accept="image/*" class="button" style="color:white;" /></br>
-                <button type="submit" style="color:white; background-color: blue;">Post</button>
+                <textarea name="content" placeholder="What's on your mind?"  rows="3" style="width: 450px;"></textarea></br>
+                <input type="file" name="image" accept="image/*" class="button" style="color:white;"/></br>
+
+                <button type="submit" style="color:white; background-color: blue;" >Post</button>
             </form>
         </div>
 
@@ -242,56 +242,28 @@
             <div class="comment-section">
                 <h4>Comments:</h4>
 
-                <!-- Render top-level comments -->
-                {% for comment in post.comments.all|dictsortreversed:"created_at" %}
-                    {% if not comment.parent %}
-                        <div class="comment" id="comment-{{ comment.id }}">
-                            <strong>{{ comment.user.firstname }} {{ comment.user.lastname }}:</strong> {{ comment.text }}<br>
-                            <small>{{ comment.created_at|date:"d M Y" }} | {{ comment.created_at|timesince }}</small>
-                            
-                            <span class="reply-link" data-comment-id="{{ comment.id }}"></span>  
-                            <form method="POST" action="{% url 'add_comment' %}" class="reply-form" id="reply-form-{{ comment.id }}" style="display:none; margin-top: 10px;">
-                               {% csrf_token %}
-                               <input type="hidden" name="post_id" value="{{ post.id }}">
-                               <input type="hidden" name="parent_id" value="{{ comment.id }}">
-                               <input type="text" name="text" placeholder="Write your reply..." required>
-                               <button type="submit">Reply</button>
+                <div id="comments-container-{{ post.id }}">
 
-                            </form>
+                    {% for comment in latest_comments  %}
+                        {% include "fb/comment_single.html" %}
+                    
+                    {% endfor %}
+                </div>
 
-
-
-                            <!-- Nested replies -->
-                            {% for reply in comment.replies.all %}
-                                <div class="comment reply" id="comment-{{ reply.id }}">
-                                    <strong>{{ reply.user.firstname }} {{ reply.user.lastname }}:</strong> {{ reply.text }}<br>
-                                    <small>{{ reply.created_at|date:"d M Y" }} | {{ reply.created_at|timesince }}</small>
-                                    <span class="reply-link" data-comment-id="{{ reply.id }}">Reply</span>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                {% endfor %}
-
-                <!-- Comment Form for adding new comment or reply -->
-                <form method="POST" id="comment-form-{{ post.id }}" class="comment-form" data-post-id="{{ post.id }}" style="margin-top: 10px;">
+                <!-- AJAX Comment Form -->
+                <form id="comment-form-{{ post.id }}" class="comment-form" data-post-id="{{ post.id }}">
                     {% csrf_token %}
                     <input type="text" name="text" placeholder="Write your comment..." required />
-                    <!-- Hidden parent input to store reply comment id -->
-                    <input type="hidden" name="parent" id="parent-input-{{ post.id }}" value="" />
                     <button type="submit"><i class="fa-solid fa-comment"></i></button>
                 </form>
-
-                <a href="{% url 'morecomment' post.id %}">
-                    <button class="btn btn-primary" style="color:white; background-color: blue;">Show all comment</button>
-                </a>
+                <a href="{% url 'morecomment' post.id %}"><button class="btn btn-primary"  style="color:white; background-color: blue;">Show all comment </button></a>    
             </div>
         </div>
         {% endfor %}
     </div>
 </main>
 
-<!-- JavaScript for AJAX and reply handling -->
+<!-- JavaScript for AJAX -->
 <script>
     function getCookie(name) {
         let cookieValue = null;
@@ -309,7 +281,6 @@
     }
 
     $(document).ready(function() {
-        // Handle comment form submission (for all posts)
         $('.comment-form').submit(function(e) {
             e.preventDefault();
             const form = $(this);
@@ -324,12 +295,8 @@
                 headers: { 'X-CSRFToken': csrfToken },
                 success: function(response) {
                     if (response.success) {
-                        // Prepend new comment HTML
-                        form.prev('.comment-section').prepend(response.comment_html);
+                        $('#comments-container-' + postId).prepend(response.comment_html);
                         form[0].reset();
-
-                        // Clear hidden parent field after reply is submitted
-                        form.find('input[name="parent"]').val('');
                     }
                 },
                 error: function(xhr) {
@@ -338,7 +305,6 @@
             });
         });
 
-        // Like button AJAX
         $('.like-btn').click(function() {
             const postId = $(this).data('post-id');
             const csrftoken = getCookie('csrftoken');
@@ -346,23 +312,14 @@
             $.ajax({
                 type: 'POST',
                 url: '/likepost/' + postId + '/',
-                headers: { 'X-CSRFToken': csrftoken },
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
                 success: function(data) {
                     const countSpan = $(`.like-btn[data-post-id="${postId}"]`).next('.likes-count');
                     countSpan.text(data.likes_count);
                 }
             });
-        });
-
-        // Reply link click event to set parent id in hidden input
-        $('.comment-section').on('click', '.reply-link', function(e) {
-            e.preventDefault();
-            const commentId = $(this).data('comment-id');
-            const postId = $(this).closest('.comment-section').siblings('.comment-form').data('post-id');
-            // Set the parent input value inside the comment form of this post
-            $(`#comment-form-${postId} input[name="parent"]`).val(commentId);
-            // Focus the input field for typing reply
-            $(`#comment-form-${postId} input[name="text"]`).focus();
         });
     });
 </script>
