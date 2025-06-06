@@ -1,4 +1,20 @@
-<div class="comment">
+<div class="comment" style="margin-left: {% if comment.parent %}30px{% else %}0{% endif %}; padding-left: 10px;">
     <strong>{{ comment.user.firstname }} {{ comment.user.lastname }}:</strong> {{ comment.text }}<br>
-    <small>{{ comment.created_at|date:"d M Y" }} | {{ comment.created_at|timesince }} ago</small>
+    <small>{{ comment.created_at|date:"d M Y" }} | {{ comment.created_at|timesince }} ago</small><br>
+
+    <!-- Reply link -->
+    <a href="#" class="reply-link" data-comment-id="{{ comment.id }}" style="font-size: 12px; color: #1877f2;">Reply</a>
+
+    <!-- Hidden reply form -->
+    <form method="post" class="reply-form" id="reply-form-{{ comment.id }}" style="display:none; margin-top: 5px;" data-parent-id="{{ comment.id }}">
+       
+        {% csrf_token %}
+        <input type="text" name="text" placeholder="Write a reply..." required>
+        <button type="submit">Reply</button>
+    </form>
+
+    <!-- Nested replies -->
+    {% for reply in comment.replies.all %}
+        {% include "fb/comment_single.html" with comment=reply %}
+    {% endfor %}
 </div>
