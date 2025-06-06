@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-      <style>
+
+    <style>
         body {
             margin: 0;
             padding: 0;
@@ -135,6 +136,29 @@
             color: #777;
         }
 
+        .reply-link {
+            font-size: 12px;
+            color: #1877f2;
+            cursor: pointer;
+        }
+
+        .reply-form input[type="text"] {
+            width: 80%;
+            padding: 5px;
+            margin-top: 5px;
+            border-radius: 15px;
+            border: 1px solid #ccc;
+        }
+
+        .reply-form button {
+            padding: 4px 10px;
+            margin-left: 5px;
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 15px;
+        }
+
         .add-comment input[type="text"] {
             width: 80%;
             padding: 6px 10px;
@@ -151,6 +175,7 @@
             border-radius: 20px;
             cursor: pointer;
         }
+
         .button {
             background-color: blue;
             border: none;
@@ -161,14 +186,9 @@
             display: inline-block;
             font-size: 16px;
             margin: 4px 2px;
-            cursor: pointer;}
-
-
+            cursor: pointer;
+        }
     </style>
-
-   
-
-
 </head>
 <body>
 
@@ -178,35 +198,24 @@
     </div>
     <div class="header-center">
         <a href="{% url 'home' %}" class="btn btn-primary mt-4"><i class="fas fa-home active" title="Home"></i></a>
-        <a href="{% url 'show_friends' user.id %}" class="btn btn-primary mt-4"><i class="fas fa-user-friends" title="SendRequest"></i></a>
-        
-       
-
-        
-        
+        <a href="{% url 'show_friends' user.id %}" class="btn btn-primary mt-4"><i class="fas fa-user-friends" title="Friends"></i></a>
     </div>
     <div class="header-right">
-        <a href="{% url 'logout' %}"><i class="fas fa-sign-out" title="logout"></i></a>
-        <a href="{% url 'profile' user.id %}"><i class="fas fa-user-circle" title="profile"></i></a>
-        
-        
-        
-        
-
+        <a href="{% url 'logout' %}"><i class="fas fa-sign-out" title="Logout"></i></a>
+        <a href="{% url 'profile' user.id %}"><i class="fas fa-user-circle" title="Profile"></i></a>
     </div>
 </header>
 
 <main class="main-area">
     <div class="posts-area">
 
-        <!-- Post Creation Form -->
+        <!-- Post Creation -->
         <div class="post-card mb-4">
             <form method="POST" enctype="multipart/form-data" style="padding: 15px;">
                 {% csrf_token %}
-                <textarea name="content" placeholder="What's on your mind?"  rows="3" style="width: 450px;"></textarea></br>
-                <input type="file" name="image" accept="image/*" class="button" style="color:white;"/></br>
-
-                <button type="submit" style="color:white; background-color: blue;" >Post</button>
+                <textarea name="content" placeholder="What's on your mind?" rows="3" style="width: 450px;"></textarea><br>
+                <input type="file" name="image" accept="image/*" class="button"/><br>
+                <button type="submit" style="color:white; background-color: blue;">Post</button>
             </form>
         </div>
 
@@ -238,32 +247,29 @@
                 <span class="likes-count">{{ post.likes.count }}</span>
             </div>
 
-            <!-- Comment Section -->
             <div class="comment-section">
                 <h4>Comments:</h4>
-
                 <div id="comments-container-{{ post.id }}">
-
-                    {% for comment in latest_comments  %}
-                        {% include "fb/comment_single.html" %}
                     
+                    {% for comment in post.comments.all%}
+                        {% include 'fb/comment_single.html' with comment=comment %}
                     {% endfor %}
                 </div>
 
-                <!-- AJAX Comment Form -->
+                <!-- Comment form -->
                 <form id="comment-form-{{ post.id }}" class="comment-form" data-post-id="{{ post.id }}">
                     {% csrf_token %}
                     <input type="text" name="text" placeholder="Write your comment..." required />
                     <button type="submit"><i class="fa-solid fa-comment"></i></button>
                 </form>
-                <a href="{% url 'morecomment' post.id %}"><button class="btn btn-primary"  style="color:white; background-color: blue;">Show all comment </button></a>    
+                <a href="{% url 'morecomment' post.id %}"><button class="btn btn-primary" style="color:white; background-color: blue;">Show all comments</button></a>
             </div>
         </div>
         {% endfor %}
     </div>
 </main>
 
-<!-- JavaScript for AJAX -->
+<!-- AJAX Scripts -->
 <script>
     function getCookie(name) {
         let cookieValue = null;
@@ -305,6 +311,40 @@
             });
         });
 
+        // Reply button toggle
+        $(document).on('click', '.reply-link', function(e) {
+            e.preventDefault();
+            const commentId = $(this).data('comment-id');
+            $('#reply-form-' + commentId).toggle();
+        });
+
+        // Reply form AJAX
+        $(document).on('submit', '.reply-form', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const parentId = form.data('parent-id');
+            const postId = form.closest('.comment-section').find('.comment-form').data('post-id');
+            const formData = form.serialize() + '&parent_id=' + parentId;
+            const csrfToken = getCookie('csrftoken');
+
+            $.ajax({
+                type: 'POST',
+                url: '/commen/' + postId + '/',
+                data: formData,
+                headers: { 'X-CSRFToken': csrfToken },
+                success: function(response) {
+                    if (response.success) {
+                        form.before(response.comment_html);
+                        form[0].reset();
+                        form.hide();
+                    }
+                },
+                error: function(xhr) {
+                    alert("Reply Error");
+                }
+            });
+        });
+
         $('.like-btn').click(function() {
             const postId = $(this).data('post-id');
             const csrftoken = getCookie('csrftoken');
@@ -312,9 +352,7 @@
             $.ajax({
                 type: 'POST',
                 url: '/likepost/' + postId + '/',
-                headers: {
-                    'X-CSRFToken': csrftoken
-                },
+                headers: { 'X-CSRFToken': csrftoken },
                 success: function(data) {
                     const countSpan = $(`.like-btn[data-post-id="${postId}"]`).next('.likes-count');
                     countSpan.text(data.likes_count);

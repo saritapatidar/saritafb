@@ -4,11 +4,11 @@ from.custompermissions import IsOwnerOrReadOnly
 # from rest_framework.authentication import TokenAuthentication
 from .serializers import userserializer
 from .serializers import postserializer
-from .serializers import commentserializer,Loginserializer,likeserializer
+from .serializers import commentserializer,Loginserializer
 from rest_framework import viewsets
 from .models import CustomUser
 from .models import CreatePost
-from .models import comment,Like
+from .models import Comment,Like
 from rest_framework.authentication import BasicAuthentication,SessionAuthentication,TokenAuthentication
 from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
 from rest_framework.permissions import IsAdminUser
@@ -87,7 +87,7 @@ class postmodelviewset(viewsets.ModelViewSet):
 
 
 class commentmodelviewset(viewsets.ModelViewSet):
-    queryset = comment.objects.all()
+    queryset = Comment.objects.all()
     serializer_class = commentserializer
     
     permission_classes = [IsOwnerOrReadOnly]
@@ -95,22 +95,11 @@ class commentmodelviewset(viewsets.ModelViewSet):
     def perform_create(self,serializer):
     	serializer.save(user=self.request.user)
 
-class likemodelviewset(viewsets.ModelViewSet):
-    queryset = Like.objects.all()
-    serializer_class = likeserializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+# class parentmodelviewset(viewsets.ModelViewSet):
+#     queryset=Comment.objects.all()
+#     serializer_class=parentserializer
 
-    def perform_create(self, serializer):
-        post = serializer.validated_data['post']
-        user = self.request.user
 
-        # Prevent duplicate likes
-        if Like.objects.filter(liked_by=user, post=post).exists():
-            raise serializers.ValidationError("You have already liked this post.")
-
-        like= serializer.save()
-        like.liked_by.add(user)
-  
 
 class UserRegistrationView(CreateAPIView):
 
@@ -184,7 +173,6 @@ class LogoutAPI(APIView):
 #   permission_classes=[IsOwnerOrReadOnly]
 #   def get_like_count(self,obj):
 #       return getattr(obj,'like_count',obj.likes.count())
-
 
 
 

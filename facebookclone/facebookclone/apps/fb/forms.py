@@ -48,11 +48,11 @@ class likes(forms.ModelForm):
 
 
 
-class commentform(forms.ModelForm):
-    class Meta:
-        model = comment
-        fields = ['text']
-        widgets = {'parent': forms.HiddenInput()}
+# class commentform(forms.ModelForm):
+#     class Meta:
+#         model = comment
+#         fields = ['text']
+#         widgets = {'parent': forms.HiddenInput()}
 
         
 class FollowForm(forms.Form):
@@ -66,3 +66,10 @@ class EditProfileForm(forms.ModelForm):
         class Meta:
             model = UserProfile
             fields = ('bio','profile_picture') 
+
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text']

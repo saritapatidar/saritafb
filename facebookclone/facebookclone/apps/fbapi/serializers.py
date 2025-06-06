@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from fb.models import CustomUser
 from fb.models import CreatePost
-from fb.models import comment
+from fb.models import Comment
 from fb.models import Like
 from django.contrib.auth.hashers import make_password
 
@@ -18,7 +18,7 @@ class postserializer(serializers.ModelSerializer):
 	user=serializers.SerializerMethodField()
 	class Meta:
 		model=CreatePost
-		fields=['id','content','image','like_count','user',]
+		fields=['id','content','image','like_count','user']
 		read_only_fields=['user']
 
 	def get_like_count(self,obj):
@@ -27,14 +27,27 @@ class postserializer(serializers.ModelSerializer):
 	def get_user(self,obj):
 		return obj.user.user.firstname
 
+class parentserializer(serializers.ModelSerializer):
+	# user=serializers.SerializerMethodField()
+	class Meta:
+		model=Comment
+		fields=['id','text','user','post']
+
+	# def get_user(self,obj):
+	# 	return obj.user.firstname
+
 
 class commentserializer(serializers.ModelSerializer):
 	user=serializers.SerializerMethodField()
-	class Meta:
-		model=comment
+	replies=parentserializer(many=True,read_only=True)
 
-		fields=['post','text','user']
-		read_only_fields=['user']
+
+	class Meta:
+		model=Comment
+
+		fields=['id','post','text','user','parent','replies']
+		
+		read_only_fields=['user','parent']
 
 	def get_user(self,obj):
 		return obj.user.firstname
@@ -60,12 +73,3 @@ class registrationserializer(serializers.ModelSerializer):
 
 
 
-class likeserializer(serializers.ModelSerializer):
-	like_count=serializers.SerializerMethodField()
-	class Meta:
-		model=Like
-		fields=['post','liked_by','like_count']
-
-	def get_like_count(self,obj):
-		return obj.liked_by.count()
-		

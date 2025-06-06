@@ -13,14 +13,13 @@ from django.urls import reverse
 from pathlib import Path
 from .models import CreatePost
 from .models import CustomUser
+from .models import Comment
 from django.shortcuts import get_object_or_404
 from . import forms
 from .forms import LoginForm
 from .forms import CreatePostForm
-# from .forms import Like
-from .forms import commentform
+from .forms import CommentForm
 from django.contrib.auth.decorators import login_required
-
 from django.views.decorators.cache import never_cache
 from.models import Follow
 from .forms import friends
@@ -31,6 +30,7 @@ from .models import FriendRequest, Follow
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import render_to_string
 
 # . refers to the current package or current directory where the views.py file is located.
 
@@ -51,16 +51,6 @@ def home_page(request):
         return redirect('home')
      # All users except the current user
     users = CustomUser.objects.exclude(id=request.user.id)
-
-    # Friend requests
-    # sent_requests = FriendRequest.objects.filter(from_user=request.user)
-    # received_requests = FriendRequest.objects.filter(to_user=request.user)
-
-    # sent_request_ids = set(sent_requests.values_list('to_user_id', flat=True))
-    # received_request_dict = {fr.from_user.id: fr.id for fr in received_requests}
-
-
-
     return render(
         request,
         'home.html',
@@ -127,7 +117,6 @@ def logout_user(request):
 
 def profile_page(request,user_id):
     target_user = get_object_or_404(CustomUser, id=user_id)
-
     try:
         user_profile = UserProfile.objects.get(user=target_user)
     except UserProfile.DoesNotExist:
@@ -151,8 +140,6 @@ def profile_page(request,user_id):
 
     # All users except the current user
     users = CustomUser.objects.exclude(id=request.user.id)
-
-
     context = {
         'target_user': target_user,
         'user_profile': user_profile,
@@ -167,29 +154,9 @@ def profile_page(request,user_id):
     return render(request, 'fb/profile.html', context)
 
 
+
 def post_page(request):
     return redirect('home')
-
-
-    
-
-# def like_post(request, post_id):
-#     post = get_object_or_404(CreatePost, id=post_id)
-#     user = request.user
-
-#     if post.likes.filter(id=user.id).exists():
-    
-#         post.likes.remove(user)
-        
-#     else:
-    
-#         post.likes.add(user)
-       
-#     # return render(request,'likes.html')
-    
-
-#     return redirect('home')
-
 
 
 
@@ -207,50 +174,30 @@ def like_post(request,post_id):
     return JsonResponse({'liked': liked, 'likes_count': post.likes.count()})
 
 
-def comments(request, post_id):
+
+def comment_view(request, post_id):
     post = get_object_or_404(CreatePost, pk=post_id)
+    latest_comments = post.comments.order_by('-created_at')[:5]
 
     if request.method == 'POST':
-        # import pdb;pdb.set_trace()
-        form = commentform(request.POST,request.FILES)
+        form = CommentForm(request.POST)
+        parent_id = request.POST.get('parent_id')
+
         if form.is_valid():
-            new_comment = form.save(commit=False)
-            new_comment.post = post
-            new_comment.user = request.user
-            # import pdb;pdb.set_trace()
-            new_comment.save()
-            return redirect('home')
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.user = request.user
+            if parent_id:
+                parent_comment = get_object_or_404(Comment,id=parent_id)
+                comment.parent = parent_comment
+            comment.save()
 
-    else:
-        form = commentform()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                html = render_to_string('fb/comment_single.html', {'comment': comment}, request=request)
+                return JsonResponse({'success': True, 'comment_html': html})
+            return redirect('home')        
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 
-    return render(request, 'home.html', {
-        'post': post,
-        'form': form,
-    })
-
-# def comments(request, post_id):
-#     post = get_object_or_404(CreatePost, pk=post_id)
-
-#     if request.method == 'POST':
-#         form = CommentForm(request.POST)
-#         if form.is_valid():
-#             new_comment = form.save(commit=False)
-#             new_comment.post = post
-#             new_comment.user = request.user
-#             new_comment.save()
-#             return redirect('home')
-#     else:
-#         form = CommentForm()
-
-#     # Pass all comments to template (including replies)
-#     comments = post.comments.filter(parent__isnull=True)  # only top-level comments
-
-#     return render(request, 'home.html', {
-#         'post': post,
-#         'form': form,
-#         'comments': comments,
-#     })
 
 
 def send_friend_request(request, user_id):
@@ -261,6 +208,8 @@ def send_friend_request(request, user_id):
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
+
+
 def accept_friend_request(request, request_id):
     friend_request = get_object_or_404(FriendRequest, id=request_id)
 
@@ -268,8 +217,10 @@ def accept_friend_request(request, request_id):
         Follow.objects.get_or_create(follower=request.user, followed=friend_request.from_user)
         Follow.objects.get_or_create(follower=friend_request.from_user, followed=request.user)
         friend_request.delete()
-
     return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+ 
 
 def show_friend_request(request,user_id):
     target_user = get_object_or_404(CustomUser, id=user_id)
@@ -324,8 +275,6 @@ def following_list(request, user_id):
 # object from the database or creating it if it doesn't exist.
  
 
-
-
 def edit_profile(request):
     profile,created = UserProfile.objects.get_or_create(user=request.user)
 
@@ -343,13 +292,14 @@ def edit_profile(request):
 
     return render(request, 'edit_profile.html', {'form': form})
 
+
 def showcomments(request, post_id):
     post = get_object_or_404(CreatePost, pk=post_id)
     # latest_comments = comment.objects.filter(post=pk).order_by('-created_at')[:5]
 
     if request.method == 'POST':
         import pdp;pdp_set_trace()
-        form = commentform(request.POST,request.FILES)
+        form = CommentForm(request.POST,request.FILES)
         # latest_comments = Comment.objects.filter(post=post).order_by('-created_at')[:5]
         if form.is_valid():
             new_comment = form.save(commit=False)
@@ -360,13 +310,15 @@ def showcomments(request, post_id):
             return redirect('home')
 
     else:
-        form = commentform()
+        form = CommentForm()
 
     return render(request, 'morecomment.html', {
         'post': post,
         # 'latest_comments':latest_comments,
         'form': form,
     })
+
+
 
 def user_posts(request):
     if request.user.is_authenticated:
@@ -375,6 +327,8 @@ def user_posts(request):
         return render(request, 'user_posts.html', {'posts': posts})
     else:
         return redirect('login')
+
+
 
 def delete_post(request, post_id):
     if request.user.is_authenticated:
@@ -389,33 +343,12 @@ def delete_post(request, post_id):
     else:
         return redirect('login')
 
-# def follow_user(request, user_id):
-#     target_user = get_object_or_404(CustomUser, id=user_id)
-#     Follow.objects.get_or_create(follower=request.user, followed=target_user)
-#     return redirect('profile',user_id)
-
-# def unfollow_user(request, user_id):
-#     target_user = get_object_or_404(CustomUser, id=user_id)
-#     Follow.objects.filter(follower=request.user, followed=target_user).delete()
-#     return redirect('profile',user_id=user_id)
 
 
 
 
-# def add_comment(request):
-#     if request.method == "POST":
-#         post_id = request.POST.get("post_id")
-#         parent_id = request.POST.get("parent_id")
-#         text = request.POST.get("text")
 
-#         post = CreatePost.objects.get(id=post_id)
-#         parent_comment = Comment.objects.get(id=parent_id) if parent_id else None
 
-#         Comment.objects.create(
-#             user=request.user,
-#             post=post,
-#             parent=parent_comment,
-#             text=text
-#         )
 
-#     return redirect("home") 
+
+
