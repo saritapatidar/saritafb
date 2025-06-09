@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -188,6 +187,15 @@
             margin: 4px 2px;
             cursor: pointer;
         }
+
+        .toggle-comments-btn {
+            margin-bottom: 10px;
+            background-color: #e4e6eb;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -202,7 +210,7 @@
     </div>
     <div class="header-right">
         <a href="{% url 'logout' %}"><i class="fas fa-sign-out" title="Logout"></i></a>
-        <a href="{% url 'profile' user.id %}"><i class="fas fa-user-circle" title="Profile"></i></a>
+        <a href="{% url 'profile' user.id %}"><i class="fas fa-user-circle" title="Profile"></i></a> 
     </div>
 </header>
 
@@ -248,28 +256,33 @@
             </div>
 
             <div class="comment-section">
-                <h4>Comments:</h4>
-                <div id="comments-container-{{ post.id }}">
-                    
-                    {% for comment in post.comments.all%}
+                <!-- Toggle Button -->
+                <button class="toggle-comments-btn" data-post-id="{{ post.id }}">Show Comments</button>
+
+                <!-- Comments Container (Initially hidden) -->
+                <div id="comments-container-{{ post.id }}" style="display: none;">
+                    {% for comment in post.comments.all %}
                         {% include 'fb/comment_single.html' with comment=comment %}
                     {% endfor %}
                 </div>
 
-                <!-- Comment form -->
-                <form id="comment-form-{{ post.id }}" class="comment-form" data-post-id="{{ post.id }}">
+                <!-- Comment Form (Initially hidden) -->
+                <form id="comment-form-{{ post.id }}" class="comment-form" data-post-id="{{ post.id }}" style="display: none;">
                     {% csrf_token %}
                     <input type="text" name="text" placeholder="Write your comment..." required />
                     <button type="submit"><i class="fa-solid fa-comment"></i></button>
                 </form>
-                <a href="{% url 'morecomment' post.id %}"><button class="btn btn-primary" style="color:white; background-color: blue;">Show all comments</button></a>
+
+                <a href="{% url 'morecomment' post.id %}">
+                    <button class="btn btn-primary" style="color:white; background-color: blue;">Show all comments</button>
+                </a>
             </div>
         </div>
         {% endfor %}
     </div>
 </main>
 
-<!-- AJAX Scripts -->
+<!-- JavaScript -->
 <script>
     function getCookie(name) {
         let cookieValue = null;
@@ -287,6 +300,24 @@
     }
 
     $(document).ready(function() {
+        // Toggle Comments
+        $('.toggle-comments-btn').click(function () {
+            const postId = $(this).data('post-id');
+            const commentsContainer = $('#comments-container-' + postId);
+            const commentForm = $('#comment-form-' + postId);
+            const btn = $(this);
+
+            commentsContainer.slideToggle(200);
+            commentForm.slideToggle(200);
+
+            if (btn.text().trim() === 'Show Comments') {
+                btn.text('Hide Comments');
+            } else {
+                btn.text('Show Comments');
+            }
+        });
+
+        // Comment Submit
         $('.comment-form').submit(function(e) {
             e.preventDefault();
             const form = $(this);
@@ -311,14 +342,14 @@
             });
         });
 
-        // Reply button toggle
+        // Reply toggle
         $(document).on('click', '.reply-link', function(e) {
             e.preventDefault();
             const commentId = $(this).data('comment-id');
             $('#reply-form-' + commentId).toggle();
         });
 
-        // Reply form AJAX
+        // Reply Submit
         $(document).on('submit', '.reply-form', function(e) {
             e.preventDefault();
             const form = $(this);
@@ -345,6 +376,7 @@
             });
         });
 
+        // Like Button
         $('.like-btn').click(function() {
             const postId = $(this).data('post-id');
             const csrftoken = getCookie('csrftoken');

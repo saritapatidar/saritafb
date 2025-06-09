@@ -39,20 +39,14 @@ class friends(forms.ModelForm):
         fields =['from_user','to_user']
 
 
-class likes(forms.ModelForm):
-    class Meta:
+
         # class Meta is basically the inner class. In Django, the use of the Meta class is simply to provide metadata to the ModelForm or the Model class
         # it use metaclass to automatically generate database table based on that class
-        model=Like
-        fields=['post','liked_by']
+       
 
 
 
-# class commentform(forms.ModelForm):
-#     class Meta:
-#         model = comment
-#         fields = ['text']
-#         widgets = {'parent': forms.HiddenInput()}
+
 
         
 class FollowForm(forms.Form):

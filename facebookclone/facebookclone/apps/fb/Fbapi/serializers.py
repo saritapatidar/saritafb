@@ -2,7 +2,6 @@ from rest_framework import serializers
 from fb.models import CustomUser
 from fb.models import CreatePost
 from fb.models import Comment
-from fb.models import Like
 from django.contrib.auth.hashers import make_password
 
 
@@ -14,7 +13,6 @@ class userserializer(serializers.ModelSerializer):
 
 class postserializer(serializers.ModelSerializer):
 	like_count=serializers.SerializerMethodField()
-	# user=userserializer(source='user.user.firstname')
 	user=serializers.SerializerMethodField()
 	class Meta:
 		model=CreatePost
@@ -27,30 +25,29 @@ class postserializer(serializers.ModelSerializer):
 	def get_user(self,obj):
 		return obj.user.user.firstname
 
+
+
 class parentserializer(serializers.ModelSerializer):
-	# user=serializers.SerializerMethodField()
+	user=serializers.SerializerMethodField()
 	class Meta:
 		model=Comment
 		fields=['id','text','user','post']
 
-	# def get_user(self,obj):
-	# 	return obj.user.firstname
+	def get_user(self,obj):
+		return obj.user.firstname
+
 
 
 class commentserializer(serializers.ModelSerializer):
 	user=serializers.SerializerMethodField()
 	replies=parentserializer(many=True,read_only=True)
-
-
 	class Meta:
 		model=Comment
-
 		fields=['id','post','text','user','parent','replies']
-		
-		read_only_fields=['user','parent']
-
+		read_only_fields=['user']
 	def get_user(self,obj):
 		return obj.user.firstname
+
 
         
 class Loginserializer(serializers.Serializer):
@@ -63,13 +60,16 @@ class registrationserializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields=['firstname','lastname','Date_of_birth','gender','email','phone_number','password']
-
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})
-
     def create(self, validated_data):
         # Hash the password before saving
         validated_data['password'] = make_password(validated_data['password'])
         return super().create(validated_data)
+
+
+
+
+
 
 
 

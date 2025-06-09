@@ -14,7 +14,10 @@
     </form>
 
     <!-- Nested replies -->
+
     {% for reply in comment.replies.all %}
         {% include "fb/comment_single.html" with comment=reply %}
     {% endfor %}
+    
 </div>
+ 

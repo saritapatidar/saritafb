@@ -15,6 +15,9 @@ import os ,sys
 from os import path
 from sys import path
 from datetime import timedelta
+import sentry_sdk
+
+from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # print(BASE_DIR)
@@ -25,7 +28,7 @@ sys.path.insert(0,os.path.join(BASE_DIR,'apps'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-##obv#n&=(kuxcgy5)qknuic0a00$7d-3c2+m-$0erq+psash5'
-
+# SECRET_KEY = config('SECRET_KEYS')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -45,7 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'fb',
     'rest_framework',
-    'fbapi',
+
     # 'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -182,3 +185,11 @@ SIMPLE_JWT = {
        'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),  
        'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  
    }
+
+
+sentry_sdk.init(
+    dsn="https://e50c1d57451670a7e1095f66209ab696@o4509467193966592.ingest.us.sentry.io/4509467216510976",
+    # Add data like request headers and IP for users,
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True,
+)

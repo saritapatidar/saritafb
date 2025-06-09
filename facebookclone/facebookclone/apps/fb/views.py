@@ -13,7 +13,7 @@ from django.urls import reverse
 from pathlib import Path
 from .models import CreatePost
 from .models import CustomUser
-from .models import Comment
+from .models import Comment,FriendRequest
 from django.shortcuts import get_object_or_404
 from . import forms
 from .forms import LoginForm
@@ -26,7 +26,7 @@ from .forms import friends
 from .forms import EditProfileForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import FriendRequest, Follow
+from .models import Follow
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
