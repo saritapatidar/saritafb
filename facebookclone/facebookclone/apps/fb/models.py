@@ -10,10 +10,6 @@ from datetime import datetime
 
 
 
-
-# phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
-# password_regex=RegexValidator(regex='/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/')
-
 def validate_phone_number(value):
     if not value.isdigit():
         raise ValidationError("Phone number must contain only digits.")
@@ -55,9 +51,6 @@ class CustomUser(AbstractBaseUser):
         default=NONE,
     )
     email = models.EmailField(unique=True)
-    # phone_number = models.CharField(validators=[phone_regex], max_length=12 ,unique=True,null=True) 
-    # # phone_number = models.CharField(max_length=20, blank=True, null=True, validators=[validate_international_phone_number], widget=PhoneNumberWidget())
-    # password = models.CharField(validators=[password_regex],max_length=8,null=False,blank=True)
     phone_number = models.CharField(max_length=12,unique=True,null=True)
     password = models.CharField(max_length=128, null=False, blank=True)
 
@@ -76,10 +69,6 @@ class CustomUser(AbstractBaseUser):
     objects = UserManagercustom()
     last_login=None
 
-    # def __str__(self):
-    #     return f"'{self.firstname}''{self.lastname}'"
-
-
     def clean(self):
         validate_phone_number(self.phone_number)
 
@@ -97,10 +86,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE,related_name='userprofile' ,default=False)
     bio = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField( upload_to='profile_pics/', blank=True, null=True)
-    # following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
-
-
-
+   
     
 class CreatePost(models.Model):
     user=models.ForeignKey(UserProfile,on_delete=models.CASCADE)
@@ -110,24 +96,15 @@ class CreatePost(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
    
 
-
-
 class Follow(models.Model):
     follower = models.ForeignKey(CustomUser, related_name='following', on_delete=models.CASCADE)
     followed = models.ForeignKey(CustomUser, related_name='followers', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
+
 class FriendRequest(models.Model):
     from_user = models.ForeignKey(CustomUser,related_name="from_user",on_delete=models.CASCADE)
     to_user = models.ForeignKey(CustomUser,related_name="to_user",on_delete=models.CASCADE)
-
-
-class Like(models.Model):
-    post = models.ForeignKey(CreatePost,on_delete=models.CASCADE)
-    liked_by=models.ManyToManyField(CustomUser)
-
-
-
 
 
 class Comment(models.Model):
@@ -137,5 +114,4 @@ class Comment(models.Model):
     text = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
 
-    # def is_reply(self):
-    #     return self.parent is not None
+    
