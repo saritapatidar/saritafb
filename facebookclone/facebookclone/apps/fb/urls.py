@@ -5,22 +5,31 @@ from fb import classviews
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.views import LoginView
-from .classviews import SignUp,Login,LogOut,HomePage,Post,LikePost,SendFriendRequest,CommentView,ShowFriendRequest,Profile,ShowComments
+from .classviews import Signup,Login,Logout,HomePage,Post,LikeView,SendFriendRequest,CommentView,ShowFriendRequest
+from .classviews import Profile,ShowComment,AcceptFriendRequest,EditProfileView,DeletePost,UserPost
 
 
 
 urlpatterns = [
-      path('signup/',SignUp.as_view(),name='signup'),
+      path('signup/',Signup.as_view(),name='signup'),
       path('',Login.as_view(),name='login'),
-      path('logout/',LogOut.as_view(),name='logout'),
+      path('logout/',Logout.as_view(),name='logout'),
       path(' ',HomePage.as_view(),name='home'),
       path('post/',Post.as_view(),name='post'),
-      path('likepost/<int:post_id>/',LikePost.as_view(), name='likepost'),
-      path('send_friend_request/<int:user_id>/',SendFriendRequest.as_view(),name='send_friend_request'),
-      path('commen/<int:post_id>/',CommentView.as_view(),name='commen'),
-      path('show_friends/<int:user_id>/',ShowFriendRequest.as_view(),name='show_friends'),
       path('profile/<int:user_id>/',Profile.as_view(),name='profile'),
-      path('morecomment/<int:post_id>/',ShowComments.as_view(),name='morecomment'),
+      path('likepost/<int:post_id>/',LikeView.as_view(), name='likepost'),
+      path('commen/<int:post_id>/',CommentView.as_view(),name='commen'),
+      path('send_friend_request/<int:user_id>/',SendFriendRequest.as_view(),name='send_friend_request'),
+      path('accept_friend_request/<int:request_id>/',AcceptFriendRequest.as_view() ,name='accept_friend_request'), 
+      path('show_friends/<int:user_id>/',ShowFriendRequest.as_view(),name='show_friends'),
+      path('profile/edit/',EditProfileView.as_view(),name='edit_profiles'),
+      path('morecomment/<int:post_id>/',ShowComment.as_view(),name='morecomment'),
+      path('deletepost/<int:post_id>/',DeletePost.as_view(), name='delete_post'),
+      path('myposts/',UserPost.as_view(), name='user_posts'),
+      path('api/',include('fb.APIUrl.urls')),
+
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 
 
 
@@ -44,7 +53,7 @@ urlpatterns = [
 
     
    
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # like/<int:post_id>/ defines a URL structure that captures an integer value from the URL and assigns 
 # it to the variable post_id. This pattern is commonly used to handle requests related to specific posts, 

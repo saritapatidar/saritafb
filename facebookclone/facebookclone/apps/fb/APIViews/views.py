@@ -1,8 +1,8 @@
 from django.shortcuts import render
-from.custompermissions import IsOwnerOrReadOnly
-from .serializers import userserializer
-from .serializers import postserializer
-from .serializers import commentserializer,Loginserializer
+from fb.custompermissions import IsOwnerOrReadOnly
+from fb.serializers import userserializer
+from fb.serializers import postserializer
+from fb.serializers import commentserializer,Loginserializer
 from rest_framework import viewsets
 from fb.models import CustomUser
 from fb.models import CreatePost
@@ -18,24 +18,55 @@ from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import CreateAPIView
-from .serializers import Loginserializer, registrationserializer
+from fb.serializers import Loginserializer, registrationserializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 from rest_framework import serializers
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.decorators import action
+from rest_framework.mixins import ListModelMixin,RetrieveModelMixin,UpdateModelMixin,DestroyModelMixin
+
+# class usermodelviewset(viewsets.ModelViewSet):
+#     queryset = CustomUser.objects.all()
+#     serializer_class = userserializer
+#     def create(self, request, *args, **kwargs):
+#         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+#     permission_classes = [IsOwnerOrReadOnly]
 
 
-class usermodelviewset(viewsets.ModelViewSet):
+class Usermodelviewset(GenericAPIView,ListModelMixin):
     queryset = CustomUser.objects.all()
     serializer_class = userserializer
-    def create(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def get(self,request,*args,**kwargs):
+        return self.list(request,*args,**kwargs)
+
+
+
+
+class UsermodelviewsetRUD(GenericAPIView,RetrieveModelMixin,UpdateModelMixin,DestroyModelMixin):
+    queryset = CustomUser.objects.all()
+    serializer_class = userserializer
+
+    def get(self,request,*args,**kwargs):
+        return self.retrieve(request,*args,**kwargs)
+
+
+    def put(self,request,*args,**kwargs):
+        return self.update(request,*args,**kwargs)
+
+
+    def delete(self,request,*args,**kwargs):
+        return self.destroy(request,*args,**kwargs)
+
     permission_classes = [IsOwnerOrReadOnly]
 
 
-class postmodelviewset(viewsets.ModelViewSet):
+    
+
+
+class Postmodelviewset(viewsets.ModelViewSet):
     queryset = CreatePost.objects.all()
     serializer_class = postserializer
     permission_classes = [IsOwnerOrReadOnly]
@@ -75,7 +106,7 @@ class postmodelviewset(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class commentmodelviewset(viewsets.ModelViewSet):
+class Commentmodelviewset(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = commentserializer
     permission_classes = [IsOwnerOrReadOnly]

@@ -16,8 +16,12 @@ from os import path
 from sys import path
 from datetime import timedelta
 import sentry_sdk
+from decouple import Config,RepositoryEnv
+from os.path import join
 
-from decouple import config
+DOTENV_FILE = '/home/tw/fbclone/facebookclone/.env'
+env_config = Config(RepositoryEnv(DOTENV_FILE))
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # print(BASE_DIR)
@@ -27,10 +31,13 @@ sys.path.insert(0,os.path.join(BASE_DIR,'apps'))
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-##obv#n&=(kuxcgy5)qknuic0a00$7d-3c2+m-$0erq+psash5'
-# SECRET_KEY = config('SECRET_KEYS')
+# SECRET_KEY = 'django-insecure-##obv#n&=(kuxcgy5)qknuic0a00$7d-3c2+m-$0erq+psash5'
+
+
+SECRET_KEY=env_config.get('SECRET_KEY')
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env_config.get('DEBUG',cast=bool)
 
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL='fb.CustomUser'
@@ -96,11 +103,12 @@ WSGI_APPLICATION = 'facebookclone.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE':'django.db.backends.postgresql',
-        'NAME':'facebook2',
-        'USER':"postgres",
-        'PASSWORD':'1234',
-        'HOST':'localhost',
-        'PORT':'5432',
+        # 'NAME':'facebook2',
+        'NAME':env_config.get('DB_NAME'),
+        'USER':env_config.get('DB_USER'),
+        'PASSWORD':env_config.get('DB_PASSWORD'),
+        'HOST':env_config.get('DB_HOST'),
+        'PORT':env_config.get('DB_PORT'),
     }
 }
 
@@ -157,8 +165,8 @@ EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST="smtp.gmail.com"
 EMAIT_PORT=587
 EMAIL_USE_TLS=True
-EMAIL_HOST_USER="saritapatidar@thoughtwin.com"
-EMAIL_HOST_PASSWORD='toop flxa aygt fdgu'
+EMAIL_HOST_USER=env_config.get('EMAIL_HOST_USER'),
+EMAIL_HOST_PASSWORD=env_config.get('EMAIL_HOST_PASSWORD')
 
 
 REST_FRAMEWORK = {

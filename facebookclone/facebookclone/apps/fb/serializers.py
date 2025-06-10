@@ -9,6 +9,7 @@ class userserializer(serializers.ModelSerializer):
 	class Meta:
 		model =CustomUser
 		fields=['id','firstname','lastname','Date_of_birth','email','phone_number','password']
+		read_only_fields=['password']
 
 
 class postserializer(serializers.ModelSerializer):
