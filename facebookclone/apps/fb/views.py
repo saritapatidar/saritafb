@@ -465,3 +465,93 @@ class postmodelviewset(viewsets.ModelViewSet):
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+
+
+
+
+from django.test import TestCase
+from django.core.exceptions import ValidationError
+from fb.models import CustomUser, UserProfile, CreatePost, Follow, FriendRequest, Comment
+
+class ModelTests(TestCase):
+
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            phone_number='1234567890',
+            email='test@example.com',
+            password='Password@123',
+            firstname='Test',
+            lastname='User'
+        )
+        self.profile = UserProfile.objects.create(user=self.user)
+
+    def test_user_creation_success(self):
+        self.assertEqual(self.user.phone_number, '1234567890')
+        self.assertTrue(self.user.check_password('Password@123'))
+
+    def test_phone_number_validation_invalid(self):
+        with self.assertRaises(ValidationError):
+            user = CustomUser(
+                phone_number='abc123',
+                email='fail@example.com',
+                password='Password@123'
+            )
+            user.clean()
+
+    def test_password_validation_too_short(self):
+        with self.assertRaises(ValidationError):
+            user = CustomUser(
+                phone_number='1234567890',
+                email='fail@example.com',
+                password='Pwd@1'
+            )
+            user.clean()
+
+    def test_user_profile_created(self):
+        self.assertEqual(self.profile.user, self.user)
+
+    def test_create_post(self):
+        post = CreatePost.objects.create(user=self.profile, content="My first post")
+        self.assertEqual(post.content, "My first post")
+        self.assertEqual(post.user, self.profile)
+
+    def test_like_post(self):
+        post = CreatePost.objects.create(user=self.profile, content="Like this post")
+        post.likes.add(self.user)
+        self.assertEqual(post.likes.count(), 1)
+        self.assertIn(self.user, post.likes.all())
+
+    def test_follow_user(self):
+        user2 = CustomUser.objects.create_user(
+            phone_number='9876543210',
+            email='other@example.com',
+            password='Password@456',
+            firstname='Other',
+            lastname='User'
+        )
+        follow = Follow.objects.create(follower=self.user, followed=user2)
+        self.assertEqual(follow.follower, self.user)
+        self.assertEqual(follow.followed, user2)
+
+    def test_friend_request(self):
+        user2 = CustomUser.objects.create_user(
+            phone_number='9998887776',
+            email='friend@example.com',
+            password='Password@456',
+            firstname='Friend',
+            lastname='Request'
+        )
+        friend_req = FriendRequest.objects.create(from_user=self.user, to_user=user2)
+        self.assertEqual(friend_req.from_user, self.user)
+        self.assertEqual(friend_req.to_user, user2)
+
+    def test_comment_and_reply(self):
+        post = CreatePost.objects.create(user=self.profile, content="Post with comments")
+        comment = Comment.objects.create(post=post, user=self.user, text="Nice post!")
+        reply = Comment.objects.create(post=post, user=self.user, parent=comment, text="Thanks!")
+        
+        self.assertEqual(comment.replies.count(), 1)
+        self.assertEqual(comment.replies.first().text, "Thanks!")
+
+
