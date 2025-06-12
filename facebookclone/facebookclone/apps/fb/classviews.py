@@ -52,17 +52,21 @@ class HomePage(LoginRequiredMixin, View):
         return redirect('home')
 
 class Signup(View):
-    def get(self, request):
+    def get(self,request):
         form = SignupForm()
         return render(request, 'fb/signup.html', {'form': form})
 
     def post(self, request):
         form = SignupForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
+            user = form.save()
             user.password = make_password(form.cleaned_data['password'])
             user.save()
-            send_mail("Test Email", "Account is created", "saritapatidar@thoughtwin.com", [user.email])
+            email=user.email
+            send_mail("Test Email",
+                      "Accound is created",
+                      "saritapatidar@thoughtwin.com",
+                       [email])
             return redirect('login')
         return render(request, 'fb/signup.html', {'form': form})
 

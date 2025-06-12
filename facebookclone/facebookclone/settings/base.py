@@ -161,12 +161,17 @@ AUTHENTICATION_BACKENDS = [
     # 'fb.backends.PhoneUsernameAuthenticationBackend',
 ]
 
+
 EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST="smtp.gmail.com"
 EMAIT_PORT=587
 EMAIL_USE_TLS=True
-EMAIL_HOST_USER=env_config.get('EMAIL_HOST_USER'),
-EMAIL_HOST_PASSWORD=env_config.get('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER="saritapatidar@thoughtwin.com"
+EMAIL_HOST_PASSWORD='toop flxa aygt fdgu'
+
+
+
+
 
 
 REST_FRAMEWORK = {
