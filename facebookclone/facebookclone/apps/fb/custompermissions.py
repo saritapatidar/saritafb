@@ -16,5 +16,4 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         
         if hasattr(obj, 'user'):  
             return obj.user == request.user or getattr(obj.user, 'user', None) == request.user
-        return obj == request.user  # For CustomUser model
-# or getattr(obj.user, 'user', None) == request.user
+        return obj == request.user  
