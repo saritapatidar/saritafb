@@ -6,7 +6,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.views import LoginView
 from .classviews import Signup,Login,Logout,HomePage,Post,LikeView,SendFriendRequest,CommentView,ShowFriendRequest
-from .classviews import Profile,ShowComment,AcceptFriendRequest,EditProfileView,DeletePost,UserPost
+from .classviews import Profile,ShowComment,AcceptFriendRequest,EditProfileView,DeletePost,UserPost,FollowersList,FollowingListView
 
 
 
@@ -22,6 +22,8 @@ urlpatterns = [
       path('send_friend_request/<int:user_id>/',SendFriendRequest.as_view(),name='send_friend_request'),
       path('accept_friend_request/<int:request_id>/',AcceptFriendRequest.as_view() ,name='accept_friend_request'), 
       path('show_friends/<int:user_id>/',ShowFriendRequest.as_view(),name='show_friends'),
+      path('followers_list/<int:user_id>/',FollowersList.as_view(),name='followers_list'),
+      path('following_list/<int:user_id>/',FollowingListView.as_view(),name='following_list'),
       path('profile/edit/',EditProfileView.as_view(),name='edit_profiles'),
       path('morecomment/<int:post_id>/',ShowComment.as_view(),name='morecomment'),
       path('deletepost/<int:post_id>/',DeletePost.as_view(), name='delete_post'),
