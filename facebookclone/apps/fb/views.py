@@ -227,3 +227,148 @@ def like_post(request, post_id):
         self.assertEqual(post_resp.status_code, 302)
         self.profile1.refresh_from_db()
         self.assertEqual(self.profile1.bio, 'Updated bio')
+
+
+
+
+
+
+
+
+
+
+
+
+from django.test import TestCase, Client
+from django.urls import reverse
+from fb.models import CustomUser, UserProfile, CreatePost, Comment, FriendRequest, Follow
+from django.core.files.uploadedfile import SimpleUploadedFile
+
+
+class SocialMediaViewTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user1 = CustomUser.objects.create_user(phone_number='111', password='pass')
+        self.user2 = CustomUser.objects.create_user(phone_number='222', password='pass')
+        self.user1_profile = UserProfile.objects.create(user=self.user1)
+        self.user2_profile = UserProfile.objects.create(user=self.user2)
+        self.login_url = reverse('login')
+        self.home_url = reverse('home')
+        self.client.login(phone_number='111', password='pass')
+
+    def test_home_page_get(self):
+        response = self.client.get(self.home_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'home.html')
+
+    def test_create_post(self):
+        response = self.client.post(self.home_url, {'content': 'Test post'})
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(CreatePost.objects.filter(content='Test post').exists())
+
+    def test_signup_view(self):
+        response = self.client.post(reverse('signup'), {
+            'firstname': 'Test',
+            'lastname': 'User',
+            'email': 'test@example.com',
+            'phone_number': '333',
+            'password': 'pass',
+            'Date_of_birth': '2000-01-01'
+        })
+        self.assertEqual(response.status_code, 200 or 302)
+
+    def test_login_view(self):
+        self.client.logout()
+        response = self.client.post(self.login_url, {'phone_number': '111', 'password': 'pass'})
+        self.assertEqual(response.status_code, 302)
+
+    def test_logout_view(self):
+        response = self.client.get(reverse('logout'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_profile_view(self):
+        url = reverse('profile', args=[self.user2.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'fb/profile.html')
+
+    def test_like_view(self):
+        post = CreatePost.objects.create(user=self.user2_profile, content='Like this')
+        response = self.client.post(reverse('like', args=[post.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(self.user1, post.likes.all())
+
+    def test_comment_view(self):
+        post = CreatePost.objects.create(user=self.user2_profile, content='Post')
+        response = self.client.post(reverse('comment', args=[post.id]), {
+            'content': 'Nice post!'
+        }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Comment.objects.filter(content='Nice post!').exists())
+
+    def test_send_friend_request(self):
+        url = reverse('send_request', args=[self.user2.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(FriendRequest.objects.filter(from_user=self.user1, to_user=self.user2).exists())
+
+    def test_accept_friend_request(self):
+        friend_request = FriendRequest.objects.create(from_user=self.user2, to_user=self.user1)
+        url = reverse('accept_request', args=[friend_request.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(FriendRequest.objects.filter(id=friend_request.id).exists())
+        self.assertTrue(Follow.objects.filter(follower=self.user1, followed=self.user2).exists())
+
+    def test_show_friend_requests(self):
+        url = reverse('show_request', args=[self.user1.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'send_request.html')
+
+    def test_followers_list(self):
+        Follow.objects.create(follower=self.user2, followed=self.user1)
+        url = reverse('followers', args=[self.user1.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(self.user2, response.context['followers'])
+
+    def test_following_list(self):
+        Follow.objects.create(follower=self.user1, followed=self.user2)
+        url = reverse('following', args=[self.user1.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(self.user2, response.context['following'])
+
+    def test_edit_profile(self):
+        url = reverse('edit_profile')
+        response = self.client.post(url, {'bio': 'Updated bio'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(UserProfile.objects.get(user=self.user1).bio, 'Updated bio')
+
+    def test_user_posts(self):
+        CreatePost.objects.create(user=self.user1_profile, content='User post')
+        response = self.client.get(reverse('user_posts'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'user_posts.html')
+
+    def test_delete_post(self):
+        post = CreatePost.objects.create(user=self.user1_profile, content='To be deleted')
+        response = self.client.post(reverse('delete_post', args=[post.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(CreatePost.objects.filter(id=post.id).exists())
+
+    def test_show_comment_page(self):
+        post = CreatePost.objects.create(user=self.user1_profile, content='Comment here')
+        response = self.client.get(reverse('show_comments', args=[post.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'morecomment.html')
+
+    def test_post_comment_from_show_page(self):
+        post = CreatePost.objects.create(user=self.user1_profile, content='Comment here')
+        response = self.client.post(reverse('show_comments', args=[post.id]), {
+            'content': 'Another comment'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Comment.objects.filter(content='Another comment').exists())
+
