@@ -372,3 +372,158 @@ class SocialMediaViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Comment.objects.filter(content='Another comment').exists())
 
+from rest_framework.test import APITestCase
+from django.urls import reverse
+from fb.models import CustomUser
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
+
+class AuthTests(APITestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            phone_number='9999999999',
+            firstname='Test',
+            lastname='User',
+            email='test@example.com',
+            password='Password@123'
+        )
+
+    def test_register_user(self):
+        url = reverse('user-register')  # replace with your actual name
+        data = {
+            "phone_number": "8888888888",
+            "firstname": "New",
+            "lastname": "User",
+            "email": "new@example.com",
+            "password": "Test@1234",
+            "confirm_password": "Test@1234",
+            "gender": "M",
+            "date_of_birth": "2000-01-01"
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 201)
+
+    def test_login_user(self):
+        url = reverse('login')
+        data = {
+            "phone_number": "9999999999",
+            "password": "Password@123"
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('access', response.data)
+
+    def test_logout_user(self):
+        refresh = RefreshToken.for_user(self.user)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('logout')
+        data = {'refresh': str(refresh)}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 200)
+from rest_framework.test import APITestCase
+from django.urls import reverse
+from fb.models import CustomUser
+from rest_framework import status
+
+class UserCRUDTests(APITestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            phone_number='8888888888',
+            firstname='Edit',
+            lastname='User',
+            email='edit@example.com',
+            password='Edit@1234'
+        )
+        self.client.force_authenticate(user=self.user)
+
+    def test_get_user_detail(self):
+        url = reverse('user-detail', kwargs={'pk': self.user.pk})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_user(self):
+        url = reverse('user-detail', kwargs={'pk': self.user.pk})
+        response = self.client.put(url, {'firstname': 'Updated'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['firstname'], 'Updated')
+
+    def test_delete_user(self):
+        url = reverse('user-detail', kwargs={'pk': self.user.pk})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)
+from rest_framework.test import APITestCase
+from django.urls import reverse
+from fb.models import CustomUser, CreatePost
+from rest_framework import status
+
+class PostTests(APITestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            phone_number='7777777777',
+            firstname='Poster',
+            lastname='User',
+            email='poster@example.com',
+            password='Poster@123'
+        )
+        self.client.force_authenticate(user=self.user)
+
+    def test_create_post(self):
+        url = reverse('post-list')
+        data = {'caption': 'Hello World'}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 201)
+
+    def test_like_post(self):
+        post = CreatePost.objects.create(user=self.user.userprofile, caption='Like me')
+        url = reverse('post-like-unlike', kwargs={'pk': post.pk})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['message'], 'Post liked')
+
+    def test_unlike_post(self):
+        post = CreatePost.objects.create(user=self.user.userprofile, caption='Unlike me')
+        post.likes.add(self.user)
+        url = reverse('post-like-unlike', kwargs={'pk': post.pk})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['message'], 'Post unliked')
+from rest_framework.test import APITestCase
+from django.urls import reverse
+from fb.models import CustomUser, CreatePost, Comment
+from rest_framework import status
+
+class CommentTests(APITestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            phone_number='6666666666',
+            firstname='Commenter',
+            lastname='User',
+            email='comment@example.com',
+            password='Comment@123'
+        )
+        self.client.force_authenticate(user=self.user)
+        self.post = CreatePost.objects.create(user=self.user.userprofile, caption='Post for comment')
+
+    def test_add_comment(self):
+        url = reverse('comment-list')
+        data = {
+            'post': self.post.id,
+            'text': 'Nice Post!'
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 201)
+
+    def test_update_comment(self):
+        comment = Comment.objects.create(user=self.user, post=self.post, text='Old')
+        url = reverse('comment-detail', kwargs={'pk': comment.pk})
+        response = self.client.put(url, {'text': 'Updated Comment'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['text'], 'Updated Comment')
+
+    def test_delete_comment(self):
+        comment = Comment.objects.create(user=self.user, post=self.post, text='To be deleted')
+        url = reverse('comment-detail', kwargs={'pk': comment.pk})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)
+
+
