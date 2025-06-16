@@ -53,13 +53,9 @@ class CustomUser(AbstractBaseUser):
     phone_number = models.CharField(max_length=12,unique=True,null=True)
     password = models.CharField(max_length=128, null=False, blank=True)
 
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True) # is_active is a boolean field that indicates whether a user account is considered active,
 
-    # is_active is a boolean field that indicates whether a user account is considered active,
-
-    is_staff = models.BooleanField(default=False)
-
-    # In Django is_staff is used to determine if a user can log in to the Django admin panel.
+    is_staff = models.BooleanField(default=False) # In Django is_staff is used to determine if a user can log in to the Django admin panel.
 
     is_superuser = models.BooleanField(default=False)
     
@@ -78,7 +74,6 @@ class CustomUser(AbstractBaseUser):
     
     def has_perm(self,perm):
         return self.is_superuser
-
 
 
 class UserProfile(models.Model):
