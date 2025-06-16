@@ -23,25 +23,32 @@ class SerializerTestCase(TestCase):
     def test_user_serializer(self):
         serializer=userserializer(instance=self.user)
         self.assertEqual(serializer.data['firstname'],'John')
+        self.assertNotEqual(serializer.data['firstname'],'Ram')
         self.assertEqual(serializer.data['phone_number'],'8827489151')
+        self.assertNotEqual(serializer.data['phone_number'],'8827489153')
         self.assertEqual(serializer.data['email'],'john@example.com')
+        self.assertNotEqual(serializer.data['email'],'ram@gmail.com')
 
 
     def test_postserializer(self):
         serializer=postserializer(instance=self.post)
         self.assertEqual(serializer.data['user'],"John")
+        self.assertNotEqual(serializer.data['user'],"john")
         self.assertEqual(serializer.data['like_count'],0)
 
     def test_parent_serializer(self):
         serializer = parentserializer(instance=self.comment)
         data = serializer.data
         self.assertEqual(data['user'], "John")
+        self.assertNotEqual(data['user'],'8827489120')
 
 
     def test_commentserializer(self):
         serializer=commentserializer(instance=self.comment)
         self.assertEqual(serializer.data['user'],'John')
+        self.assertNotEqual(serializer.data['user'],'Dsdf@123')
         self.assertEqual(len(serializer.data['replies']),1)
+        self.assertNotEqual(len(serializer.data['replies']),0)
 
 
     def test_loginserializer(self):
@@ -50,54 +57,31 @@ class SerializerTestCase(TestCase):
         self.assertTrue(serializer.is_valid())
 
 
+    # def test_registrationserializer(self):
+    #     data={'firstname':'payal','lastname':'patidar','Date_of_birth':'2000-09-12','email':'payal@gmail.com','phone_number':'9981979655','password':'Asdf@123'}
+    #     serializer=registrationserializer(data=data)
+    #     self.assertTrue(serializer.is_valid(),serializer.errors)
+    #     self.assertEqual(serializer.data['firstname'],"payal")
+    #     self.assertNotEqual(serializer.data['phone_number'],'9981979650')
+    
+
     def test_registrationserializer(self):
-        data={'firstname':'payal','lastname':'patidar','Date_of_birth':'2000-09-12','email':'payal@gmail.com','phone_number':'9981979655','password':'Asdf@123'}
-        serializer=registrationserializer(data=data)
-        self.assertTrue(serializer.is_valid(),serializer.errors)
-        self.assertEqual(serializer.data['firstname'],"payal")
-        self.assertNotEqual(serializer.data['phone_number'],'9981979650')
+        data = {
+        'firstname': 'payal',
+        'lastname': 'patidar',
+        'Date_of_birth': '2000-09-12',
+        
+        'email': 'payal@gmail.com',
+        'phone_number': '9981979655',
+        'password': 'Asdf@123'}
+        serializer = registrationserializer(data=data)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        user = serializer.save()
+        self.assertEqual(user.firstname, "payal")
+        self.assertNotEqual(user.phone_number, '9981979650')
+        self.assertNotEqual(user.password, 'Asdf@123')  
        
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#     def test_login_serializer_invalid(self):
-#         data = {'phone_number': '', 'password': ''}
-#         serializer = Loginserializer(data=data)
-#         self.assertFalse(serializer.is_valid())
-
-#     def test_registration_serializer_create(self):
-#         data = {
-#             'firstname': 'Alice',
-#             'lastname': 'Smith',
-#             'Date_of_birth': '1995-05-15',
-#             'gender': 'Female',
-#             'email': 'alice@example.com',
-#             'phone_number': '9876543210',
-#             'password': 'alicepass'
-#         }
-#         serializer = registrationserializer(data=data)
-#         self.assertTrue(serializer.is_valid(), serializer.errors)
-#         user = serializer.save()
-#         self.assertNotEqual(user.password, 'alicepass')  # Password should be hashed
-#         self.assertEqual(user.firstname, 'Alice')

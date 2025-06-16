@@ -82,6 +82,7 @@ class Login(View):
             user = authenticate(request, phone_number=phone_number, password=password)
             if user is not None:
                 login(request, user)
+                messages.success(request, 'You are logged in!')
                 return redirect('home')
             form.add_error(None, "Invalid")
         return render(request, 'fb/login.html', {'form': form})
@@ -121,9 +122,13 @@ class Profile(LoginRequiredMixin, View):
 class LikeView(LoginRequiredMixin, View):
     def post(self, request, post_id):
         post = get_object_or_404(CreatePost, id=post_id)
+        # import pdb;pdb.set_trace()
         user = request.user
-        liked = not post.likes.filter(id=user.id).exists()
+
+        liked =not post.likes.filter(id=user.id).exists()
+        # import pdb;pdb.set_trace()
         if liked:
+
             post.likes.add(user)
         else:
             post.likes.remove(user)
@@ -269,3 +274,7 @@ class ShowComment(View):
             'post': post,
             'form': form,
         })
+
+
+
+
