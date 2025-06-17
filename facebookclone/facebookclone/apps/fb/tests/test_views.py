@@ -11,6 +11,7 @@ from django.contrib.auth.hashers import check_password
 from django.test.client import RequestFactory
 from django.http import HttpRequest
 from django.contrib.auth import get_user_model
+import json 
 
 class SocialMediaViewTests(TestCase):
     def setUp(self):
@@ -76,7 +77,8 @@ class SocialMediaViewTests(TestCase):
             'Date_of_birth':'2005-09-14',
         })
         self.assertEqual(response.status_code,200)
-        # self.assertEqual(response.status_code,302)
+        # self.assertRedirects(response, reverse('login'))
+
 
     def test_login_view(self):
         self.client.logout()
@@ -144,6 +146,7 @@ class SocialMediaViewTests(TestCase):
         response=self.client.post(reverse('edit_profiles'),{'bio':'Updated bio'})
         self.assertEqual(response.status_code,302)
         self.assertEqual(UserProfile.objects.get(user=self.user1).bio,'Updated bio')
+
     
     def test_edit_profile_remove_picture(self):
         profile = UserProfile.objects.get(user=self.user1)
@@ -154,15 +157,12 @@ class SocialMediaViewTests(TestCase):
         self.assertRedirects(response, reverse('profile', args=[self.user1.id]))
     
    
-
     def test_userpost(self):
         response=self.client.get(reverse('user_posts'))
         self.assertEqual(response.status_code,200)
         self.assertTemplateUsed(response,'user_posts.html')
 
-
-    
-    
+  
     def test_delete_post_get(self):
         post = CreatePost.objects.create(user=self.user1_profile, content="Sample post")
         url = reverse('delete_post', args=[post.id])
@@ -195,7 +195,37 @@ class SocialMediaViewTests(TestCase):
         response=self.client.post(reverse('morecomment',args=[post.id]),{'text':'Another comment'})
         self.assertEqual(response.status_code,302)
         self.assertTrue(Comment.objects.filter(text='Another comment').exists())
-    
+
+    # def test_show_comment_post_invalid(self):
+    #     post = CreatePost.objects.create(user=self.user1_profile, content="comment")
+    #     url = reverse('morecomment', args=[post.id])
+    #     response = self.client.post(url, {'text': ''})
+    #     self.assertEqual(response.status_code, 302)
+    #     self.assertTemplateUsed(response, 'morecomment.html')
+    #     self.assertContains(response,'form')
+     
+    def test_comment_view_with_ajax_and_parent(self):
+        post = CreatePost.objects.create(user=self.user2_profile, content='Main post')
+        parent_comment = Comment.objects.create(user=self.user1, post=post, text='Parent comment')
+        factory = RequestFactory()
+        data = {'text': 'Reply to parent comment','parent_id': parent_comment.id}
+        request = factory.post(reverse('commen', args=[post.id]), data)
+        request.user = self.user1
+        request.META['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'  
+        response = CommentView.as_view()(request, post_id=post.id)
+        self.assertEqual(response.status_code, 200)
+        json_data=json.loads(response.content)
+        self.assertJSONEqual(response.content, {'success': True, 'comment_html': json_data['comment_html']})
+        self.assertTrue(Comment.objects.filter(text='Reply to parent comment', parent=parent_comment).exists())
+
+
+    def test_comment_view_invalid_form(self):
+        post = CreatePost.objects.create(user=self.user2_profile, content='Invalid post')
+        response = self.client.post(reverse('commen', args=[post.id]), {'text': ' '  }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(response.content, {'success': False, 'error': 'Invalid request'})
+
+ 
 
     def test_like_view_like_and_unlike(self):
         post = CreatePost.objects.create(user=self.user2_profile, content='Post for like testing')
@@ -243,6 +273,7 @@ class LoginViewTests(TestCase):
             'password': 'Asdf@123'
         })
         self.assertEqual(response.status_code, 302)
+        
         self.assertRedirects(response, reverse('home'))
 
   

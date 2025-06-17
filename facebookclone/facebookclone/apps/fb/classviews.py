@@ -35,6 +35,10 @@ from .models import UserProfile, CreatePost, CustomUser, Comment, FriendRequest,
 from .forms import ProfileForm, LoginForm, CreatePostForm, CommentForm, friends, EditProfileForm, SignupForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
+import logging
+logger = logging.getLogger(__name__)
+from .tasks import send_email_task
+
 
 
 class HomePage(LoginRequiredMixin, View):
@@ -54,29 +58,40 @@ class HomePage(LoginRequiredMixin, View):
 class Signup(View):
     def get(self,request):
         form = SignupForm()
+        logger.info('signup form is ')
         return render(request, 'fb/signup.html', {'form': form})
 
     def post(self, request):
         form = SignupForm(request.POST)
         if form.is_valid():
+            logger.info("signup form is valid")
             user = form.save()
             user.password = make_password(form.cleaned_data['password'])
             user.save()
             email=user.email
-            send_mail("Test Email",
-                      "Accound is created",
-                      "saritapatidar@thoughtwin.com",
-                       [email])
+            subject="Test Email"
+            message="Accound is created"
+            from_email="saritapatidar@thoughtwin.com"
+            recipient_list=[email]
+            # send_mail("Test Email",
+            #           "Accound is created",
+            #           "saritapatidar@thoughtwin.com",
+            #            [email])
+            send_email_task.delay(subject, message, from_email, recipient_list)
             return redirect('login')
+        # logger.warning("signup form is not valid")
         return render(request, 'fb/signup.html', {'form': form})
 
+      
 class Login(View):
     def get(self, request):
         form = LoginForm()
+        logger.info('login form ')
         return render(request, 'fb/login.html', {'form': form})
     def post(self, request):
         form = LoginForm(request.POST)
         if form.is_valid():
+            logger.info('login form is valid')
             phone_number = form.cleaned_data['phone_number']
             password = form.cleaned_data['password']
             user = authenticate(request, phone_number=phone_number, password=password)
@@ -141,16 +156,19 @@ class CommentView(LoginRequiredMixin, View):
         form = CommentForm(request.POST)
         parent_id = request.POST.get('parent_id')
         if form.is_valid():
+            logger.info("commentform is valid")
             comment = form.save(commit=False)
             comment.post = post
             comment.user = request.user
             if parent_id:
                 comment.parent = get_object_or_404(Comment, id=parent_id)
             comment.save()
+            logger.info("comment is done")
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 html = render_to_string('fb/comment_single.html', {'comment': comment}, request=request)
                 return JsonResponse({'success': True, 'comment_html': html})
             return redirect('home')
+        logger.warning("invalid request")
         return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 
 
@@ -225,8 +243,10 @@ class EditProfileView(LoginRequiredMixin, View):
             return redirect('profile', user_id=request.user.id)
         form = EditProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
+            logger.info("EditProfileForm is valid")
             form.save()
             return redirect('profile', user_id=request.user.id)
+        logger.warning("EditProfileForm is not valid")
         return render(request, 'edit_profile.html', {'form': form})
 
 
@@ -264,11 +284,14 @@ class ShowComment(View):
         form = CommentForm(request.POST, request.FILES)
 
         if form.is_valid():
+            logger.info("commentform is valid")
             new_comment = form.save(commit=False)
             new_comment.post = post
             new_comment.user = request.user
             new_comment.save()
+            logger.info("new_comment is save")
             return redirect('home')
+        logger.warning("commentform is not valid")
 
         return render(request, 'morecomment.html', {
             'post': post,
