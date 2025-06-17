@@ -85,13 +85,20 @@ class APITestCases(APITestCase):
         self.assertEqual(response.status_code,201)
 
 
+    def test_post_list_view(self):
+        response=self.client.get(reverse('post-list'))
+        self.assertEqual(response.status_code,200)
+
+    # def test_post_update_view(self):
+    #     response=self.client.put(reverse('post-detail',kwargs={'pk':self.post.pk}))
+    #     self.assertEqual(response.status_code,405)
+
 
     def test_post_delete_view(self):
         response=self.client.delete(reverse('post-detail',kwargs={'pk':self.post.pk}))
         self.assertEqual(response.status_code,204)
 
    
-
     def test_comment_create_view(self):
         url=reverse('comment-list')
         response=self.client.post(url,{'post': self.post.id, 'text': 'Another comment'})

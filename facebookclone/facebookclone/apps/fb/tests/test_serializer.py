@@ -57,14 +57,7 @@ class SerializerTestCase(TestCase):
         self.assertTrue(serializer.is_valid())
 
 
-    # def test_registrationserializer(self):
-    #     data={'firstname':'payal','lastname':'patidar','Date_of_birth':'2000-09-12','email':'payal@gmail.com','phone_number':'9981979655','password':'Asdf@123'}
-    #     serializer=registrationserializer(data=data)
-    #     self.assertTrue(serializer.is_valid(),serializer.errors)
-    #     self.assertEqual(serializer.data['firstname'],"payal")
-    #     self.assertNotEqual(serializer.data['phone_number'],'9981979650')
-    
-
+  
     def test_registrationserializer(self):
         data = {
         'firstname': 'payal',
