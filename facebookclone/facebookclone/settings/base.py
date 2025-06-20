@@ -59,6 +59,8 @@ INSTALLED_APPS = [
     # 'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'django_celery_results',
+    'django_celery_beat',
 
 ]
 
@@ -163,36 +165,12 @@ AUTHENTICATION_BACKENDS = [
     # 'fb.backends.PhoneUsernameAuthenticationBackend',
 ]
 
-
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'debug.log',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
-
-
 EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST="smtp.gmail.com"
 EMAIT_PORT=587
 EMAIL_USE_TLS=True
 EMAIL_HOST_USER="saritapatidar@thoughtwin.com"
 EMAIL_HOST_PASSWORD='toop flxa aygt fdgu'
-
-
 
 
 
@@ -231,6 +209,28 @@ sentry_sdk.init(
 )
 
 
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+
 # Celery Configuration Options
 CELERY_BROKER_URL="redis://127.0.0.1:6379/0"
 CELERY_TIMEZONE = "Asia/Kolkata"
@@ -238,4 +238,13 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
- 
+
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'send-birthday-emails-daily': {
+        'task': 'fb.tasks.send_birthday_emails',
+        'schedule': crontab(hour=8, minute=0),
+    },
+}

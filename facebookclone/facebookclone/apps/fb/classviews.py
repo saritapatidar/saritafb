@@ -31,19 +31,23 @@ from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import render_to_string
 from django.views.generic.base import RedirectView
 from django.urls import reverse_lazy
+from rest_framework.response import Response
 from .models import UserProfile, CreatePost, CustomUser, Comment, FriendRequest, Follow
 from .forms import ProfileForm, LoginForm, CreatePostForm, CommentForm, friends, EditProfileForm, SignupForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
+
+
 import logging
 logger = logging.getLogger(__name__)
-from .tasks import send_email_task
+from .tasks import send_birthday_emails
 
 
 
 class HomePage(LoginRequiredMixin, View):
     @method_decorator(never_cache)
     def get(self, request):
+        logger.info(f"{request.user}")
         posts = CreatePost.objects.all().order_by('-created_at')
         users = CustomUser.objects.exclude(id=request.user.id)
         return render(request, 'home.html', {'posts': posts, 'users': users})
@@ -52,7 +56,10 @@ class HomePage(LoginRequiredMixin, View):
         content = request.POST.get('content')
         image = request.FILES.get('image')
         if content or image:
+            logger.info(f"Post created by user {request.user}")
             CreatePost.objects.get_or_create(user=request.user.userprofile, content=content, image=image)
+        else:
+            logger.warning("Empty post")
         return redirect('home')
 
 class Signup(View):
@@ -69,17 +76,20 @@ class Signup(View):
             user.password = make_password(form.cleaned_data['password'])
             user.save()
             email=user.email
-            subject="Test Email"
-            message="Accound is created"
-            from_email="saritapatidar@thoughtwin.com"
-            recipient_list=[email]
-            # send_mail("Test Email",
-            #           "Accound is created",
-            #           "saritapatidar@thoughtwin.com",
-            #            [email])
-            send_email_task.delay(subject, message, from_email, recipient_list)
+            # subject="Test Email"
+            # message="Accound is created"
+            # from_email="saritapatidar@thoughtwin.com"
+            # recipient_list=[email]
+            send_mail("Test Email",
+                      "Accound is created",
+                      "saritapatidar@thoughtwin.com",
+                       [email])
+            # send_email_task.delay(subject, message, from_email, recipient_list)
+            # send_birthday_reminder.delay(subject, message, 'saritapatidar@thoughtwin.com', [user.email])
+            send_birthday_emails.delay()
             return redirect('login')
-        # logger.warning("signup form is not valid")
+        else:
+            logger.warning("signup form is not valid")
         return render(request, 'fb/signup.html', {'form': form})
 
       
@@ -104,6 +114,7 @@ class Login(View):
 
 class Logout(View):
     def get(self, request):
+        logger.info(f"User {request.user} logged out.")
         logout(request)
         return redirect('login')
 
@@ -115,6 +126,7 @@ class Post(RedirectView):
 class Profile(LoginRequiredMixin, View):
     def get(self, request, user_id):
         target_user = get_object_or_404(CustomUser, id=user_id)
+        logger.info(f"{request.user} is viewing profile of {target_user}")
         user_profile = UserProfile.objects.filter(user=target_user).first()
         is_following = request.user.following.filter(followed=target_user).exists()
         are_friends = is_following and target_user.following.filter(followed=request.user).exists()
@@ -141,13 +153,15 @@ class LikeView(LoginRequiredMixin, View):
         user = request.user
 
         liked =not post.likes.filter(id=user.id).exists()
-        # import pdb;pdb.set_trace()
-        if liked:
 
+        if liked:
+            logger.info(f"{user} liked post {post_id}")
             post.likes.add(user)
         else:
+            logger.info(f"{user} unliked post {post_id}")
             post.likes.remove(user)
         return JsonResponse({'liked': liked, 'likes_count': post.likes.count()})
+
 
 
 class CommentView(LoginRequiredMixin, View):
@@ -177,6 +191,7 @@ class SendFriendRequest(LoginRequiredMixin, View):
         to_user = get_object_or_404(CustomUser, id=user_id)
         if request.user != to_user and not FriendRequest.objects.filter(from_user=request.user, to_user=to_user).exists():
             FriendRequest.objects.create(from_user=request.user, to_user=to_user)
+            logger.info(f"{request.user} sent friend request to {to_user}")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
@@ -187,6 +202,7 @@ class AcceptFriendRequest(LoginRequiredMixin, View):
             Follow.objects.get_or_create(follower=request.user, followed=friend_request.from_user)
             Follow.objects.get_or_create(follower=friend_request.from_user, followed=request.user)
             friend_request.delete()
+            logger.info(f"{request.user} accepted friend request from {friend_request.from_user}")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
@@ -239,6 +255,7 @@ class EditProfileView(LoginRequiredMixin, View):
     def post(self, request):
         profile, created = UserProfile.objects.get_or_create(user=request.user)
         if 'remove_picture' in request.POST:
+            logger.info(f"{request.user} removed profile picture.")
             profile.profile_picture.delete(save=True)
             return redirect('profile', user_id=request.user.id)
         form = EditProfileForm(request.POST, request.FILES, instance=profile)
@@ -246,6 +263,7 @@ class EditProfileView(LoginRequiredMixin, View):
             logger.info("EditProfileForm is valid")
             form.save()
             return redirect('profile', user_id=request.user.id)
+
         logger.warning("EditProfileForm is not valid")
         return render(request, 'edit_profile.html', {'form': form})
 
@@ -266,6 +284,7 @@ class DeletePost(LoginRequiredMixin, View):
     def post(self, request, post_id):
         user_profile = UserProfile.objects.get(user=request.user)
         post = get_object_or_404(CreatePost, id=post_id, user=user_profile)
+        logger.info(f"User {request.user} deleted post with id {post_id}")
         post.delete()
         return redirect('user_posts')
 
@@ -297,6 +316,9 @@ class ShowComment(View):
             'post': post,
             'form': form,
         })
+
+
+
 
 
 

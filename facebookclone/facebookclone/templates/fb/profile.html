@@ -90,8 +90,10 @@
 
     .user-info h3 {
         margin-top: 15px;
-        margin-bottom: 5px;
+        margin-bottom: 10px;
         font-weight: bold;
+
+
     }
 
     .bio-text {
@@ -188,22 +190,22 @@
              class="profile-image">
 
         {% if target_user == user %}
-            <a href="{% url 'edit_profiles' %}" class="edit-icon">✏️</a>
+            <a href="{% url 'edit_profiles' %}" class="edit-icon"></a>
         {% endif %}
     </div>
+    <div>
 
-    <div class="user-info">
-    
-        <h3>{{ target_user.firstname }} {{target_user.lastname}}</h3>
-
-
+        <div class="user-info">
+            <strong>Username :</strong>{{ target_user.firstname }} {{target_user.lastname}}
+        </div>
         <div class="bio-text">
             <strong>Bio:</strong> {{ target_user.userprofile.bio|default:"No bio added yet." }}
         </div>
-
+       
         <div class="dob-text">
             <strong>Date of Birth:</strong> {{ request.user.Date_of_birth|default:"N/A" }}
         </div>
+        
         
 
         {% if target_user == user %}

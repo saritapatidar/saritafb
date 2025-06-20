@@ -81,7 +81,7 @@
 
 <main class="main-area">
     <h2>Your Posts</h2>
-    <a href="{% url 'profile' request.user.id %}" class="back-btn">Back to Profile</a>
+   
 
     <div class="posts-area">
         {% for post in posts %}
@@ -102,7 +102,10 @@
         <p class="no-posts">You have no posts yet.</p>
         {% endfor %}
     </div>
+    <a href="{% url 'profile' request.user.id %}" class="back-btn">Back to Profile</a>
+
 </main>
+
 
 </body>
 </html>
