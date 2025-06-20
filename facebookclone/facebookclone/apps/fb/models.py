@@ -88,6 +88,16 @@ class CreatePost(models.Model):
     image=models.ImageField(upload_to='post/',blank=True,null=True)
     likes = models.ManyToManyField(CustomUser, related_name='liked_posts', blank=True)
     created_at = models.DateTimeField(default=timezone.now)
+
+# class Notification(models.Model):
+#     user=models.ForeignKey(UserProfile,on_delete=models.CASCADE)
+#     message=models.CharField(max_length=300)
+#     created_at=models.DateTimeField(default=timezone.now)
+
+#     def __str__(self):
+#         return self.message
+
+
    
 
 class Follow(models.Model):
