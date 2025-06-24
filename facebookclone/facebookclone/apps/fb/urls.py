@@ -29,6 +29,7 @@ urlpatterns = [
       path('deletepost/<int:post_id>/',DeletePost.as_view(), name='delete_post'),
       path('myposts/',UserPost.as_view(), name='user_posts'),
       path('api/',include('fb.APIUrl.urls')),
+      path("accounts/", include("allauth.urls")),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

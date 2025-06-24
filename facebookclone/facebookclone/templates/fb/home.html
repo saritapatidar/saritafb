@@ -65,6 +65,7 @@
             box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
             overflow: hidden;
+
         }
 
         .post-header {
@@ -177,7 +178,7 @@
         }
 
         .button {
-            background-color: blue;
+            background-color:#2980b9;
             border: none;
             color: white;
             padding: 15px 6px;
@@ -206,12 +207,12 @@
         <i class="fab fa-facebook" style="color: #1877f2; font-size: 35px;"></i>
     </div>
     <div class="header-center">
-        <a href="{% url 'home' %}" class="btn btn-primary mt-4"><i class="fas fa-home active"  title="Home" ></i></a>
-        <a href="{% url 'show_friends' user.id %}" class="btn btn-primary mt-4"><i class="fas fa-user-friends" title="Friends"></i></a>
+        <a href="{% url 'home' %}" ><i class="fas fa-home active"  title="Home" ></i></a>
+        <a href="{% url 'show_friends' user.id %}"><i class="fas fa-user-friends"  style="color: blue;"; title="Friends"></i></a>
     </div>
     <div class="header-right">
-        <a href="{% url 'logout' %}"><i class="fas fa-sign-out" title="Logout"></i></a>
-        <a href="{% url 'profile' user.id %}"><i class="fas fa-user-circle" title="Profile"></i></a> 
+        <a href="{% url 'logout' %}"><i class="fas fa-sign-out" style="color: blue"; title="Logout"></i></a>
+        <a href="{% url 'profile' user.id %}"><i class="fas fa-user-circle" style="color: blue"; title="Profile"></i></a> 
     </div>
 </header>
 
@@ -223,14 +224,15 @@
             <form method="POST" enctype="multipart/form-data" style="padding: 15px;">
                 {% csrf_token %}
                 <textarea name="content" placeholder="What's on your mind?" rows="3" style="width: 450px;"></textarea><br>
-                <input type="file" name="image" accept="image/*" class="button"/><br>
-                <button type="submit" style="color:white; background-color:blue;">Post</button>
+                <input type="file" name="image" accept="image/*"  class="button"/><br>
+                <button type="submit" style="color:white; background-color:#2980b9;">Post</button>
             </form>
         </div>
 
         <!-- Posts Loop -->
-        {% for post in posts %}
+        {% for post in page_obj %}
         <div class="post-card">
+        
             <div class="post-header">
                 <div class="user-info">
                     <div>
@@ -239,16 +241,10 @@
                     </div>
                 </div>
             </div>
-
             <div class="post-body">
-                {% if post.content %}
-                    <p>{{ post.content }}</p>
-                {% endif %}
-                {% if post.image %}
-                    <img src="{{ post.image.url }}" alt="Post image">
-                {% endif %}
+                {% if post.content %}<p>{{ post.content }}</p>{% endif %}
+                {% if post.image %}<img src="{{ post.image.url }}" alt="Post image">{% endif %}
             </div>
-
             <div class="post-actions">
                 <button class="like-btn" data-post-id="{{ post.id }}">
                     <i class="fa-solid fa-thumbs-up"></i>
@@ -275,11 +271,39 @@
                 </form>
 
                 <a href="{% url 'morecomment' post.id %}">
-                    <button class="btn btn-primary" style="color:white; background-color: blue;">Show all comments</button>
+                    <button class="btn btn-primary" style="color:white; background-color: #2980b9;">Show all comments</button>
                 </a>
+
             </div>
         </div>
         {% endfor %}
+        <nav aria-label="Page navigation" class="mt-4">
+          <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <span class="page-link">Previous</span>
+              </li>
+            {% endif %}
+
+            <li class="page-item active">
+              <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <span class="page-link">Next</span>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
     </div>
 </main>
 <script>

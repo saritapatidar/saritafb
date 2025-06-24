@@ -7,7 +7,7 @@ from .models import Follow
 
 @admin.register(CustomUser)
 class users(admin.ModelAdmin):
-    list_display=('firstname','lastname','Date_of_birth','gender','email','phone_number')
+    list_display=('id','firstname','lastname','Date_of_birth','gender','email','phone_number')
 
 
 @admin.register(UserProfile)

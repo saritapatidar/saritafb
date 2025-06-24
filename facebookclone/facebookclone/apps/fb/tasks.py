@@ -28,4 +28,5 @@ def send_birthday_emails():
             recipient_list=[user.email],
             fail_silently=False,
         )
+    
     return "birthday emails sent."

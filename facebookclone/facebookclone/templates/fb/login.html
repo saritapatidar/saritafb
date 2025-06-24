@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load socialaccount %}
 
 {% block title %}Login | MyFacebook{% endblock %}
 
@@ -12,10 +13,24 @@
         <button type="submit" class="btn btn-primary">Log In</button>
     </form>
     <div class="mt-2">
-        <a href="{% url 'password_reset' %}">Forgot Password?</a>
+        <a href="{% url 'password_reset' %}">
+           <button type="button" style="margin-bottom: 10px;">Forgot Password?</button>
+        </a>
+    </div>
+    
+    <div style="margin-top: 6px;">
+        <a href="{% provider_login_url 'github' method='oauth2' %}">
+            <button type="button" style="margin-bottom: 10px;">Login with GitHub</button>
+        </a>
+        <br>
+        <a href="{% provider_login_url 'google'  %}">
+            <button type="button">Login with Google</button>
+        </a>
     </div>
     <div class="mt-2">
         <p>Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
     </div>
+
 </div>
 {% endblock %}
+

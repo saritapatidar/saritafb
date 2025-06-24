@@ -26,6 +26,7 @@ from rest_framework import serializers
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.decorators import action
 from rest_framework.mixins import ListModelMixin,RetrieveModelMixin,UpdateModelMixin,DestroyModelMixin
+# from fb.mypagination import Mypaginationclass
 
 # class usermodelviewset(viewsets.ModelViewSet):
 #     queryset = CustomUser.objects.all()
@@ -38,6 +39,7 @@ from rest_framework.mixins import ListModelMixin,RetrieveModelMixin,UpdateModelM
 class Usermodelviewset(GenericAPIView,ListModelMixin):
     queryset = CustomUser.objects.all()
     serializer_class = userserializer
+    
 
     def get(self,request,*args,**kwargs):
         return self.list(request,*args,**kwargs)
@@ -110,6 +112,7 @@ class Commentmodelviewset(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = commentserializer
     permission_classes = [IsOwnerOrReadOnly]
+    # page_class=Mypaginationclass
     def perform_create(self,serializer):
     	serializer.save(user=self.request.user)
 
@@ -166,3 +169,11 @@ class LogoutAPI(APIView):
 
 
 
+
+
+
+# Ov23liA41nP3IVW6IRPs
+
+
+# security key
+# 8be6ab0b3a129a8580f109b1a52c90b52245dc1e

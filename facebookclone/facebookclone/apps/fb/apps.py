@@ -5,4 +5,4 @@ class FbConfig(AppConfig):
     name = 'fb'
 
     def ready(self):
-        import fb.signals
+        import fb.signals  

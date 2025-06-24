@@ -102,9 +102,11 @@
         <p class="no-posts">You have no posts yet.</p>
         {% endfor %}
     </div>
-    <a href="{% url 'profile' request.user.id %}" class="back-btn">Back to Profile</a>
+    
 
 </main>
+<a href="{% url 'profile' request.user.id %}" class="back-btn">Back to Profile</a>
+
 
 
 </body>

@@ -52,6 +52,7 @@ class CustomUser(AbstractBaseUser):
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=12,unique=True,null=True)
     password = models.CharField(max_length=128, null=False, blank=True)
+    last_login = models.DateTimeField(blank=True, null=True)
 
     is_active = models.BooleanField(default=True) # is_active is a boolean field that indicates whether a user account is considered active,
 
@@ -62,7 +63,7 @@ class CustomUser(AbstractBaseUser):
     USERNAME_FIELD='phone_number'
     REQUIRED_FIELDS=['email']
     objects = UserManagercustom()
-    last_login=None
+    # last_login=None
 
     def clean(self):
         validate_phone_number(self.phone_number)
@@ -74,6 +75,10 @@ class CustomUser(AbstractBaseUser):
     
     def has_perm(self,perm):
         return self.is_superuser
+
+
+    def __str__(self):
+        return f"{self.firstname}{self.lastname}"
 
 
 class UserProfile(models.Model):
@@ -117,5 +122,10 @@ class Comment(models.Model):
     parent = models.ForeignKey('self', null=True, blank=True, related_name='replies', on_delete=models.CASCADE)
     text = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
+
+    
+
+
+
 
     
