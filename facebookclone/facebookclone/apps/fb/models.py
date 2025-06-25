@@ -59,6 +59,8 @@ class CustomUser(AbstractBaseUser):
     is_staff = models.BooleanField(default=False) # In Django is_staff is used to determine if a user can log in to the Django admin panel.
 
     is_superuser = models.BooleanField(default=False)
+
+    is_permium=models.BooleanField(default=False)
     
     USERNAME_FIELD='phone_number'
     REQUIRED_FIELDS=['email']
