@@ -7,8 +7,7 @@ from django.conf.urls.static import static
 from django.contrib.auth.views import LoginView
 from .classviews import Signup,Login,Logout,HomePage,Post,LikeView,SendFriendRequest,CommentView,ShowFriendRequest
 from .classviews import Profile,ShowComment,AcceptFriendRequest,EditProfileView,DeletePost,UserPost,FollowersList,FollowingListView
-
-
+from .classviews import CreateCheckoutSessionView,UpgradeSuccessView,TemplateView
 
 urlpatterns = [
       path('signup/',Signup.as_view(),name='signup'),
@@ -30,6 +29,11 @@ urlpatterns = [
       path('myposts/',UserPost.as_view(), name='user_posts'),
       path('api/',include('fb.APIUrl.urls')),
       path("accounts/", include("allauth.urls")),
+      path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
+      path('upgrade-success/', UpgradeSuccessView.as_view(), name='upgrade-success'),
+      path('cancel/', TemplateView.as_view(template_name="cancel.html"), name='cancel'),
+
+      
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

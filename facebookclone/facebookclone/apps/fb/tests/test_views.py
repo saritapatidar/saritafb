@@ -1,5 +1,4 @@
 
-from django.test import TestCase,Client
 from fb.models import CustomUser
 from fb.classviews import *
 from django.urls import reverse
@@ -12,6 +11,14 @@ from django.test.client import RequestFactory
 from django.http import HttpRequest
 from django.contrib.auth import get_user_model
 import json 
+from django.contrib.sites.models import Site
+from allauth.socialaccount.models import SocialApp
+from django.test import TestCase
+from django.urls import reverse
+from django.contrib.sites.models import Site
+from allauth.socialaccount.models import SocialApp
+from fb.models import CustomUser as User  # Change if needed
+
 
 class SocialMediaViewTests(TestCase):
     def setUp(self):
@@ -80,10 +87,10 @@ class SocialMediaViewTests(TestCase):
         # self.assertRedirects(response, reverse('login'))
 
 
-    def test_login_view(self):
-        self.client.logout()
-        response = self.client.post(self.login_url, {'phone_number': '8827489123', 'password': 'Asdf@123'})
-        self.assertEqual(response.status_code, 200)
+    # def test_login_view(self):
+    #     self.client.logout()
+    #     response = self.client.post(self.login_url, {'phone_number': '8827489123', 'password': 'Asdf@123'})
+    #     self.assertEqual(response.status_code, 200)
 
     
 
@@ -256,17 +263,32 @@ class SocialMediaViewTests(TestCase):
         self.assertNotIn(self.user1, post.likes.all())
 
 
-
- 
-    
-    
-
-
-
-
 User = get_user_model()
 class LoginViewTests(TestCase):
     def setUp(self):
+        site, _ = Site.objects.get_or_create(
+            domain="127.0.0.1:8000", defaults={"name": "localhost"}
+        )
+
+        # Step 2: Create dummy SocialApp for GitHub
+        github_app = SocialApp.objects.create(
+            provider="github",
+            name="GitHub Login",
+            client_id="github-client-id",
+            secret="github-secret",
+        )
+        github_app.sites.add(site)
+
+        # Step 3: Create dummy SocialApp for Google
+        google_app = SocialApp.objects.create(
+            provider="google",
+            name="Google Login",
+            client_id="google-client-id",
+            secret="google-secret",
+        )
+        google_app.sites.add(site)
+
+        # Step 4: Create a test user
         self.login_url = reverse('login')
         self.user = User.objects.create_user(
             phone_number='8827489123',
@@ -281,7 +303,7 @@ class LoginViewTests(TestCase):
     def test_login_get(self):
         response = self.client.get(self.login_url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response,'fb/login.html')
+        self.assertTemplateUsed(response, 'fb/login.html')
         self.assertContains(response, 'form')
 
     def test_login_post_valid(self):
@@ -290,18 +312,121 @@ class LoginViewTests(TestCase):
             'password': 'Asdf@123'
         })
         self.assertEqual(response.status_code, 302)
-        
         self.assertRedirects(response, reverse('home'))
 
-  
     def test_login_post_invalid(self):
         response = self.client.post(self.login_url, {
-        'phone_number': '8827489123',
-        'password': 'wrongpassword'
-    })
+            'phone_number': '8827489123',
+            'password': 'wrongpassword'
+        })
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'fb/login.html')  
-        form = response.context['form']
+        self.assertTemplateUsed(response, 'fb/login.html')
+        self.assertIn('form', response.context)
+
+
+
+
+ 
+    
+    
+
+
+
+
+
+# class LoginViewTests(TestCase):
+    # def setUp(self):
+    #     self.login_url = reverse('login')
+    #     self.user = User.objects.create_user(
+    #         phone_number='8827489123',
+    #         password='Asdf@123',
+    #         firstname='Test',
+    #         lastname='User',
+    #         email='test@example.com',
+    #         Date_of_birth='2000-01-01',
+    #         gender='female'
+    #     )
+
+    # def test_login_get(self):
+    #     response = self.client.get(self.login_url)
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertTemplateUsed(response,'fb/login.html')
+    #     self.assertContains(response, 'form')
+
+    # def test_login_post_valid(self):
+    #     response = self.client.post(self.login_url, {
+    #         'phone_number': '8827489123',
+    #         'password': 'Asdf@123'
+    #     })
+    #     self.assertEqual(response.status_code, 302)
+        
+    #     self.assertRedirects(response, reverse('home'))
+
+  
+    # def test_login_post_invalid(self):
+    #     response = self.client.post(self.login_url, {
+    #     'phone_number': '8827489123',
+    #     'password': 'wrongpassword'
+    # })
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertTemplateUsed(response, 'fb/login.html')  
+    #     form = response.context['form']
+    
+
+
+
+    # def setUp(self):
+    #     # Create site object for test environment
+    #     site, _ = Site.objects.get_or_create(
+    #         domain="127.0.0.1:8000", defaults={"name": "localhost"}
+    #     )
+
+    #     # Add dummy SocialApp to avoid template crash
+    #     social_app = SocialApp.objects.create(
+    #         provider="github",  # or 'google' if you use Google login
+    #         name="GitHub Login",
+    #         client_id="dummy-id",
+    #         secret="dummy-secret",
+    #     )
+    #     social_app.sites.add(site)
+
+    #     self.login_url = reverse('login')
+    #     self.user = User.objects.create_user(
+    #         phone_number='8827489123',
+    #         password='Asdf@123',
+    #         firstname='Test',
+    #         lastname='User',
+    #         email='test@example.com',
+    #         Date_of_birth='2000-01-01',
+    #         gender='female'
+    #     )
+
+    # def test_login_get(self):
+    #     response = self.client.get(self.login_url)
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertTemplateUsed(response, 'fb/login.html')
+    #     self.assertContains(response, 'form')
+
+    # def test_login_post_valid(self):
+    #     response = self.client.post(self.login_url, {
+    #         'phone_number': '8827489123',
+    #         'password': 'Asdf@123'
+    #     })
+    #     self.assertEqual(response.status_code, 302)
+    #     self.assertRedirects(response, reverse('home'))
+
+    # def test_login_post_invalid(self):
+    #     response = self.client.post(self.login_url, {
+    #         'phone_number': '8827489123',
+    #         'password': 'wrongpassword'
+    #     })
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertTemplateUsed(response, 'fb/login.html')
+    #     self.assertIn('form', response.context)
+
+
+
+
 
 
 

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Success</title>
+</head>
+<body style="text-align:center; padding: 50px;">
+    <h1>Payment Successful!</h1>
+    <p>Congratulations! Your account has been upgraded to <strong>Premium</strong>.</p>
+    <a href="{% url 'profile' user_id %}">
+        <button style="padding:10px 20px; background-color:green; color:white; border:none; border-radius:5px; font-size:16px;">
+            Go to My Profile
+        </button>
+    </a>
+</body>
+</html>

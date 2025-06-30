@@ -9,54 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #f0f2f5;
-            font-family: Arial, sans-serif;
-        }
 
-        .fb-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fff;
-            padding: 10px 20px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 999;
-        }
-
-        .header-left input {
-            padding: 5px 10px;
-            margin-left: 10px;
-            border-radius: 20px;
-            border: none;
-            background: #f0f2f5;
-        }
-
-        .header-center i,
-        .header-right i {
-            font-size: 22px;
-            color: #65676b;
-            cursor: pointer;
-            margin: 0 10px;
-        }
-
-        .header-center i.active {
-            color: #1877f2;
-        }
-
-        .main-area {
-            display: flex;
-            justify-content: center;
-            margin-top: 30px;
-        }
-
- 
-
+<style>
     .profile-card {
         max-width: 500px;
         margin: auto;
@@ -90,10 +44,8 @@
 
     .user-info h3 {
         margin-top: 15px;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
         font-weight: bold;
-
-
     }
 
     .bio-text {
@@ -154,6 +106,12 @@
         padding: 4px 8px;
         font-size: 14px;
     }
+
+    .premium-message {
+        color: green;
+        font-weight: bold;
+        margin-top: 10px;
+    }
 </style>
 </head>
 <header class="fb-header">
@@ -193,25 +151,61 @@
             <a href="{% url 'edit_profiles' %}" class="edit-icon"></a>
         {% endif %}
     </div>
-    <div>
-        <div class="bio-text">
-            <strong>Username :</strong>{{ target_user.firstname }} {{target_user.lastname}}
+
+    
+        <div class ="bio-text">
+            <strong>Username:</strong> {{ target_user.firstname }}
+            <p>{{target_user.firstname}}</p>
+            <p>{{target_user.is_premium }}</p>
+
+            <p>{{request.user.firstname}}</p>
+            <p>{{request.user.is_premium}}</p>
+            
+            {% if target_user.is_premium %}         
+                {%  if target_user.id == user.id  %}
+                    <div class="premium-message">
+                        ✔️ You are enjoying Premium Features
+                    </div>
+                {% else %}
+                    <div class="premium-message">✔️ Premium User</div>
+                {% endif %}
+            {% endif %}
+
+            
+          
+
+           
+            {% if target_user.id == user.id and target_user.is_premium %}
+                <span style="color: dodgerblue; font-size: 18px;">✔️</span>
+            {% endif %}
+        
+
+        {% if target_user.id == user.id and target_user.is_premium %}
+            <div class="premium-message">
+                You are enjoying Premium Features 
+            </div>
+        {% endif %}
         </div>
+
         <div class="bio-text">
             <strong>Bio:</strong> {{ target_user.userprofile.bio|default:"No bio added yet." }}
         </div>
-       
+
         <div class="dob-text">
             <strong>Date of Birth:</strong> {{ request.user.Date_of_birth|default:"N/A" }}
         </div>
-        
-        
 
         {% if target_user == user %}
             <a href="{% url 'edit_profiles' %}"><button style="color:blue; background-color: yellowgreen;"> Edit Profile</button></a>
         {% endif %}
-        </br>
-    </div>
+
+        {% if target_user.id == request.user.id and not target_user.is_premium %}
+            <form action="{% url 'create-checkout-session' %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success mt-3" style="color:blue; background-color:yellowgreen;">Get Verified (₹199)</button>
+            </form>
+        {% endif %}
+  
 
     <div class="follow-box mt-3">
         <!-- Followers -->
@@ -219,7 +213,7 @@
             {{ followers_count }}<br><span style="font-weight: normal;">Followers</span>
             <ul id="followers-list" style="display: none;">
                 {% for follower in followers %}
-                    <li>{{ follower.firstname }} {{follower.lastname}}</li>
+                    <li>{{ follower.firstname }}</li>
                 {% empty %}
                     <li>No followers yet.</li>
                 {% endfor %}
@@ -231,19 +225,17 @@
             {{ following_count }}<br><span style="font-weight: normal;">Following</span>
             <ul id="following-list" style="display: none;">
                 {% for followee in following %}
-                    <li>{{ followee.firstname }} {{followee.lastname}}</li>
+                    <li>{{ followee.firstname }}</li>
                 {% empty %}
                     <li>Not following anyone.</li>
                 {% endfor %}
             </ul>
         </div>
-        
     </div>
     <a href="{% url 'home' %}"><button style="color:blue; background-color: yellowgreen; margin-right: 10px gap: 20px; ">Back to Home</button></a><br></br>
 
     <a href="{% url 'user_posts' %}"><button style="color:blue; background-color: yellowgreen; margin-right: 10px gap: 20px;">Show All Posts</button></a>
 </div>
-
 
 
 <script>
@@ -259,7 +251,5 @@
 </script>
 
 
+
 {% endblock %}
-
-
-

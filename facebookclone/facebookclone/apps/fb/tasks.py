@@ -30,3 +30,18 @@ def send_birthday_emails():
         )
     
     return "birthday emails sent."
+
+
+
+# @shared_task
+# def send_thanks_email_on_reply():
+#     send_mail(
+#             subject="Thanks for your Reply !",
+#             message=f"Thanks you {instance.user.firstname}",
+#             from_email='saritapatidar@thoughtwin.com',
+#             recipient_list=[user.email],
+#             fail_silently=False)
+
+
+
+

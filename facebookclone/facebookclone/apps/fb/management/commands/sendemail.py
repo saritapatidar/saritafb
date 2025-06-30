@@ -10,8 +10,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         now = timezone.now()
-        six_months_ago = now - timedelta(days=180)
-        one_year_ago = now - timedelta(days=365)
+        six_months_ago = now - timedelta(days=1/1440)
+        one_year_ago = now - timedelta(days=15)
 
         six_months_inactive_users = CustomUser.objects.filter(last_login__lt=six_months_ago, last_login__gte=one_year_ago)
 
