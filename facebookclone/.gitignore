@@ -1,3 +1,4 @@
 .env
 .setting.ini
 */migrations/
+*/debug.log/
