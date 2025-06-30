@@ -2522,3 +2522,6 @@ File /home/tw/.env/fbenv/lib/python3.8/site-packages/django/contrib/sessions/mig
 File /home/tw/.env/fbenv/lib/python3.8/site-packages/django_celery_beat/migrations/0002_auto_20161118_0346.py first seen with mtime 1750408554.9371507
 File /home/tw/.env/fbenv/lib/python3.8/site-packages/django/contrib/auth/migrations/0012_alter_user_first_name_max_length.py first seen with mtime 1747033757.839028
 File /home/tw/.env/fbenv/lib/python3.8/site-packages/django_celery_beat/migrations/0016_alter_crontabschedule_timezone.py first seen with mtime 1750408554.9411507
+File /home/tw/fbclone/facebookclone/facebookclone/settings/base.py previous mtime: 1751279154.8498762, current mtime: 1751279812.293761
+/home/tw/fbclone/facebookclone/facebookclone/settings/base.py notified as changed. Signal results: [(<function template_changed at 0x7f4437689d30>, None), (<function translation_file_changed at 0x7f4437689ee0>, None)].
+/home/tw/fbclone/facebookclone/facebookclone/settings/base.py changed, reloading.
