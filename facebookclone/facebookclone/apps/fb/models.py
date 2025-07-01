@@ -53,7 +53,7 @@ class CustomUser(AbstractBaseUser):
     phone_number = models.CharField(max_length=12,unique=True,null=True)
     password = models.CharField(max_length=128, null=False, blank=True)
     last_login = models.DateTimeField(blank=True, null=True)
-    is_permium=models.BooleanField(default=False)
+    is_premium=models.BooleanField(default=False)
 
     is_active = models.BooleanField(default=True) # is_active is a boolean field that indicates whether a user account is considered active,
 

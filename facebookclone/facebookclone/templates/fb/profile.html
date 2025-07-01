@@ -155,12 +155,8 @@
     
         <div class ="bio-text">
             <strong>Username:</strong> {{ target_user.firstname }}
-            <p>{{target_user.firstname}}</p>
-            <p>{{target_user.is_premium }}</p>
+            <p>{{target_user.is_premium}}</p>
 
-            <p>{{request.user.firstname}}</p>
-            <p>{{request.user.is_premium}}</p>
-            
             {% if target_user.is_premium %}         
                 {%  if target_user.id == user.id  %}
                     <div class="premium-message">
