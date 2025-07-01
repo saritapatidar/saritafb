@@ -47,43 +47,43 @@ class FollowForm(forms.Form):
         unique_together = ('follower','followed')
 
 
-# class EditProfileForm(forms.ModelForm):
-#         class Meta:
-#             model = UserProfile
-#             fields = ('bio','profile_picture') 
-
-
-
 class EditProfileForm(forms.ModelForm):
-    first_name = forms.CharField(required=False)
-    last_name = forms.CharField(required=False)
-    date_of_birth = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
-    phone_number = models.CharField(max_length=12,unique=True,null=True)
+        class Meta:
+            model = UserProfile
+            fields = ('bio','profile_picture')
 
 
-    class Meta:
-        model = UserProfile
-        fields = ['bio', 'profile_picture']
 
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-        if self.user:
-            self.fields['first_name'].initial = self.user.firstname
-            self.fields['last_name'].initial = self.user.lastname
-            self.fields['date_of_birth'].initial = self.user.Date_of_birth
+# class EditProfileForm(forms.ModelForm):
+#     first_name = forms.CharField(required=False)
+#     last_name = forms.CharField(required=False)
+#     date_of_birth = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+#     phone_number = models.CharField(max_length=12,unique=True,null=True)
+
+
+#     class Meta:
+#         model = UserProfile
+#         fields = ['bio', 'profile_picture']
+
+#     def __init__(self, *args, **kwargs):
+#         self.user = kwargs.pop('user', None)
+#         super().__init__(*args, **kwargs)
+#         if self.user:
+#             self.fields['first_name'].initial = self.user.firstname
+#             self.fields['last_name'].initial = self.user.lastname
+#             self.fields['date_of_birth'].initial = self.user.Date_of_birth
             
 
-    def save(self, commit=True):
-        profile = super().save(commit=False)
-        if commit:
-            profile.save()
-            self.user.firstname = self.cleaned_data['first_name']
-            self.user.lastname = self.cleaned_data['last_name']
-            self.user.Date_of_birth = self.cleaned_data['date_of_birth']
+#     def save(self, commit=True):
+#         profile = super().save(commit=False)
+#         if commit:
+#             profile.save()
+#             self.user.firstname = self.cleaned_data['first_name']
+#             self.user.lastname = self.cleaned_data['last_name']
+#             self.user.Date_of_birth = self.cleaned_data['date_of_birth']
             
-            self.user.save()
-        return profile
+#             self.user.save()
+#         return profile
 
 
 

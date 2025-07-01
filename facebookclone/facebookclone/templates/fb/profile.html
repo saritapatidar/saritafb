@@ -154,10 +154,9 @@
 
     
         <div class ="bio-text">
-            <strong>Username:</strong> {{ target_user.firstname }}
-            <p>{{target_user.is_premium}}</p>
-
-            {% if target_user.is_premium %}         
+            <strong>Username:</strong> {{ target_user.firstname }} {{target_user.lastname}}
+            
+            <!-- {% if target_user.is_premium %}         
                 {%  if target_user.id == user.id  %}
                     <div class="premium-message">
                         ✔️ You are enjoying Premium Features
@@ -165,8 +164,8 @@
                 {% else %}
                     <div class="premium-message">✔️ Premium User</div>
                 {% endif %}
-            {% endif %}
-
+            {% endif %} -->
+ 
             
           
 
@@ -180,7 +179,7 @@
             <div class="premium-message">
                 You are enjoying Premium Features 
             </div>
-        {% endif %}
+        {% endif %} 
         </div>
 
         <div class="bio-text">

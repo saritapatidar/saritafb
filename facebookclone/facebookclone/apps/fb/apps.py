@@ -6,3 +6,12 @@ class FbConfig(AppConfig):
 
     def ready(self):
         import fb.signals  
+
+
+
+# class MyAppConfig(AppConfig):
+#     name = 'fb'
+
+#     def ready(self):
+#         from allauth.account.models import EmailAddress  # ✅ Correct
+#         # now use it safely
