@@ -10,7 +10,7 @@ import os, sys
 from datetime import timedelta
 import sentry_sdk
 from decouple import Config as env_config, RepositoryEnv
-from decouple import Config
+# from decouple import Config
 # DOTENV_FILE = '/home/tw/fbclone/facebookclone/.env'
 # env_config = Config(RepositoryEnv(DOTENV_FILE))
 # config = Config(RepositoryEnv('.env')) 
@@ -18,8 +18,8 @@ from decouple import Config
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
-SECRET_KEY = env_config.get('SECRET_KEY')
-DEBUG = env_config.get('DEBUG', cast=bool)
+SECRET_KEY = env_config('SECRET_KEY')
+DEBUG = env_config('DEBUG', cast=bool)
 # ALLOWED_HOSTS = ['*','d4a1-122-168-174-222.ngrok-free.app']
 ALLOWED_HOSTS = ['*', 'ac2c-122-168-174-222.ngrok-free.app']
 CSRF_TRUSTED_ORIGINS = [
