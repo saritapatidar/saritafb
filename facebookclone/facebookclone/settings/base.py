@@ -11,9 +11,9 @@ from datetime import timedelta
 import sentry_sdk
 from decouple import Config as env_config, RepositoryEnv
 from decouple import Config
-DOTENV_FILE = '/home/tw/fbclone/facebookclone/.env'
-env_config = Config(RepositoryEnv(DOTENV_FILE))
-config = Config(RepositoryEnv('.env')) 
+# DOTENV_FILE = '/home/tw/fbclone/facebookclone/.env'
+# env_config = Config(RepositoryEnv(DOTENV_FILE))
+# config = Config(RepositoryEnv('.env')) 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
