@@ -18,14 +18,15 @@ from decouple import Config as env_config, RepositoryEnv
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
-SECRET_KEY = env_config('SECRET_KEY')
-DEBUG = env_config('DEBUG', cast=bool)
+
 # ALLOWED_HOSTS = ['*','d4a1-122-168-174-222.ngrok-free.app']
 ALLOWED_HOSTS = ['*', 'ac2c-122-168-174-222.ngrok-free.app']
 CSRF_TRUSTED_ORIGINS = [
     "https://ac2c-122-168-174-222.ngrok-free.app"
 ]
 
+SECRET_KEY = config_obj('SECRET_KEY')
+DEBUG = config_obj('DEBUG', cast=bool)
 
 
 
