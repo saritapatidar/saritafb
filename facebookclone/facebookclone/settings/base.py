@@ -9,8 +9,8 @@ from pathlib import Path
 import os, sys
 from datetime import timedelta
 import sentry_sdk
-from decouple import Config , RepositoryEnv
-
+from decouple import Config as env_config, RepositoryEnv
+from decouple import Config
 DOTENV_FILE = '/home/tw/fbclone/facebookclone/.env'
 env_config = Config(RepositoryEnv(DOTENV_FILE))
 config = Config(RepositoryEnv('.env')) 
@@ -27,24 +27,23 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 
+
+
 try:
     from decouple import Config, RepositoryEnv
 
+   
     local_env = os.path.join(BASE_DIR, ".env")
+   
     render_secret_env = "/etc/secrets/.env"
 
+    
     if os.path.exists(local_env):
         env_config = Config(RepositoryEnv(local_env))
     elif os.path.exists(render_secret_env):
         env_config = Config(RepositoryEnv(render_secret_env))
-    else:
-        env_config = config  # fallback to Render's environment vars
-
 except Exception as e:
     print("ENV LOAD ERROR:", e)
-    env_config = config  # fallback
-
-
 
 AUTH_USER_MODEL = 'fb.CustomUser'
 LOGIN_URL = 'login'
