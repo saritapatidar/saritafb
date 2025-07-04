@@ -178,24 +178,24 @@ sentry_sdk.init(
     send_default_pii=True,
 )
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'debug.log',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'file': {
+#             'level': 'DEBUG',
+#             'class': 'logging.FileHandler',
+#             'filename': 'debug.log',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }
 
 # Celery
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
@@ -218,16 +218,7 @@ STRIPE_PUBLICE_KEY = env_config.get('STRIPE_PUBLICE_KEY')
 STRIPE_SECRET_KEY = env_config.get('STRIPE_SECRET_KEY')
 
 
-# SOCIALACCOUNT_PROVIDERS = {
-#     'facebook': {
-#         'APP': {
-#             'APP_ID': '646738365046398',
-#             'App secret':'91a8c886eeeb17c90c1f2c3bc0884207',
-            
-#             'key': ''
-#         }
-#     }
-# }
+
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -275,14 +266,7 @@ CHANNEL_LAYERS = {
 }
 
 
-# App_ID="701373756208530"
-# App_secret="f326db14c959dadfbadf4e3ba0c64f0e"
 
-
-# 1750001252300120
-
-
-# 02815d4503db50057cfbd0be13eb504f
 
 
 # https://d4a1-122-168-174-222.ngrok-free.app/accounts/login/
