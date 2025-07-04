@@ -13,6 +13,7 @@ from decouple import Config, RepositoryEnv
 
 DOTENV_FILE = '/home/tw/fbclone/facebookclone/.env'
 env_config = Config(RepositoryEnv(DOTENV_FILE))
+config = Config(RepositoryEnv('.env')) 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
@@ -26,8 +27,10 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 
+
 AUTH_USER_MODEL = 'fb.CustomUser'
 LOGIN_URL = 'login'
+
 
 INSTALLED_APPS = [
     'channels',
@@ -270,3 +273,13 @@ CHANNEL_LAYERS = {
 
 
 # https://d4a1-122-168-174-222.ngrok-free.app/accounts/login/
+
+
+
+
+
+
+
+
+
+
