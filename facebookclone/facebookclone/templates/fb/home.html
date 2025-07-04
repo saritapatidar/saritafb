@@ -460,5 +460,34 @@
     });
 </script>
 
+
+<script>
+    const socket = new WebSocket('ws://' + window.location.host + '/ws/notifications/');
+
+    socket.onopen = function () {
+        console.log("WebSocket connection established.");
+    };
+
+    socket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        alert(data.message);  
+    };
+
+    socket.onerror = function (error) {
+        console.error("WebSocket error:", error);
+    };
+
+    socket.onclose = function () {
+        console.warn("WebSocket connection closed.");
+    };
+</script>
+
+
+
 </body>
 </html>
+
+
+
+
+

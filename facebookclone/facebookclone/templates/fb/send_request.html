@@ -31,6 +31,7 @@
 {% if target_user == user %}
     <div id="users-list">
         <h4>All Registered Users</h4>
+        <a href="{% url 'home' %}"><button style="color:whitesmoke; background-color: blue; margin-right: 10px gap: 20px; ">Back to Home</button></a><br></br>
 
         {% for u in users %}
         <div class="user-item">
@@ -39,14 +40,14 @@
                 {% if u.id in sent_request_ids %}
                     <button class="btn btn-secondary btn-sm" style="color:whitesmoke; background-color:blue;" disabled>Request Sent</button>
                 {% elif u.id in received_request_dict %}
-                    <a href="{% url 'accept_friend_request' received_request_dict|get_item:u.id %}" class="btn btn-success btn-sm"><button style="color:white; backgroud-color: blue;">Accept </button> </a>
+                    <a href="{% url 'accept_friend_request' received_request_dict|get_item:u.id %}" class="btn btn-success btn-sm"><button style="color:white; backgroud-color: green;">Accept </button> </a>
                 {% else %}
-                    <a href="{% url 'send_friend_request' u.id %}" class="btn btn-outline-primary btn-sm"><button style="color:white; background-color: blue;"> Send Request </button> </a>
+                    <a href="{% url 'send_friend_request' u.id %}" class="btn btn-outline-primary btn-sm"><button style="color:white; background-color:green;"> Send Request </button> </a>
                 {% endif %}
             </div>
         </div>
         {% endfor %}
 
-       <a href="{% url 'home' %}"><button style="color:whitesmoke; background-color: blue; margin-right: 10px gap: 20px; ">Back to Home</button></a><br></br>
+       
     </div>
 {% endif %}

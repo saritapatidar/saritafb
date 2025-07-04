@@ -19,11 +19,18 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
 SECRET_KEY = env_config.get('SECRET_KEY')
 DEBUG = env_config.get('DEBUG', cast=bool)
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['*','d4a1-122-168-174-222.ngrok-free.app']
+ALLOWED_HOSTS = ['*', 'ac2c-122-168-174-222.ngrok-free.app']
+CSRF_TRUSTED_ORIGINS = [
+    "https://ac2c-122-168-174-222.ngrok-free.app"
+]
+
+
 AUTH_USER_MODEL = 'fb.CustomUser'
 LOGIN_URL = 'login'
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,14 +51,20 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
 
     'drf_yasg',
+   
 ]
+
+ASGI_APPLICATION = 'facebookclone.asgi.application'  
+
 
 SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',  
     'allauth.account.middleware.AccountMiddleware',
@@ -112,6 +125,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
 MEDIA_URL = 'media/'
 MEDIA_ROOT = Path.joinpath(BASE_DIR, 'media')
 
@@ -203,12 +217,13 @@ CELERY_BEAT_SCHEDULE = {
 STRIPE_PUBLICE_KEY = env_config.get('STRIPE_PUBLICE_KEY')
 STRIPE_SECRET_KEY = env_config.get('STRIPE_SECRET_KEY')
 
-# Allauth GitHub
+
 # SOCIALACCOUNT_PROVIDERS = {
-#     'github': {
+#     'facebook': {
 #         'APP': {
-#             'client_id': 'Ov23liA41nP3IVW6IRPs',
-#             'secret': 'f2610c60136c6e82f14327f3a7bd4b0b809d1ae6',
+#             'APP_ID': '646738365046398',
+#             'App secret':'91a8c886eeeb17c90c1f2c3bc0884207',
+            
 #             'key': ''
 #         }
 #     }
@@ -248,3 +263,26 @@ CACHES = {
         'LOCATION': str(BASE_DIR / 'cache'),  
     }
 }
+
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
+
+
+# App_ID="701373756208530"
+# App_secret="f326db14c959dadfbadf4e3ba0c64f0e"
+
+
+# 1750001252300120
+
+
+# 02815d4503db50057cfbd0be13eb504f
+
+
+# https://d4a1-122-168-174-222.ngrok-free.app/accounts/login/

@@ -41,12 +41,8 @@ from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.core.paginator import Paginator
 from django.views.decorators.cache import cache_page
-
-
-
-
-import logging
-logger = logging.getLogger(__name__)
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from .tasks import send_birthday_emails
 import stripe
 from django.conf import settings 
@@ -54,9 +50,6 @@ from django.conf import settings
 # stripe.api_key = 'sk_test_51Re8H3PYWASMvughug4zD3uRy5q2Qg9CefzagdFPUrLstRFcIJcFK5Rnqmzd6CWL6jZ1ShM9MISvheeb60o4Irbm00etQLg56u'
 
 stripe.api_key=settings.STRIPE_SECRET_KEY
-
-import logging
-logger = logging.getLogger(__name__)
 
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -69,13 +62,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 class HomePage(LoginRequiredMixin, View):
-
     @method_decorator(never_cache)
     def get(self, request):
-        logger.info(f"{request.user} accessed home page")
+        logger.info(f"{request.user}")
         
         posts_list = CreatePost.objects.all().order_by('-created_at')
-        paginator = Paginator(posts_list, 5)  # 5 posts per page
+        paginator = Paginator(posts_list, 5) 
 
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -92,50 +84,23 @@ class HomePage(LoginRequiredMixin, View):
         if content or image:
             logger.info(f"Post created by user {request.user}")
             CreatePost.objects.create(user=request.user.userprofile, content=content, image=image)
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)("notifications",
+                {"type": "send_notification",
+                "message": f"{request.user.firstname} is created a new posts!"}
+            )
         else:
             logger.warning(f"Empty post attempt by user {request.user}")
 
-        # After saving, fetch posts & users again to render updated page
+        
         posts_list = CreatePost.objects.all().order_by('-created_at')
         paginator = Paginator(posts_list, 5)
 
-        page_number = request.GET.get('page') or 1  # default to page 1 after post
+        page_number = request.GET.get('page') or 1  
         page_obj = paginator.get_page(page_number)
         users = CustomUser.objects.exclude(id=request.user.id)
 
         return render(request, 'home.html', {'page_obj': page_obj, 'users': users})
-
-# class HomePage(LoginRequiredMixin, View):
-#     @method_decorator(never_cache)
-   
-
-#     def get(self, request):
-#         logger.info(f"{request.user}")
-        
-#         posts_list = CreatePost.objects.all().order_by('-created_at')
-#         print(f"Total posts: {posts_list.count()}")
-
-#         paginator = Paginator(posts_list, 5)  
-
-#         page_number = request.GET.get('page')
-#         posts = paginator.get_page(page_number)
-#         print(f"Posts on page {page_number}: {posts.object_list.count()}")
-   
-
-#         users = CustomUser.objects.exclude(id=request.user.id)
-#         return render(request, 'home.html', {'page_obj': page_obj, 'users': users})
-        
-#     def post(self, request):
-        
-#         content = request.POST.get('content')
-#         image = request.FILES.get('image')
-#         if content or image:
-#             logger.info(f"Post created by user {request.user}")
-#             CreatePost.objects.get_or_create(user=request.user.userprofile, content=content, image=image)
-#         else:
-#             logger.warning("Empty post")
-#         return render(request, 'home.html', {'page_obj': posts, 'users': users})
-
 
 
 class Signup(View):

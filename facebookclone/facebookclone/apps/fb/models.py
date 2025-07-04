@@ -98,16 +98,7 @@ class CreatePost(models.Model):
     likes = models.ManyToManyField(CustomUser, related_name='liked_posts', blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
-# class Notification(models.Model):
-#     user=models.ForeignKey(UserProfile,on_delete=models.CASCADE)
-#     message=models.CharField(max_length=300)
-#     created_at=models.DateTimeField(default=timezone.now)
-
-#     def __str__(self):
-#         return self.message
-
-
-   
+  
 
 class Follow(models.Model):
     follower = models.ForeignKey(CustomUser, related_name='following', on_delete=models.CASCADE)
@@ -124,6 +115,8 @@ class Comment(models.Model):
     post = models.ForeignKey(CreatePost, on_delete=models.CASCADE, related_name="comments")
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     parent = models.ForeignKey('self', null=True, blank=True, related_name='replies', on_delete=models.CASCADE)
+    # 'self'=  refers to the current model (Category)
+    #  we will used self becouse it is take refrace of the same table 
     text = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
 
@@ -132,4 +125,10 @@ class Comment(models.Model):
 
 
 
-    
+# class Notification(models.Model):
+#     user=models.ForeignKey(UserProfile,on_delete=models.CASCADE)
+#     message=models.CharField(max_length=300)
+#     created_at=models.DateTimeField(default=timezone.now)
+
+#     def __str__(self):
+#         return self.message

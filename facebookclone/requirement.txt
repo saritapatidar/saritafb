@@ -1,3 +1,4 @@
+allauth==0.0.1
 amqp==5.3.1
 asgiref==3.8.1
 async-timeout==5.0.1
@@ -25,6 +26,7 @@ djangorestframework==3.15.2
 djangorestframework-simplejwt==5.3.1
 drf-yasg==1.21.10
 Faker==35.2.2
+gunicorn==23.0.0
 idna==3.10
 inflection==0.5.1
 kombu==5.5.4
@@ -60,3 +62,4 @@ uritemplate==4.1.1
 urllib3==2.2.3
 vine==5.1.0
 wcwidth==0.2.13
+whitenoise==6.7.0

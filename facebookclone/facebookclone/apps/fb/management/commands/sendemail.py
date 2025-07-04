@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         now = timezone.now()
-        six_months_ago = now - timedelta(days=1/1440)
+        six_months_ago = now - timedelta(days=5/1440)
         one_year_ago = now - timedelta(days=15)
 
         six_months_inactive_users = CustomUser.objects.filter(last_login__lt=six_months_ago, last_login__gte=one_year_ago)
@@ -19,7 +19,7 @@ class Command(BaseCommand):
             if user.email:
                 send_mail(
                     subject='We miss you at Facebook!',
-                    message=f"Hi {user.firstname},\n\nWe've noticed you haven't logged in for a while. Are you still interested in Facebook?\n\nCome back and see what your friends are up to!",
+                    message=f"Hi {user.firstname},\n\nWe've noticed you haven't logged in for a while. Are you still interested in Facebook?\n\nCome back and see what your friends are up to!\n\n If you are not login then we will delete your accounts on 15 days!",
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[user.email],
                     fail_silently=False

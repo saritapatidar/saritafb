@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"rel="stylesheet"/>
+
 
 <style>
     .profile-card {
@@ -155,23 +157,10 @@
     
         <div class ="bio-text">
             <strong>Username:</strong> {{ target_user.firstname }} {{target_user.lastname}}
-            
-            <!-- {% if target_user.is_premium %}         
-                {%  if target_user.id == user.id  %}
-                    <div class="premium-message">
-                        ✔️ You are enjoying Premium Features
-                    </div>
-                {% else %}
-                    <div class="premium-message">✔️ Premium User</div>
-                {% endif %}
-            {% endif %} -->
  
             
-          
-
-           
             {% if target_user.id == user.id and target_user.is_premium %}
-                <span style="color: dodgerblue; font-size: 18px;">✔️</span>
+               <i class="fas fa-check-circle" style="color: blue; font-size: 18px;"></i>
             {% endif %}
         
 

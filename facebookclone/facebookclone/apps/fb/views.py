@@ -1,4 +1,5 @@
 from django.shortcuts import render,redirect
+from django.views import View
 from django.http.response import HttpResponse,HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -57,9 +58,7 @@ def home_page(request):
         {
             'posts': posts,
             'users': users,
-            'users': users,
-            # 'sent_request_ids': sent_request_ids,
-            # 'received_request_dict': received_request_dict,
+            'users': users,       
             
         }
     )
@@ -87,6 +86,10 @@ def signup_page(request):
     return render(request, 'fb/signup.html',{'form': form})
 
 
+
+
+
+
 def login_page(request):
     if request.method == 'POST':
         form = forms.LoginForm(request.POST)
@@ -107,6 +110,7 @@ def login_page(request):
         form = forms.LoginForm()
     
     return render(request, 'fb/login.html', {'form': form})
+
 
 
 def logout_user(request):
@@ -342,6 +346,12 @@ def delete_post(request, post_id):
         return render(request, 'confirm_delete.html', {'post': post})
     else:
         return redirect('login')
+
+
+
+
+
+
 
 
 
