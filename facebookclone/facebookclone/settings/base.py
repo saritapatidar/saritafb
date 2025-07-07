@@ -26,7 +26,7 @@ try:
 except:
     from decouple import config as env_config
 
-    env_config = config
+    # env_config = config
 
 SECRET_KEY = env_config.get('SECRET_KEY')
 DEBUG = env_config.get('DEBUG', cast=bool)
