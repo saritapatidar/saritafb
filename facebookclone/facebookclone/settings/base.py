@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'django_celery_beat',
     'django.contrib.sites',
-    'channels',
+   
 
     'allauth',
     'allauth.account',
@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',
 
     'drf_yasg',
+    'channels'
 ]
 
 SITE_ID = 1
@@ -145,6 +146,14 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/home/'
 
 
+# sudo apt update
+# sudo apt install postgresql postgresql-contrib -y
+# sudo systemctl start postgresql
+# sudo systemctl enable postgresql
+# sudo systemctl status postgresql
+
+
+
 
 
 AUTHENTICATION_BACKENDS = (
@@ -188,24 +197,24 @@ sentry_sdk.init(
     send_default_pii=True,
 )
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'debug.log',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'file': {
+#             'level': 'DEBUG',
+#             'class': 'logging.FileHandler',
+#             'filename': 'debug.log',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }
 
 # Celery
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
@@ -271,4 +280,15 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
         'LOCATION': str(BASE_DIR / 'cache'),  
     }
+}
+
+
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
 }
