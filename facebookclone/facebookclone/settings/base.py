@@ -28,8 +28,8 @@ except:
 
     # env_config = config
 
-SECRET_KEY = env_config.get('SECRET_KEY')
-DEBUG = env_config.get('DEBUG', cast=bool)
+SECRET_KEY = env_config('SECRET_KEY')
+DEBUG = env_config('DEBUG', cast=bool)
 
 ALLOWED_HOSTS = ['*', 'ac2c-122-168-174-222.ngrok-free.app']
 CSRF_TRUSTED_ORIGINS = [
@@ -111,11 +111,11 @@ WSGI_APPLICATION = 'facebookclone.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env_config.get('DB_NAME'),
-        'USER': env_config.get('DB_USER'),
-        'PASSWORD': env_config.get('DB_PASSWORD'),
-        'HOST': env_config.get('DB_HOST'),
-        'PORT': env_config.get('DB_PORT'),
+        'NAME': env_config('DB_NAME'),
+        'USER': env_config('DB_USER'),
+        'PASSWORD': env_config('DB_PASSWORD'),
+        'HOST': env_config('DB_HOST'),
+        'PORT': env_config('DB_PORT'),
     }
 }
 
@@ -220,8 +220,8 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 # Stripe
-STRIPE_PUBLICE_KEY = env_config.get('STRIPE_PUBLICE_KEY')
-STRIPE_SECRET_KEY = env_config.get('STRIPE_SECRET_KEY')
+STRIPE_PUBLICE_KEY = env_config('STRIPE_PUBLICE_KEY')
+STRIPE_SECRET_KEY = env_config('STRIPE_SECRET_KEY')
 
 # Allauth GitHub
 # SOCIALACCOUNT_PROVIDERS = {
@@ -237,8 +237,8 @@ STRIPE_SECRET_KEY = env_config.get('STRIPE_SECRET_KEY')
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
-            'client_id': env_config.get('client_id'),
-            'secret': env_config.get('secret'),
+            'client_id': env_config('client_id'),
+            'secret': env_config('secret'),
             'key': ''
         }
     }
