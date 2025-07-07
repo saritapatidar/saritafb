@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'django_celery_beat',
     'django.contrib.sites',
+    'channels',
 
     'allauth',
     'allauth.account',
@@ -84,6 +85,7 @@ MIDDLEWARE = [
    
 
 ]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 ROOT_URLCONF = 'facebookclone.urls'
 

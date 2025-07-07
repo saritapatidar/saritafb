@@ -5,6 +5,7 @@ async-timeout==5.0.1
 billiard==4.2.1
 celery==5.5.3
 certifi==2025.4.26
+channels==4.0.0
 cffi==1.17.1
 charset-normalizer==3.4.2
 click==8.1.8
