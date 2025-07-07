@@ -9,49 +9,39 @@ from pathlib import Path
 import os, sys
 from datetime import timedelta
 import sentry_sdk
-from decouple import Config as env_config, RepositoryEnv
-# from decouple import Config
+from decouple import Config, RepositoryEnv
+
 # DOTENV_FILE = '/home/tw/fbclone/facebookclone/.env'
 # env_config = Config(RepositoryEnv(DOTENV_FILE))
-# config = Config(RepositoryEnv('.env')) 
 
+# BASE_DIR = Path(__file__).resolve().parent.parent.parent
+# sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
 
-# ALLOWED_HOSTS = ['*','d4a1-122-168-174-222.ngrok-free.app']
+try:
+    DOTENV_FILE = '/home/tw/fbclone/facebookclone/.env'
+    env_config = Config(RepositoryEnv(DOTENV_FILE))
+except:
+    from decouple import config as env_config
+
+    env_config = config
+
+SECRET_KEY = env_config.get('SECRET_KEY')
+DEBUG = env_config.get('DEBUG', cast=bool)
+
 ALLOWED_HOSTS = ['*', 'ac2c-122-168-174-222.ngrok-free.app']
 CSRF_TRUSTED_ORIGINS = [
     "https://ac2c-122-168-174-222.ngrok-free.app"
 ]
-
-SECRET_KEY = config_obj('SECRET_KEY')
-DEBUG = config_obj('DEBUG', cast=bool)
-
-
-
-try:
-    from decouple import Config, RepositoryEnv
-
-   
-    local_env = os.path.join(BASE_DIR, ".env")
-   
-    render_secret_env = "/etc/secrets/.env"
-
-    
-    if os.path.exists(local_env):
-        env_config = Config(RepositoryEnv(local_env))
-    elif os.path.exists(render_secret_env):
-        env_config = Config(RepositoryEnv(render_secret_env))
-except Exception as e:
-    print("ENV LOAD ERROR:", e)
-
 AUTH_USER_MODEL = 'fb.CustomUser'
 LOGIN_URL = 'login'
 
 
+
+
 INSTALLED_APPS = [
-    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -75,11 +65,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',
 
     'drf_yasg',
-   
 ]
-
-ASGI_APPLICATION = 'facebookclone.asgi.application'  
-
 
 SITE_ID = 1
 
@@ -146,7 +132,6 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
 MEDIA_URL = 'media/'
 MEDIA_ROOT = Path.joinpath(BASE_DIR, 'media')
 
@@ -199,24 +184,24 @@ sentry_sdk.init(
     send_default_pii=True,
 )
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'file': {
-#             'level': 'DEBUG',
-#             'class': 'logging.FileHandler',
-#             'filename': 'debug.log',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['file'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-# }
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
 
 # Celery
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
@@ -238,8 +223,16 @@ CELERY_BEAT_SCHEDULE = {
 STRIPE_PUBLICE_KEY = env_config.get('STRIPE_PUBLICE_KEY')
 STRIPE_SECRET_KEY = env_config.get('STRIPE_SECRET_KEY')
 
-
-
+# Allauth GitHub
+# SOCIALACCOUNT_PROVIDERS = {
+#     'github': {
+#         'APP': {
+#             'client_id': 'Ov23liA41nP3IVW6IRPs',
+#             'secret': 'f2610c60136c6e82f14327f3a7bd4b0b809d1ae6',
+#             'key': ''
+#         }
+#     }
+# }
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -275,29 +268,3 @@ CACHES = {
         'LOCATION': str(BASE_DIR / 'cache'),  
     }
 }
-
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
-    },
-}
-
-
-
-
-
-# https://d4a1-122-168-174-222.ngrok-free.app/accounts/login/
-
-
-
-
-
-
-
-
-
-
