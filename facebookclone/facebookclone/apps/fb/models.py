@@ -51,7 +51,7 @@ class CustomUser(AbstractBaseUser):
     )
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=12,unique=True,null=True)
-    password = models.CharField(max_length=128, null=False, blank=True)
+    password = models.CharField(max_length=128,null=False, blank=True)
     last_login = models.DateTimeField(blank=True, null=True)
     is_premium=models.BooleanField(default=False)
 

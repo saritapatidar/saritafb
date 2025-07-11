@@ -7,7 +7,16 @@
     <h2>Create a new account</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.firstname.label_tag }} {{ form.firstname }}
+        {{ form.lastname.label_tag }} {{ form.lastname }}
+        {{ form.Date_of_birth.label_tag }} {{ form.Date_of_birth }}
+        {{ form.gender.label_tag }} {{ form.gender }}
+        {{ form.email.label_tag }} {{ form.email }}
+        {{ form.phone_number.label_tag }} {{ form.phone_number }}
+
+        {{ form.password.label_tag }} {{ form.password }}
+        <small>(you can write only 8 characters)</small> 
+            
         <button type="submit">Sign Up</button>
     </form>
 
@@ -19,3 +28,6 @@
     </div>
 </div>
 {% endblock %}
+
+
+

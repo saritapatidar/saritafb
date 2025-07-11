@@ -61,13 +61,19 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+
+        
+
+
+
 class HomePage(LoginRequiredMixin, View):
     @method_decorator(never_cache)
     def get(self, request):
         logger.info(f"{request.user}")
         
         posts_list = CreatePost.objects.all().order_by('-created_at')
-        paginator = Paginator(posts_list, 5) 
+        paginator = Paginator(posts_list, 5)
 
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -80,27 +86,36 @@ class HomePage(LoginRequiredMixin, View):
     def post(self, request):
         content = request.POST.get('content')
         image = request.FILES.get('image')
-        
+
         if content or image:
             logger.info(f"Post created by user {request.user}")
-            CreatePost.objects.create(user=request.user.userprofile, content=content, image=image)
+            
+          
+            profile, created = UserProfile.objects.get_or_create(user=request.user)
+            
+            CreatePost.objects.create(user=profile, content=content, image=image)
+
+            # Send notification
             channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)("notifications",
-                {"type": "send_notification",
-                "message": f"{request.user.firstname} is created a new posts!"}
+            async_to_sync(channel_layer.group_send)(
+                "notifications",
+                {
+                    "type": "send_notification",
+                    "message": f"{request.user.firstname} created a new post!"
+                }
             )
         else:
             logger.warning(f"Empty post attempt by user {request.user}")
 
-        
         posts_list = CreatePost.objects.all().order_by('-created_at')
         paginator = Paginator(posts_list, 5)
 
-        page_number = request.GET.get('page') or 1  
+        page_number = request.GET.get('page') or 1
         page_obj = paginator.get_page(page_number)
         users = CustomUser.objects.exclude(id=request.user.id)
 
         return render(request, 'home.html', {'page_obj': page_obj, 'users': users})
+
 
 
 class Signup(View):
@@ -235,6 +250,16 @@ class SendFriendRequest(LoginRequiredMixin, View):
             logger.info(f"{request.user} sent friend request to {to_user}")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
+        
+class CancelFriendRequest(LoginRequiredMixin, View):
+    def get(self, request, user_id):
+        to_user = get_object_or_404(CustomUser, id=user_id)
+        friend_request = FriendRequest.objects.filter(from_user=request.user, to_user=to_user).first()
+        if friend_request:
+            friend_request.delete()
+            logger.info(f"{request.user} cancelled friend request to {to_user}")
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+
 
 class AcceptFriendRequest(LoginRequiredMixin, View):
     def get(self, request, request_id):
@@ -245,6 +270,7 @@ class AcceptFriendRequest(LoginRequiredMixin, View):
             friend_request.delete()
             logger.info(f"{request.user} accepted friend request from {friend_request.from_user}")
         return redirect(request.META.get('HTTP_REFERER', '/'))
+
 
 
 class ShowFriendRequest(LoginRequiredMixin, View):

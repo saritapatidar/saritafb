@@ -20,21 +20,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
 
-try:
-    DOTENV_FILE = '/home/tw/fbclone/facebookclone/.env'
-    env_config = Config(RepositoryEnv(DOTENV_FILE))
-except:
-    from decouple import config as env_config
+# try:
+#     DOTENV_FILE = '/home/tw/fbclone/facebookclone/.env'
+#     env_config = Config(RepositoryEnv(DOTENV_FILE))
+# except:
+#     from decouple import config as env_config
 
-    # env_config = config
+#     env_config = config
 
-SECRET_KEY = env_config('SECRET_KEY')
-DEBUG = env_config('DEBUG', cast=bool)
+# # SECRET_KEY = env_config('SECRET_KEY')
+# DEBUG = env_config('DEBUG', cast=bool)
 
-ALLOWED_HOSTS = ['*', 'ac2c-122-168-174-222.ngrok-free.app']
-CSRF_TRUSTED_ORIGINS = [
-    "https://ac2c-122-168-174-222.ngrok-free.app"
-]
+# ALLOWED_HOSTS = ['*', 'ac2c-122-168-174-222.ngrok-free.app']
+# CSRF_TRUSTED_ORIGINS = [
+#     "https://ac2c-122-168-174-222.ngrok-free.app"
+# ]
 AUTH_USER_MODEL = 'fb.CustomUser'
 LOGIN_URL = 'login'
 
@@ -86,7 +86,6 @@ MIDDLEWARE = [
    
 
 ]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 ROOT_URLCONF = 'facebookclone.urls'
 
@@ -111,16 +110,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'facebookclone.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env_config('DB_NAME'),
-        'USER': env_config('DB_USER'),
-        'PASSWORD': env_config('DB_PASSWORD'),
-        'HOST': env_config('DB_HOST'),
-        'PORT': env_config('DB_PORT'),
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': env_config('DB_NAME'),
+#         'USER': env_config('DB_USER'),
+#         'PASSWORD': env_config('DB_PASSWORD'),
+#         'HOST': env_config('DB_HOST'),
+#         'PORT': env_config('DB_PORT'),
+#     }
+# }
 
 AUTH_PASSWORD_VALIDATORS = [
     { 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator' },
@@ -145,14 +144,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/home/'
 
-
-# sudo apt update
-# sudo apt install postgresql postgresql-contrib -y
-# sudo systemctl start postgresql
-# sudo systemctl enable postgresql
-# sudo systemctl status postgresql
-
-
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 
@@ -161,7 +153,7 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
@@ -233,8 +225,8 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 # Stripe
-STRIPE_PUBLICE_KEY = env_config('STRIPE_PUBLICE_KEY')
-STRIPE_SECRET_KEY = env_config('STRIPE_SECRET_KEY')
+# STRIPE_PUBLICE_KEY = env_config('STRIPE_PUBLICE_KEY')
+# STRIPE_SECRET_KEY = env_config('STRIPE_SECRET_KEY')
 
 # Allauth GitHub
 # SOCIALACCOUNT_PROVIDERS = {
@@ -247,15 +239,15 @@ STRIPE_SECRET_KEY = env_config('STRIPE_SECRET_KEY')
 #     }
 # }
 
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'APP': {
-            'client_id': env_config('client_id'),
-            'secret': env_config('secret'),
-            'key': ''
-        }
-    }
-}
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'APP': {
+#             'client_id': env_config('client_id'),
+#             'secret': env_config('secret'),
+#             'key': ''
+#         }
+#     }
+# }
 
 
 
@@ -292,3 +284,17 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

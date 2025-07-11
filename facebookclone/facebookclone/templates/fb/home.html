@@ -222,6 +222,7 @@
         <!-- Post Creation -->
         <div class="post-card mb-4">
             <form method="POST" enctype="multipart/form-data" style="padding: 15px;">
+               
                 {% csrf_token %}
                 <textarea name="content" placeholder="What's on your mind?" rows="3" style="width: 450px;"></textarea><br>
                 <input type="file" name="image" accept="image/*"  class="button"/><br>

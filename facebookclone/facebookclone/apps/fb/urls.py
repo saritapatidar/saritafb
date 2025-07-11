@@ -5,7 +5,7 @@ from fb import classviews
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.views import LoginView
-from .classviews import Signup,Login,Logout,HomePage,Post,LikeView,SendFriendRequest,CommentView,ShowFriendRequest
+from .classviews import Signup,Login,Logout,HomePage,Post,LikeView,SendFriendRequest,CommentView,ShowFriendRequest,CancelFriendRequest
 from .classviews import Profile,ShowComment,AcceptFriendRequest,EditProfileView,DeletePost,UserPost,FollowersList,FollowingListView
 from .classviews import CreateCheckoutSessionView,UpgradeSuccessView,TemplateView
 
@@ -32,6 +32,8 @@ urlpatterns = [
       path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
       path('upgrade-success/', UpgradeSuccessView.as_view(), name='upgrade-success'),
       path('cancel/', TemplateView.as_view(template_name="cancel.html"), name='cancel'),
+      path('friends/cancel/<int:user_id>/', CancelFriendRequest.as_view(), name='cancel_friend_request'),
+
 
       
 

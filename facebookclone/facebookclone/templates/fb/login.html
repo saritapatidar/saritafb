@@ -27,9 +27,13 @@
             <button type="submit" class="btn btn-danger" style="margin-bottom: 10px;">Login with Google</button>
         </form>
 
-        <form action="{% provider_login_url 'facebook' method='oauth2' %}" method="get">
-            <button type="submit" class="btn btn-primary">Login with Facebook</button>
+
+        <form action="{% provider_login_url 'facebook' %}" method="get">
+            <button type="submit" class="btn btn-primary" style="margin-bottom: 10px;">Login with facebook</button>
         </form>
+
+
+
     </div>
 
       
